@@ -1,0 +1,167 @@
+﻿@model QuanLyThueXe.Models.Xe
+
+@{
+    ViewData["Title"] = "Chi tiết xe - " + Model.TenXe;
+
+    // Xử lý lấy ảnh chính
+    var anhChinh = Model.HinhAnhs?.FirstOrDefault(h => h.IsAnhChinh)?.DuongDanAnh
+                   ?? Model.HinhAnhs?.FirstOrDefault()?.DuongDanAnh
+                   ?? "https://images.unsplash.com/photo-1558981806-ec527fa84c39?q=80&w=600&auto=format&fit=crop";
+
+    // Tính điểm trung bình đánh giá (nếu có)
+    double avgRating = (Model.DanhGias != null && Model.DanhGias.Any())
+                       ? Model.DanhGias.Average(d => d.SoSao) : 0;
+}
+
+<div class="container-fluid py-2">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <a asp-action="Index" class="text-muted text-decoration-none small d-inline-block mb-2" style="transition: color 0.2s;">
+                <i class="fa-solid fa-arrow-left me-1"></i> Quay lại danh sách
+            </a>
+            <h2 class="fw-bold text-white mb-0">@Model.TenXe &bull; @Model.BienSo</h2>
+        </div>
+
+        <form asp-action="Delete" asp-route-id="@Model.MaXe" method="post" onsubmit="return confirm('CẢNH BÁO: Xóa xe sẽ làm mất dữ liệu vĩnh viễn.\nHệ thống sẽ tự động chặn nếu xe này đang có hợp đồng.\nBạn có chắc chắn muốn tiếp tục?');" style="margin: 0;">
+            <button type="submit" class="btn btn-outline-danger fw-bold">
+                <i class="fa-solid fa-trash me-1"></i> Xóa xe này
+            </button>
+        </form>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <div class="mb-3 rounded-3 overflow-hidden" style="height: 400px; background-color: #1a1a1a;">
+                <img src="@anhChinh" class="w-100 h-100" style="object-fit: cover;" alt="@Model.TenXe" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1558981806-ec527fa84c39?q=80&w=600&auto=format&fit=crop';">
+            </div>
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="dashboard-card p-3 h-100 d-flex flex-column justify-content-center">
+                        <small class="text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">NĂM SẢN XUẤT</small>
+                        <h5 class="text-white fw-bold mb-0">@Model.NamSanXuat</h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dashboard-card p-3 h-100 d-flex flex-column justify-content-center">
+                        <small class="text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">PHONG CÁCH</small>
+                        <h5 class="text-white fw-bold mb-0">@(Model.PhongCach?.TenPhongCach ?? "N/A")</h5>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="dashboard-card p-3 h-100 d-flex flex-column justify-content-center" style="border: 1px solid rgba(255,122,0,0.2);">
+                        <small class="text-muted text-uppercase mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">GIÁ THUÊ/NGÀY</small>
+                        <h5 class="text-orange fw-bold mb-0">@Model.GiaThueNgay.ToString("N0") VNĐ</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start border-bottom border-secondary pb-3 mb-4">
+                <div>
+                    <small class="text-white d-block mb-2 fw-bold">Trạng thái hiện tại</small>
+                    @if (Model.TrangThai == "BaoDuong")
+                    {
+                        <span class="badge bg-transparent border border-danger text-danger px-3 py-2 rounded-pill"><i class="fa-solid fa-circle me-1" style="font-size: 8px;"></i> Bảo dưỡng</span>
+                    }
+                    else if (Model.TrangThai == "DangThue")
+                    {
+                        <span class="badge bg-transparent border border-warning text-warning px-3 py-2 rounded-pill"><i class="fa-solid fa-circle me-1" style="font-size: 8px;"></i> Đang thuê</span>
+                    }
+                    else if (Model.TrangThai == "NgungHoatDong")
+                    {
+                        <div class="status-badge-full" style="background-color: rgba(255,255,255,0.05); color: #666; border: 1px dashed #444;">
+                            <i class="fa-solid fa-eye-slash me-1"></i> Ngừng hoạt động
+                        </div>
+                    }
+                    else
+                    {
+                        <span class="badge bg-transparent border border-success text-success px-3 py-2 rounded-pill"><i class="fa-solid fa-circle me-1" style="font-size: 8px;"></i> Còn trống</span>
+                    }
+                </div>
+                <div class="text-end">
+                    <small class="text-white d-block mb-2 fw-bold">Đánh giá</small>
+                    <h5 class="text-white fw-bold mb-0">
+                        <i class="fa-solid fa-star text-warning me-1"></i> @(avgRating > 0 ? avgRating.ToString("0.0") : "Chưa có")
+                    </h5>
+                </div>
+            </div>
+
+            <h5 class="text-white fw-bold mb-3">Mô tả</h5>
+            <div class="text-muted mb-4 pe-2" style="line-height: 1.6; max-height: 250px; overflow-y: auto;">
+                @if (!string.IsNullOrWhiteSpace(Model.MoTa))
+                {
+                    @Html.Raw(Model.MoTa.Replace("\n", "<br/>"))
+                }
+                else
+                {
+                    <i>Chiếc xe này chưa có lời mô tả nào.</i>
+                }
+            </div>
+
+            <div class="d-flex gap-3 mt-auto">
+                <a asp-action="Edit" asp-route-id="@Model.MaXe" class="btn btn-outline-secondary text-white flex-grow-1 py-2 fw-bold border-secondary" style="background: rgba(255,255,255,0.05);">Chỉnh sửa</a>
+                <a href="#" class="btn btn-warning flex-grow-1 py-2 fw-bold text-dark"><i class="fa-solid fa-file-contract me-1"></i> Xem Hợp Đồng</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-card mt-2">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold text-white mb-0">Lịch sử thuê xe này</h5>
+            <button class="btn btn-sm btn-outline-secondary border-0"><i class="fa-solid fa-filter-list fs-5"></i></button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0">
+                <thead>
+                    <tr class="text-muted small text-uppercase" style="border-bottom: 1px solid #2A2A2A;">
+                        <th class="pb-3 border-0" style="letter-spacing: 0.5px;">TÊN KHÁCH</th>
+                        <th class="pb-3 border-0" style="letter-spacing: 0.5px;">NGÀY THUÊ</th>
+                        <th class="pb-3 border-0" style="letter-spacing: 0.5px;">TRẠNG THÁI</th>
+                        <th class="pb-3 border-0 text-end" style="letter-spacing: 0.5px;">MÃ HĐ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.HopDongs != null && Model.HopDongs.Any())
+                    {
+                        foreach (var hd in Model.HopDongs.OrderByDescending(h => h.NgayTao).Take(5))
+                        {
+                            <tr class="align-middle border-secondary">
+                                <td class="py-3 text-white">@(hd.KhachHang != null ? hd.KhachHang.HoTen : "Khách vãng lai")</td>
+                                <td class="py-3 text-muted">
+                                    @hd.NgayTao.ToString("dd/MM/yyyy") @(hd.NgayTraThucTe.HasValue ? " - " + hd.NgayTraThucTe.Value.ToString("dd/MM/yyyy") : "")
+                                </td>
+                                <td class="py-3">
+                                    @if (hd.TrangThai == "DaTra" || hd.TrangThai == "HoanTat")
+                                    {
+                                        <span class="badge bg-secondary text-light px-2 py-1"><i class="fa-solid fa-circle me-1" style="font-size: 6px;"></i> Hoàn tất</span>
+                                    }
+                                    else if (hd.TrangThai == "DangThue")
+                                    {
+                                        <span class="badge bg-warning text-dark px-2 py-1"><i class="fa-solid fa-circle me-1" style="font-size: 6px;"></i> Đang thuê</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info text-dark px-2 py-1">@hd.TrangThai</span>
+                                    }
+                                </td>
+                                <td class="py-3 text-muted text-end">#HD-@hd.MaHopDong</td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">
+                                <i class="fa-solid fa-file-invoice mb-2 fs-3 opacity-50"></i>
+                                <p class="mb-0">Chưa có lịch sử thuê xe nào.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
