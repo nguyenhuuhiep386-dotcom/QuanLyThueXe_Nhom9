@@ -1,0 +1,190 @@
+﻿@model IEnumerable<QuanLyThueXe.Models.HopDong>
+
+@{
+    ViewData["Title"] = "Quản lý Hợp đồng";
+}
+
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-white mb-0">Quản lý Hợp đồng</h3>
+        <a asp-action="Create" class="btn fw-bold px-4 py-2 text-dark" style="background-color: #FF7A00; border-radius: 8px;">
+            + Tạo Hợp đồng Mới
+        </a>
+    </div>
+
+    <div class="dashboard-card p-4 mb-4" style="border-radius: 12px; background-color: #1E1E1E; border: 1px solid #2A2A2A;">
+        <form asp-action="Index" method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small text-muted fw-bold">Trạng thái</label>
+                <select name="trangThai" class="form-select bg-dark border-secondary text-white p-2">
+                    <option value="">Tất cả</option>
+                    <option value="ChoXacNhan">Chờ xác nhận</option>
+                    <option value="DangThue">Đang thuê</option>
+                    <option value="HoanThanh">Đã hoàn thành</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted fw-bold">Từ ngày</label>
+                <input type="date" name="tuNgay" class="form-control bg-dark border-secondary text-white p-2" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small text-muted fw-bold">Đến ngày</label>
+                <input type="date" name="denNgay" class="form-control bg-dark border-secondary text-white p-2" />
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-outline-secondary text-white w-100 p-2" style="background-color: #2A2A2A; border: none;">
+                    Lọc kết quả
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="dashboard-card p-0 overflow-hidden" style="border-radius: 12px; background-color: #1E1E1E; border: 1px solid #2A2A2A;">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0 align-middle">
+                <thead>
+                    <tr class="text-muted small text-uppercase" style="border-bottom: 1px solid #2A2A2A;">
+                        <th class="py-4 px-4 border-0 fw-semibold">Mã HĐ</th>
+                        <th class="py-4 px-3 border-0 fw-semibold">Khách hàng</th>
+                        <th class="py-4 px-3 border-0 fw-semibold">Xe thuê</th>
+                        <th class="py-4 px-3 border-0 fw-semibold">Thời gian thuê</th>
+                        <th class="py-4 px-3 border-0 fw-semibold text-end">Tổng tiền (VNĐ)</th>
+                        <th class="py-4 px-3 border-0 fw-semibold text-center">Trạng thái</th>
+                        <th class="py-4 px-4 border-0 fw-semibold text-end">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr style="border-bottom: 1px solid #2A2A2A;">
+                                <td class="py-3 px-4 text-muted">HD-@item.MaHopDong.ToString("D3")</td>
+
+                                <td class="py-3 px-3">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar-circle d-flex align-items-center justify-content-center text-muted fw-bold"
+                                             style="width: 32px; height: 32px; border-radius: 50%; background-color: #2A2A2A;">
+                                            @(item.KhachHang?.HoTen?.Substring(0, 1).ToUpper() ?? "U")
+                                        </div>
+                                        <span class="text-white fw-medium">@(item.KhachHang?.HoTen ?? "Khách lẻ")</span>
+                                    </div>
+                                </td>
+
+                                <td class="py-3 px-3 text-muted">@(item.Xe?.TenXe ?? "Không rõ")</td>
+                                <td class="py-3 px-3">
+                                    <div class="text-white">@item.NgayThue.ToString("dd/MM") - @item.NgayTra.ToString("dd/MM")</div>
+                                    <div class="small text-muted">
+                                        @((item.NgayTra - item.NgayThue).Days) ngày
+                                    </div>
+                                </td>
+                                <td class="py-3 px-3 text-end text-white">@item.TongTien.ToString("N0")</td>
+
+                                <td class="py-3 px-3 text-center">
+                                    @if (item.TrangThai == "ChoXacNhan")
+                                    {
+                                        <span class="status-badge status-pending">Chờ xác nhận</span>
+                                    }
+                                    else if (item.TrangThai == "DangThue")
+                                    {
+                                        <span class="status-badge status-active">Đang thuê</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status-badge status-done">Đã hoàn thành</span>
+                                    }
+                                </td>
+
+                                <td class="py-3 px-4 text-end">
+                                    <div class="d-flex justify-content-end gap-3 fs-5">
+                                        <a asp-action="Details" asp-route-id="@item.MaHopDong" class="text-muted text-decoration-none hover-white" title="Xem chi tiết">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </a>
+                                        @if (item.TrangThai == "ChoXacNhan")
+                                        {
+                                            <a asp-action="Approve" asp-route-id="@item.MaHopDong" class="text-muted text-decoration-none hover-white" title="Xác nhận">
+                                                <i class="fa-regular fa-circle-check"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">Chưa có hợp đồng nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center p-3 border-top border-secondary" style="background-color: #1A1A1A;">
+            <span class="text-muted small">Hiển thị 1-3 của @(Model?.Count() ?? 0) hợp đồng</span>
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm text-muted" style="background-color: #2A2A2A; border: none;">&lt;</button>
+                <button class="btn btn-sm text-muted" style="background-color: #2A2A2A; border: none;">&gt;</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* CSS cho các Badge trạng thái tuyệt đẹp của bạn */
+    .status-badge {
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+        .status-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+    .status-pending {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+        border: 1px solid rgba(255,193,7,0.2);
+    }
+
+        .status-pending::before {
+            background-color: #ffc107;
+            box-shadow: 0 0 4px #ffc107;
+        }
+
+    .status-active {
+        background-color: rgba(13, 110, 253, 0.1);
+        color: #0d6efd;
+        border: 1px solid rgba(13,110,253,0.2);
+    }
+
+        .status-active::before {
+            background-color: #0d6efd;
+            box-shadow: 0 0 4px #0d6efd;
+        }
+
+    .status-done {
+        background-color: rgba(25, 135, 84, 0.1);
+        color: #198754;
+        border: 1px solid rgba(25,135,84,0.2);
+    }
+
+        .status-done::before {
+            background-color: #198754;
+            box-shadow: 0 0 4px #198754;
+        }
+
+    .hover-white:hover {
+        color: #fff !important;
+    }
+</style>

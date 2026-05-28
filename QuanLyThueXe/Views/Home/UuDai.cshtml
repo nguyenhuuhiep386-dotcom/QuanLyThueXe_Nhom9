@@ -1,0 +1,80 @@
+@{
+    ViewData["Title"] = "Ưu đãi";
+}
+
+<div class="hd-section-header" style="margin-bottom:8px;">
+    <h1 style="font-size:28px; font-weight:700;">Trung tâm ưu đãi</h1>
+</div>
+<p style="font-size:14px; color:var(--text-secondary); margin-bottom:24px;">Các chương trình khuyến mãi đặc biệt dành riêng cho bạn.</p>
+
+<!-- Tabs -->
+<div class="d-flex gap-3 mb-4" style="border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+    <a href="@Url.Action("ThongBao", "Home")" style="color:var(--text-muted); font-size:13px; font-weight:600; padding-bottom:12px; text-decoration:none;">
+        <i class="fas fa-bell"></i> THÔNG BÁO
+    </a>
+    <a href="@Url.Action("UuDai", "Home")" style="color:var(--accent); font-size:13px; padding-bottom:12px; border-bottom:2px solid var(--accent); text-decoration:none;">
+        <i class="fas fa-gift"></i> ƯU ĐÃI DÀNH RIÊNG CHO BẠN
+    </a>
+</div>
+
+<!-- Exclusive offers -->
+<h3 style="font-size:18px; font-weight:600; font-style:italic; margin:16px 0 16px;">Tất cả Ưu đãi</h3>
+
+<div class="row g-4">
+    <div class="col-md-7">
+        <div style="position:relative; border-radius:var(--border-radius); overflow:hidden; height:280px;">
+            <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=700&q=80" 
+                 style="width:100%; height:100%; object-fit:cover;" alt="Promo"
+                 onerror="this.style.background='var(--bg-card)'" />
+            <div style="position:absolute; bottom:0; left:0; right:0; padding:24px; background:linear-gradient(transparent, rgba(0,0,0,0.85));">
+                <span style="background:var(--accent); padding:4px 10px; border-radius:4px; font-size:10px; font-weight:600;">✦ HẠNG BẠCH KIM</span>
+                <h4 style="font-size:22px; font-weight:700; margin:8px 0;">Vé Warrior Weekend</h4>
+                <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Nhận ngay ưu đãi giảm giá 30% cho mọi mẫu xe Touring khi thuê trên 48 giờ.</p>
+                <button class="btn-hd btn-use-promo" data-promo-id="warrior" style="font-size:12px; padding:8px 20px; border:none;">SỬ DỤNG NGAY</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px; height:280px; display:flex; flex-direction:column; justify-content:center;">
+            <h4 style="font-size:18px; font-weight:700; margin-bottom:8px;">Kiểm tra xe miễn phí trước khi lên xe</h4>
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">Hãy đảm bảo xe của bạn sẵn sàng để lăn bánh với dịch vụ kiểm tra 20-bước miễn phí từ các kỹ thuật viên được chứng nhận.</p>
+            <button class="btn-hd-outline w-100 btn-use-promo" data-promo-id="freecheck" style="text-align:center;">SỬ DỤNG NGAY</button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Khôi phục trạng thái nút từ localStorage
+            $('.btn-use-promo').each(function() {
+                var promoId = $(this).data('promo-id');
+                if (localStorage.getItem('promo_' + promoId) === 'used') {
+                    $(this).text('ĐÃ LƯU / ĐÃ SỬ DỤNG')
+                           .removeClass('btn-hd btn-hd-outline')
+                           .addClass('btn-secondary')
+                           .prop('disabled', true)
+                           .css({ 'opacity': '0.7', 'cursor': 'not-allowed' });
+                }
+            });
+
+            // Xử lý sự kiện click
+            $('.btn-use-promo').on('click', function() {
+                var $btn = $(this);
+                var promoId = $btn.data('promo-id');
+                
+                // Cập nhật trạng thái
+                localStorage.setItem('promo_' + promoId, 'used');
+                
+                // Đổi UI nút
+                $btn.text('ĐÃ LƯU / ĐÃ SỬ DỤNG')
+                    .removeClass('btn-hd btn-hd-outline')
+                    .addClass('btn-secondary')
+                    .prop('disabled', true)
+                    .css({ 'opacity': '0.7', 'cursor': 'not-allowed' });
+                    
+                alert('Đã lưu ưu đãi thành công!');
+            });
+        });
+    </script>
+}

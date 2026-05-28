@@ -1,0 +1,189 @@
+@model IEnumerable<QuanLyThueXe.Models.Xe>
+
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<!-- Hero Section -->
+<div class="hd-hero fade-in">
+    <div class="hd-hero-bg" style="background-image: url('https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=1200&q=80');"></div>
+    <div class="hd-hero-content">
+        <h1>CHINH PHỤC CON ĐƯỜNG VỚI HUYỀN THOẠI</h1>
+        <p>Trải nghiệm sức mạnh thuần túy và sự tự do cùng dòng xe Harley Davidson cao cấp nhất tại Việt Nam.</p>
+        <form method="get" asp-controller="Xe" asp-action="DanhSach" class="mt-4">
+            <button type="submit" class="btn-hd" style="font-size:18px; padding:16px 48px; font-weight:700; border-radius:12px; display:inline-flex; align-items:center; gap:8px;">
+                TÌM XE NGAY <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Dòng xe huyền thoại -->
+<div class="hd-section-header">
+    <h2>DÒNG XE HUYỀN THOẠI</h2>
+    <a asp-controller="Xe" asp-action="DanhSach" class="view-all">XEM TẤT CẢ <i class="fas fa-arrow-right"></i></a>
+</div>
+
+<div class="row g-3 mb-5">
+    @{ var categories = new[] { 
+        new { Name = "Sportster", Desc = "Linh hoạt, mạnh mẽ và đậm chất cổ điển", Img = "https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=400&q=80" },
+        new { Name = "Cruiser", Desc = "Biểu tượng của sự tự do trên mọi cung đường", Img = "https://images.unsplash.com/photo-1558980394-4c7c9299fe96?w=400&q=80" },
+        new { Name = "Adventure Touring", Desc = "Sẵn sàng cho mọi cuộc phiêu lưu không giới hạn", Img = "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=400&q=80" }
+    }; }
+    @foreach (var cat in categories)
+    {
+        <div class="col-md-4">
+            <div class="hd-xe-card">
+                <div style="position:relative; overflow:hidden; height:200px;">
+                    <img src="@cat.Img" class="xe-img" alt="@cat.Name" onerror="this.src='https://via.placeholder.com/400x200?text=@cat.Name'" />
+                    <div style="position:absolute; bottom:12px; left:16px;">
+                        <h5 style="font-weight:700; margin:0; text-shadow: 0 2px 8px rgba(0,0,0,0.8);">@cat.Name</h5>
+                    </div>
+                </div>
+                <div class="xe-body">
+                    <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">@cat.Desc</p>
+                    <a asp-controller="Xe" asp-action="DanhSach" class="btn-hd-outline" style="font-size:12px; padding:6px 16px;">
+                        KHÁM PHÁ <i class="fas fa-arrow-right" style="font-size:10px;"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Ưu đãi đặc quyền -->
+<div class="hd-promo-section">
+    <div class="hd-section-header" style="margin-bottom:24px;">
+        <h2>ƯU ĐÃI ĐẶC QUYỀN</h2>
+    </div>
+    <p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px;">Dành riêng cho những tâm hồn đam mê tốc độ</p>
+    
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="hd-promo-card-v2" style="position:relative; border-radius:12px; overflow:hidden; min-height:280px; display:flex; flex-direction:column; justify-content:flex-end; padding:24px;">
+                <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800&q=80" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; z-index:0;" />
+                <div style="position:absolute; top:0; left:0; width:100%; height:100%; background:linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%); z-index:1;"></div>
+                <div style="position:relative; z-index:2;">
+                    <span class="badge" style="background:var(--accent); color:#fff; font-size:10px; padding:4px 8px; margin-bottom:8px;">
+                        <i class="fas fa-gem me-1"></i> HẠNG BẠCH KIM
+                    </span>
+                    <h3 style="font-size:24px; font-weight:700; color:#fff; margin-bottom:8px;">Vé Warrior Weekend</h3>
+                    <p style="font-size:14px; color:rgba(255,255,255,0.8); margin-bottom:16px;">Nhận ngay ưu đãi giảm giá 30% cho mọi mẫu xe Touring khi thuê trên 48 giờ.</p>
+                    <div class="d-flex align-items-center gap-3">
+                        <button class="btn-hd btn-use-promo" data-promo-id="warrior" style="font-size:12px; padding:8px 24px;">SỬ DỤNG NGAY</button>
+                        <a href="#" class="text-white text-decoration-underline" style="font-size:12px;" data-bs-toggle="modal" data-bs-target="#promoModal">Chi tiết sử dụng</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="hd-promo-card-v2" style="position:relative; border-radius:12px; overflow:hidden; min-height:280px; display:flex; flex-direction:column; justify-content:center; padding:32px; background:var(--bg-card); border:1px solid var(--border-color);">
+                <div style="position:relative; z-index:2;">
+                    <h3 style="font-size:20px; font-weight:700; margin-bottom:12px;">Kiểm tra xe miễn phí trước khi lên xe</h3>
+                    <p style="font-size:14px; color:var(--text-secondary); margin-bottom:24px; line-height:1.6;">Hãy đảm bảo xe của bạn sẵn sàng để lăn bánh với dịch vụ kiểm tra 20-bước miễn phí từ các kỹ thuật viên được chứng nhận.</p>
+                    <button class="btn-hd-outline btn-use-promo w-100" data-promo-id="freecheck" style="font-size:13px; padding:10px;">SỬ DỤNG NGAY</button>
+                    <div class="text-center mt-3">
+                        <a href="#" class="text-muted text-decoration-underline" style="font-size:12px;" data-bs-toggle="modal" data-bs-target="#promoModal">Chi tiết sử dụng</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tại sao chọn H-D Rental -->
+<div class="hd-why-section">
+    <div class="row">
+        <div class="col-md-6">
+            <h2 style="font-size:24px; font-weight:700; margin-bottom:32px;">TẠI SAO CHỌN H-D RENTAL?</h2>
+            <div class="hd-why-card">
+                <div class="why-icon"><i class="fas fa-medal"></i></div>
+                <div>
+                    <h5>Đội Xe Hàng Đầu</h5>
+                    <p>100% xe được bảo dưỡng định kỳ theo tiêu chuẩn Harley-Davidson toàn cầu.</p>
+                </div>
+            </div>
+            <div class="hd-why-card">
+                <div class="why-icon"><i class="fas fa-headset"></i></div>
+                <div>
+                    <h5>Hỗ Trợ 24/7</h5>
+                    <p>Đội ngũ cứu hộ và hỗ trợ kỹ thuật luôn sẵn sàng trên mọi cung đường.</p>
+                </div>
+            </div>
+            <div class="hd-why-card">
+                <div class="why-icon"><i class="fas fa-bolt"></i></div>
+                <div>
+                    <h5>Thủ Tục Nhanh Gọn</h5>
+                    <p>Đặt xe trực tuyến trong 3 phút, nhận xe ngay với quy trình chuyên nghiệp.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex align-items-center">
+            <img src="https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=600&q=80" 
+                 alt="H-D Rental" class="img-fluid" style="border-radius:var(--border-radius); opacity:0.8;"
+                 onerror="this.style.display='none'" />
+        </div>
+    </div>
+</div>
+
+<!-- Promo Details Modal -->
+<div class="modal fade hd-modal" id="promoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px;">
+            <div class="modal-header" style="border-bottom:1px solid var(--border-color);">
+                <h5 class="modal-title" style="font-weight:700; font-size:18px;">Điều kiện sử dụng ưu đãi</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="font-size:14px; color:var(--text-secondary); line-height:1.6;">
+                <p><strong>1. Đối tượng áp dụng:</strong><br/> Khách hàng có tài khoản thành viên trên H-D Rental.</p>
+                <p><strong>2. Thời gian áp dụng:</strong><br/> Từ ngày 01/01/2024 đến hết 31/12/2024.</p>
+                <p><strong>3. Điều kiện chung:</strong></p>
+                <ul>
+                    <li>Chỉ áp dụng 01 mã ưu đãi cho 01 hợp đồng thuê xe.</li>
+                    <li>Không có giá trị quy đổi thành tiền mặt.</li>
+                    <li>Trong trường hợp xảy ra tranh chấp, quyết định của H-D Rental là quyết định cuối cùng.</li>
+                </ul>
+            </div>
+            <div class="modal-footer" style="border-top:none;">
+                <button type="button" class="btn-hd w-100" data-bs-dismiss="modal">Đã hiểu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Khôi phục trạng thái nút từ localStorage
+            $('.btn-use-promo').each(function() {
+                var promoId = $(this).data('promo-id');
+                if (localStorage.getItem('promo_' + promoId) === 'used') {
+                    $(this).text('ĐÃ LƯU / ĐÃ SỬ DỤNG')
+                           .removeClass('btn-hd btn-hd-outline')
+                           .addClass('btn-secondary')
+                           .prop('disabled', true)
+                           .css({ 'opacity': '0.7', 'cursor': 'not-allowed' });
+                }
+            });
+
+            // Xử lý sự kiện click
+            $('.btn-use-promo').on('click', function() {
+                var $btn = $(this);
+                var promoId = $btn.data('promo-id');
+                
+                // Cập nhật trạng thái
+                localStorage.setItem('promo_' + promoId, 'used');
+                
+                // Đổi UI nút
+                $btn.text('ĐÃ LƯU / ĐÃ SỬ DỤNG')
+                    .removeClass('btn-hd btn-hd-outline')
+                    .addClass('btn-secondary')
+                    .prop('disabled', true)
+                    .css({ 'opacity': '0.7', 'cursor': 'not-allowed' });
+                    
+                alert('Đã lưu mã ưu đãi thành công!');
+            });
+        });
+    </script>
+}

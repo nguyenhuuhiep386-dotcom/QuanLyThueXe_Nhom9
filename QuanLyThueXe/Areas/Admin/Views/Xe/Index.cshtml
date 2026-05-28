@@ -1,0 +1,149 @@
+@model IEnumerable<QuanLyThueXe.Models.Xe>
+
+@{
+    ViewData["Title"] = "Quản lý xe";
+    var currentPhongCach = Context.Request.Query["phongCach"].ToString();
+}
+
+<div class="container-fluid py-2">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-white mb-0">
+            <i class="fa-solid fa-motorcycle me-2"></i> Quản lý xe <span class="text-muted fs-5 fw-normal">(@Model.Count() xe)</span>
+        </h3>
+        <a asp-area="Admin" asp-controller="Xe" asp-action="Create" class="btn btn-warning fw-bold">
+            <i class="fa-solid fa-plus me-1"></i> Thêm xe mới
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-3 col-md-4 sticky-top" style="top: 2rem; align-self: flex-start; z-index: 10;">
+            <form asp-area="Admin" asp-controller="Xe" asp-action="Index" method="get" class="dashboard-card filter-card">
+                <h6 class="fw-bold mb-4 text-white"><i class="fa-solid fa-filter me-2 text-muted"></i> Bộ lọc</h6>
+
+                <div class="mb-4">
+                    <label class="form-label small text-muted">Tìm kiếm</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary text-muted"><i class="fa fa-search"></i></span>
+                        <input type="text" name="search" value="@Context.Request.Query["search"]" class="form-control bg-dark border-secondary text-white" placeholder="Tên xe, biển số...">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small text-muted mb-2">Phong cách</label>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input border-secondary bg-dark" type="radio" name="phongCach" id="pcSport" value="Sport" @(currentPhongCach == "Sport" ? "checked" : "")>
+                        <label class="form-check-label text-muted" for="pcSport">Sport</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input border-secondary bg-dark" type="radio" name="phongCach" id="pcCruiser" value="Cruiser" @(currentPhongCach == "Cruiser" ? "checked" : "")>
+                        <label class="form-check-label text-muted" for="pcCruiser">Cruiser</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input border-secondary bg-dark" type="radio" name="phongCach" id="pcTouring" value="Touring" @(currentPhongCach == "Touring" ? "checked" : "")>
+                        <label class="form-check-label text-muted" for="pcTouring">Touring</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input border-secondary bg-dark" type="radio" name="phongCach" id="pcBobber" value="Bobber" @(currentPhongCach == "Bobber" ? "checked" : "")>
+                        <label class="form-check-label text-muted" for="pcBobber">Bobber</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input border-secondary bg-dark" type="radio" name="phongCach" id="pcScrambler" value="Scrambler" @(currentPhongCach == "Scrambler" ? "checked" : "")>
+                        <label class="form-check-label text-muted" for="pcScrambler">Scrambler</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input border-secondary bg-dark" type="radio" name="phongCach" id="pcAll" value="all" @(string.IsNullOrEmpty(currentPhongCach) || currentPhongCach == "all" ? "checked" : "")>
+                        <label class="form-check-label text-white fw-bold" for="pcAll">Tất cả</label>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label small text-muted">Trạng thái</label>
+                    <select name="trangThai" class="form-select bg-dark border-secondary text-white">
+                        <option value="">-- Tất cả --</option>
+                        <option value="ConTrong" selected="@(Context.Request.Query["trangThai"] == "ConTrong")">Còn trống</option>
+                        <option value="DangThue" selected="@(Context.Request.Query["trangThai"] == "DangThue")">Đang thuê</option>
+                        <option value="BaoDuong" selected="@(Context.Request.Query["trangThai"] == "BaoDuong")">Bảo dưỡng</option>
+                    </select>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-warning fw-bold"><i class="fa fa-search me-1"></i> Lọc dữ liệu</button>
+                    <a asp-area="Admin" asp-controller="Xe" asp-action="Index" class="btn btn-outline-secondary text-muted">Xóa lọc</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-9 col-md-8">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+                @if (Model != null && Model.Any())
+                {
+                    foreach (var xe in Model)
+                    {
+                        var anhChinh = xe.HinhAnhs?.FirstOrDefault(h => h.IsAnhChinh)?.DuongDanAnh
+             ?? xe.HinhAnhs?.FirstOrDefault()?.DuongDanAnh;
+                        if (string.IsNullOrEmpty(anhChinh))
+                        {
+                            anhChinh = "https://images.unsplash.com/photo-1558981806-ec527fa84c39?q=80&w=600&auto=format&fit=crop";
+                        }
+
+                        <div class="col">
+                            <div class="vehicle-card">
+                                <div class="vehicle-card-img-wrap">
+                                    <img src="@anhChinh" alt="@xe.TenXe" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1558981806-ec527fa84c39?q=80&w=600&auto=format&fit=crop';">
+                                    <span class="badge-style-tag text-uppercase">@(xe.PhongCach?.TenPhongCach ?? "Xe")</span>
+                                </div>
+                                <div class="p-3 d-flex flex-column flex-grow-1">
+                                    <h6 class="fw-bold text-white mb-0 text-truncate">@xe.TenXe</h6>
+                                    <small class="text-muted">@xe.BienSo</small>
+
+                                    @if (xe.TrangThai == "BaoDuong")
+                                    {
+                                        <div class="status-badge-full status-maintenance"><i class="fa-solid fa-wrench me-1"></i> Bảo dưỡng</div>
+                                    }
+                                    else if (xe.TrangThai == "DangThue")
+                                    {
+                                        <div class="status-badge-full status-rented"><i class="fa-regular fa-clock me-1"></i> Đang thuê</div>
+                                    }
+                                    else if (xe.TrangThai == "NgungHoatDong")
+                                    {
+                                        <div class="status-badge-full" style="background-color: rgba(255,255,255,0.05); color: #666; border: 1px dashed #444;">
+                                            <i class="fa-solid fa-eye-slash me-1"></i> Ngừng hoạt động
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="status-badge-full status-available"><i class="fa-regular fa-circle-check me-1"></i> Còn trống</div>
+                                    }
+
+                                    <div class="mt-auto">
+                                        <h5 class="text-orange fw-bold mb-3">@xe.GiaThueNgay.ToString("N0") <span class="fs-6 text-muted fw-normal">đ/ngày</span></h5>
+                                        <div class="d-flex gap-2">
+                                            <a asp-area="Admin" asp-controller="Xe" asp-action="Details" asp-route-id="@xe.MaXe" class="btn btn-outline-dark-custom flex-grow-1 btn-sm">
+                                                <i class="fa fa-eye me-1"></i> Chi tiết
+                                            </a>
+                                            <a asp-area="Admin" asp-controller="Xe" asp-action="Edit" asp-route-id="@xe.MaXe" class="btn btn-outline-dark-custom btn-sm px-3">
+                                                <i class="fa fa-pen"></i>
+                                            </a>
+                                            <form asp-area="Admin" asp-controller="Xe" asp-action="Delete" asp-route-id="@xe.MaXe" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa chiếc xe này khỏi hệ thống không?');" style="margin: 0;">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm px-3 h-100" style="border-radius: 4px; border-color: rgba(220, 53, 69, 0.3);">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12 text-center py-5">
+                        <i class="fa-solid fa-motorcycle text-muted mb-3" style="font-size: 3rem;"></i>
+                        <h5 class="text-white">Không tìm thấy xe nào</h5>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

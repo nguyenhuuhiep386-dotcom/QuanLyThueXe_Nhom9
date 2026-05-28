@@ -1,0 +1,202 @@
+@model QuanLyThueXe.Models.ViewModels.DashboardViewModel
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="dashboard-card">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small fw-bold">TỔNG DOANH THU</span>
+                <i class="fa fa-dollar-sign text-orange fs-5"></i>
+            </div>
+            <h3 class="fw-bold text-orange">@Model.DoanhThuThang.ToString("N0") <small class="fs-6 text-muted">VNĐ</small></h3>
+            <div class="small mt-2"><span class="text-success"><i class="fa fa-arrow-up"></i> +12%</span> <span class="text-muted">so với tháng trước</span></div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small fw-bold">TỔNG SỐ XE</span>
+                <i class="fa fa-motorcycle text-info fs-5"></i>
+            </div>
+            <h3 class="fw-bold">@Model.TongSoXe</h3>
+            <div class="small mt-2 text-muted"><span class="text-info">●</span> @Model.SoXeDangThue xe đang hoạt động</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small fw-bold">HỢP ĐỒNG ĐANG CHẠY</span>
+                <i class="fa fa-file-contract text-warning fs-5"></i>
+            </div>
+            <h3 class="fw-bold">@Model.SoHopDongDangThue</h3>
+            <div class="small mt-2 text-muted"><i class="fa fa-clock text-orange"></i> Chờ xác nhận: @Model.SoHopDongChoXacNhan</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="dashboard-card">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted small fw-bold">KHÁCH HÀNG</span>
+                <i class="fa fa-users text-primary fs-5"></i>
+            </div>
+            <h3 class="fw-bold">@Model.TongSoKhachHang</h3>
+            <div class="small mt-2 text-muted"><span class="text-success">●</span> Trong tháng này</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-8">
+        <div class="dashboard-card h-100">
+            <h6 class="fw-bold mb-4">Doanh thu theo tháng</h6>
+            <canvas id="revenueChart" style="max-height: 280px;"></canvas>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="dashboard-card h-100">
+            <h6 class="fw-bold mb-4">Trạng thái xe</h6>
+            <div class="position-relative" style="height: 200px;">
+                <canvas id="statusChart"></canvas>
+                <div class="position-absolute top-50 start-50 translate-middle text-center">
+                    <h2 class="mb-0 fw-bold">@Model.TongSoXe</h2>
+                </div>
+            </div>
+            <div class="mt-4">
+                <div class="d-flex justify-content-between small mb-2">
+                    <span class="text-white"><i class="fa fa-circle text-orange me-2"></i>Đang thuê</span>
+                    <span class="fw-bold text-white">@Model.SoXeDangThue xe</span>
+                </div>
+                <div class="d-flex justify-content-between small mb-2">
+                    <span class="text-white"><i class="fa fa-circle text-success me-2"></i>Còn trống</span>
+                    <span class="fw-bold text-white">@Model.SoXeConTrong xe</span>
+                </div>
+                <div class="d-flex justify-content-between small">
+                    <span class="text-white"><i class="fa fa-circle text-danger me-2"></i>Bảo dưỡng</span>
+                    <span class="fw-bold text-white">@Model.SoXeBaoDuong xe</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-8">
+        <div class="dashboard-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0">5 Hợp đồng mới nhất</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>MÃ HĐ</th>
+                            <th>KHÁCH HÀNG</th>
+                            <th>XE</th>
+                            <th>NGÀY THUÊ</th>
+                            <th>TRẠNG THÁI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.HopDongGanDay != null)
+                        {
+                            foreach (var hd in Model.HopDongGanDay.Take(5))
+                            {
+                                <tr class="align-middle">
+                                    <td class="text-orange fw-bold">#@hd.MaHopDong</td>
+
+                                    <td>@(hd.KhachHang != null ? hd.KhachHang.HoTen : "Khách vãng lai")</td>
+                                    <td>@(hd.Xe != null ? hd.Xe.TenXe : "Đang cập nhật")</td>
+
+                                    <td class="text-muted">@hd.NgayTao.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (hd.TrangThai == "DangThue")
+                                        {
+                                            <span class="badge bg-warning text-dark">Đang chạy</span>
+                                        }
+                                        else if (hd.TrangThai == "DaTra")
+                                        {
+                                            <span class="badge bg-success">Đã trả</span>
+                                        }
+                                        else if (hd.TrangThai == "ChoXacNhan")
+                                        {
+                                            <span class="badge bg-info text-dark">Chờ xác nhận</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@hd.TrangThai</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="dashboard-card h-100">
+            <h6 class="fw-bold mb-4">Top 3 xe thuê nhiều nhất</h6>
+
+            @if (Model.XePhoBien != null)
+            {
+                int rank = 1;
+                foreach (var xe in Model.XePhoBien.Take(3))
+                {
+                    <div class="top-car-item">
+                        <div class="car-icon-box"><i class="fa-solid fa-motorcycle text-orange fs-5"></i></div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="mb-0 small fw-bold">@xe.TenXe</h6>
+                            <small class="text-muted">Lượt thuê: @xe.SoLanThue</small>
+                        </div>
+                        <div class="text-orange fw-bold ms-2 fs-5">#@rank</div>
+                    </div>
+                    rank++;
+                }
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Vẽ biểu đồ trạng thái
+        var statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                datasets: [{
+                    data: [@Model.SoXeDangThue, @Model.SoXeConTrong, @Model.SoXeBaoDuong],
+                    backgroundColor: ['#FF7A00', '#00C853', '#FF3D00'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: { cutout: '75%', maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+
+        // Vẽ biểu đồ doanh thu
+        var revCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revCtx, {
+            type: 'line',
+            data: {
+                labels: ['Thg 1', 'Thg 2', 'Thg 3', 'Thg 4', 'Thg 5', 'Tháng này'],
+                datasets: [{
+                    label: 'Doanh thu',
+                    data: [12000000, 19000000, 15000000, 25000000, 22000000, @Model.DoanhThuThang],
+                    borderColor: '#FF7A00',
+                    backgroundColor: 'rgba(255, 122, 0, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a0a0a0' } },
+                    x: { grid: { display: false }, ticks: { color: '#a0a0a0' } }
+                }
+            }
+        });
+    </script>
+}

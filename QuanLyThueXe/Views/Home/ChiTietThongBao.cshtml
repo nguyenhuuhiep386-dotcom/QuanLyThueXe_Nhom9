@@ -1,0 +1,49 @@
+@{
+    ViewData["Title"] = "Chi tiết thông báo";
+    int id = ViewBag.Id ?? 1;
+}
+
+<nav aria-label="breadcrumb" style="margin-bottom:20px;">
+    <ol class="breadcrumb" style="font-size:13px;">
+        <li class="breadcrumb-item"><a asp-action="ThongBao" style="text-decoration:none; color:var(--text-secondary);">Thông báo & Ưu đãi</a></li>
+        <li class="breadcrumb-item active" style="color:var(--text-primary);">Chi tiết</li>
+    </ol>
+</nav>
+
+<div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:32px;">
+    @if (id == 1)
+    {
+        <h1 style="font-size:24px; font-weight:700; margin-bottom:12px;">Chào mừng bạn đến với H-D Rental!</h1>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:24px;">
+            <i class="fas fa-clock"></i> Hôm nay &nbsp;&nbsp;|&nbsp;&nbsp; <i class="fas fa-tag"></i> Hệ thống
+        </div>
+        
+        <div style="font-size:14px; color:var(--text-secondary); line-height:1.8;">
+            <p>Chào mừng bạn đã gia nhập cộng đồng H-D Rental.</p>
+            <p>Chúng tôi rất tự hào mang đến cho bạn những trải nghiệm tuyệt vời nhất với đội xe Harley-Davidson đa dạng, được bảo dưỡng chuyên nghiệp và luôn sẵn sàng cho những cung đường huyền thoại.</p>
+            <p>Đừng quên kiểm tra thường xuyên các mục Ưu đãi để không bỏ lỡ các cơ hội thuê xe với giá hấp dẫn.</p>
+            <p>Chúc bạn có những chuyến đi thật đáng nhớ!</p>
+        </div>
+    }
+    else
+    {
+        <h1 style="font-size:24px; font-weight:700; margin-bottom:12px;">Cập nhật chính sách bảo hiểm mới</h1>
+        <div style="font-size:12px; color:var(--text-muted); margin-bottom:24px;">
+            <i class="fas fa-clock"></i> 2 ngày trước &nbsp;&nbsp;|&nbsp;&nbsp; <i class="fas fa-shield-alt"></i> Bảo hiểm
+        </div>
+        
+        <div style="font-size:14px; color:var(--text-secondary); line-height:1.8;">
+            <p>Gói bảo hiểm Premium Protection đã được nâng cấp với nhiều quyền lợi hơn.</p>
+            <p>Kể từ tháng này, tất cả các hợp đồng thuê xe có chọn gói bảo hiểm Cao cấp sẽ tự động được bổ sung thêm:</p>
+            <ul>
+                <li>Bảo hiểm mất cắp toàn diện (Giảm mức miễn thường xuống 0đ)</li>
+                <li>Hỗ trợ chi phí đi lại thay thế trong trường hợp xe gặp sự cố không thể tiếp tục hành trình</li>
+            </ul>
+            <p>Bạn có thể xem thêm chi tiết tại trang Bảo hiểm của chúng tôi.</p>
+        </div>
+    }
+
+    <div style="margin-top:32px; border-top:1px solid var(--border-color); padding-top:20px; text-align:right;">
+        <a asp-action="ThongBao" class="btn-hd-outline">Quay lại</a>
+    </div>
+</div>

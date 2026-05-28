@@ -1,0 +1,80 @@
+@model QuanLyThueXe.Models.ViewModels.LoginViewModel
+
+@{
+    ViewData["Title"] = "Đăng nhập";
+}
+
+<div class="login-page">
+    <!-- Left side - Background image -->
+    <div class="login-bg" style="background-image: url('https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=1200&q=80');">
+        <div class="login-bg-content">
+            <h1>H-D RENTAL</h1>
+            <p>Trải nghiệm và gia nhập đường đua như một mãnh thú và trở thành <span class="accent">huyền thoại</span></p>
+            <div class="established">ĐƯỢC THÀNH LẬP NĂM 2006</div>
+        </div>
+    </div>
+
+    <!-- Right side - Login form -->
+    <div class="login-form-panel">
+        <h2>Đăng nhập vào H-D Rental</h2>
+        <p class="subtitle">Truy cập vào đội xe hạng sang của bạn.</p>
+
+        <form asp-controller="Account" asp-action="Login" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">EMAIL</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                    <input asp-for="Email" class="form-control" placeholder="email@example.com" />
+                </div>
+                <span asp-validation-for="Email" class="text-danger" style="font-size:12px;"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MatKhau" class="form-label">MẬT KHẨU</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                    <input asp-for="MatKhau" class="form-control" placeholder="••••••••" />
+                </div>
+                <span asp-validation-for="MatKhau" class="text-danger" style="font-size:12px;"></span>
+            </div>
+
+            <div class="remember-row">
+                <div class="form-check">
+                    <input asp-for="GhiNho" class="form-check-input" />
+                    <label asp-for="GhiNho" class="form-check-label" style="font-size:13px; color:var(--text-secondary);">Ghi nhớ đăng nhập</label>
+                </div>
+                <a href="#" class="forgot-link">Quên mật khẩu?</a>
+            </div>
+
+            <button type="submit" class="btn-login-submit">
+                ĐĂNG NHẬP <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="divider">HOẶC</div>
+
+        <div class="social-btns">
+            <button type="button" class="social-btn"><i class="fab fa-google" style="color:#4285f4; margin-right:8px;"></i> Google</button>
+            <button type="button" class="social-btn"><i class="fab fa-apple" style="margin-right:8px;"></i> Apple</button>
+        </div>
+
+        <div class="register-link">
+            Bạn chưa có tài khoản?<br />
+            <a asp-action="Register">THAM GIA NGAY <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+</div>
+
+<div class="login-footer">
+    <span>&copy; 2024 H-D RENTAL VIETNAM</span>
+    <div>
+        <a href="#" style="color:var(--text-muted); margin-right:20px;">Điều khoản dịch vụ</a>
+        <a href="#" style="color:var(--text-muted);">Chính sách bảo mật</a>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
