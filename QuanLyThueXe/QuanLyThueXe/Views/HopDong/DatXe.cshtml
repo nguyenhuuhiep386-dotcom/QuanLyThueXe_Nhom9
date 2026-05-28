@@ -1,0 +1,357 @@
+@model QuanLyThueXe.Models.ViewModels.DatXeViewModel
+
+@{
+    ViewData["Title"] = "Đặt xe - " + Model.Xe.TenXe;
+}
+
+<!-- Breadcrumb -->
+<div style="font-size:11px; color:var(--text-muted); margin-bottom:8px;">
+    <span>ĐƠN HÀNG</span> > <span style="color:var(--accent);">ĐẶT CỌC</span>
+</div>
+<h2 style="font-size:24px; font-weight:700; font-style:italic; margin-bottom:4px;">Thanh toán Tiền Đặt Cọc</h2>
+<p style="font-size:14px; color:var(--text-secondary); margin-bottom:32px;">Hoàn tất thủ tục đặt cọc để giữ xe cho chuyến đi của bạn.</p>
+
+<div class="row g-4">
+    <!-- Left - Booking Info -->
+    <div class="col-lg-7">
+        <form asp-controller="HopDong" asp-action="DatXe" method="post"
+              enctype="multipart/form-data" id="datXeForm">
+            <input type="hidden" asp-for="Xe.MaXe" />
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <!-- Deposit Amount -->
+            <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:32px; text-align:center; margin-bottom:24px;">
+                <div style="width:48px; height:48px; background:rgba(232,115,26,0.15); border-radius:10px; display:inline-flex; align-items:center; justify-content:center; margin-bottom:12px;">
+                    <i class="fas fa-lock" style="color:var(--accent); font-size:20px;"></i>
+                </div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:4px;">SỐ TIỀN CẦN CỌC</div>
+                <div style="font-size:36px; font-weight:700; color:var(--accent);">@((Model.TongTien * 0.3m).ToString("N0"))</div>
+            </div>
+
+            <!-- Vehicle chosen -->
+            <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:20px; margin-bottom:24px;">
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; text-align:center; margin-bottom:12px;">XE ĐÃ CHỌN</div>
+                <div class="d-flex gap-3 align-items-center">
+                    @{
+                        var anhChinh = Model.Xe.HinhAnhs.FirstOrDefault(h => h.IsAnhChinh) ?? Model.Xe.HinhAnhs.FirstOrDefault();
+                        var imgSrc = anhChinh?.DuongDanAnh ?? "https://via.placeholder.com/120x80?text=Xe";
+                    }
+                    <img src="@imgSrc" alt="@Model.Xe.TenXe" style="width:100px; height:70px; object-fit:cover; border-radius:8px;"
+                         onerror="this.src='https://via.placeholder.com/120x80?text=Xe'" />
+                    <div>
+                        <strong>@Model.Xe.HangXe.TenHang @Model.Xe.TenXe</strong>
+                        <div style="font-size:13px; color:var(--text-secondary);">
+                            Thuê @Model.SoNgay ngày (@Model.NgayThue.ToString("dd/MM") - @Model.NgayTra.ToString("dd/MM"))
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dates - Readonly (from query string) -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label"><i class="fas fa-calendar-alt"></i> NGÀY NHẬN XE</label>
+                    <input type="date" class="form-control" value="@Model.NgayThue.ToString("yyyy-MM-dd")" readonly style="background-color: var(--bg-secondary);" />
+                    <input asp-for="NgayThue" type="hidden" id="ngayThueHidden" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><i class="fas fa-calendar-check"></i> NGÀY TRẢ XE</label>
+                    <input type="date" class="form-control" value="@Model.NgayTra.ToString("yyyy-MM-dd")" readonly style="background-color: var(--bg-secondary);" />
+                    <input asp-for="NgayTra" type="hidden" id="ngayTraHidden" />
+                </div>
+            </div>
+
+            <!-- Time Selection (User can choose) -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label"><i class="fas fa-clock"></i> GIỜ NHẬN XE</label>
+                    <select class="form-select" id="gioNhan">
+                        @for (int h = 8; h <= 20; h++)
+                        {
+                            if (h == 9)
+                            {
+                                <option value="@(h):00" selected>@(h):00</option>
+                            }
+                            else
+                            {
+                                <option value="@(h):00">@(h):00</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label"><i class="fas fa-clock"></i> GIỜ TRẢ XE</label>
+                    <select class="form-select" id="gioTra">
+                        @for (int h = 8; h <= 20; h++)
+                        {
+                            if (h == 18)
+                            {
+                                <option value="@(h):00" selected>@(h):00</option>
+                            }
+                            else
+                            {
+                                <option value="@(h):00">@(h):00</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <!-- Promo -->
+            <div class="mb-4">
+                <label asp-for="MaKhuyenMai" class="form-label"><i class="fas fa-gift"></i> MÃ KHUYẾN MÃI</label>
+                <div class="input-group">
+                    <input asp-for="MaKhuyenMai" id="maKhuyenMai" class="form-control" placeholder="Nhập mã khuyến mãi" />
+                    <button type="button" class="btn-hd" onclick="applyPromo()">ÁP DỤNG</button>
+                </div>
+                <div style="margin-top:8px;">
+                    <span style="font-size:11px; color:var(--text-muted); margin-right:8px;">Gợi ý:</span>
+                    <span class="badge" style="background:rgba(232,115,26,0.1); color:var(--accent); border:1px solid var(--accent); cursor:pointer; font-weight:normal;" onclick="document.getElementById('maKhuyenMai').value='WEEKEND20'">WEEKEND20</span>
+                    <span class="badge" style="background:rgba(232,115,26,0.1); color:var(--accent); border:1px solid var(--accent); cursor:pointer; font-weight:normal; margin-left:4px;" onclick="document.getElementById('maKhuyenMai').value='WARRIOR'">WARRIOR</span>
+                </div>
+            </div>
+
+            <!-- Documents -->
+            <div class="mb-4">
+                <label class="form-label"><i class="fas fa-file-upload"></i> GIẤY TỜ (GPLX, CCCD)</label>
+                <input type="file" name="taiLieus" class="form-control" multiple accept="image/*,.pdf" />
+            </div>
+
+            <!-- Notes -->
+            <div class="mb-4">
+                <label asp-for="GhiChu" class="form-label"><i class="fas fa-comment"></i> GHI CHÚ</label>
+                <textarea asp-for="GhiChu" class="form-control" rows="2" placeholder="Ghi chú thêm..."></textarea>
+            </div>
+
+            <!-- Guarantee -->
+            <div style="background:rgba(232,115,26,0.08); border:1px solid rgba(232,115,26,0.3); border-radius:var(--border-radius); padding:20px; margin-bottom:24px;">
+                <h5 style="color:var(--accent); font-size:16px; margin-bottom:8px;">
+                    <i class="fas fa-check-circle"></i> Cam kết hoàn trả 100%
+                </h5>
+                <p style="font-size:13px; color:var(--text-secondary); margin:0;">
+                    Tiền đặt cọc sẽ được hoàn trả đầy đủ vào tài khoản của bạn ngay sau khi trả xe với tình trạng nguyên vẹn.
+                </p>
+            </div>
+
+            <!-- Price Summary -->
+            <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:20px; margin-bottom:24px;">
+                <h5 style="font-size:14px; margin-bottom:16px;"><i class="fas fa-calculator"></i> CHI TIẾT GIÁ</h5>
+                <div class="d-flex justify-content-between mb-2" style="font-size:13px;">
+                    <span style="color:var(--text-secondary);">Số ngày thuê</span>
+                    <strong id="soNgay">@Model.SoNgay ngày</strong>
+                </div>
+                <div class="d-flex justify-content-between mb-2" style="font-size:13px;">
+                    <span style="color:var(--text-secondary);">Giá thuê gốc</span>
+                    <strong>@Model.GiaThueGoc.ToString("N0") VNĐ/ngày</strong>
+                </div>
+                @if (Model.HeSoMua > 1)
+                {
+                    <div class="d-flex justify-content-between mb-2" style="font-size:13px;">
+                        <span style="color:var(--text-secondary);">Phụ phí mùa (@Model.TenDotPhuPhi)</span>
+                        <strong style="color:#fbbf24;">x @Model.HeSoMua</strong>
+                    </div>
+                }
+                @if (Model.TienGiam > 0)
+                {
+                    <div class="d-flex justify-content-between mb-2" style="font-size:13px;">
+                        <span style="color:var(--text-secondary);">Giảm giá</span>
+                        <strong style="color:#4ade80;">-@Model.TienGiam.ToString("N0") VNĐ</strong>
+                    </div>
+                }
+                <div style="border-top:1px solid var(--border-color); padding-top:12px; margin-top:8px;" class="d-flex justify-content-between">
+                    <span style="font-weight:700;">TỔNG TIỀN</span>
+                    <span style="font-size:24px; font-weight:700; color:var(--accent);">@Model.TongTien.ToString("N0")đ</span>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex gap-3">
+                <a asp-controller="Xe" asp-action="ChiTiet" asp-route-id="@Model.Xe.MaXe" class="btn-hd-outline flex-fill" style="text-align:center; padding:14px;">
+                    HỦY BỎ
+                </a>
+                <button type="submit" class="btn-hd flex-fill"
+                        style="justify-content:center; padding:14px;">
+                    <i class="fas fa-lock"></i> THANH TOÁN CỌC
+                </button>
+
+            </div>
+        </form>
+    </div>
+
+    <!-- Right - Payment Method -->
+    <div class="col-lg-5">
+        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px;">
+            <h4 style="font-size:18px; font-weight:600; font-style:italic; margin-bottom:20px;">Phương thức thanh toán</h4>
+            
+            <div class="d-flex gap-2 mb-4">
+                <div id="tab-credit" onclick="selectPayment('credit')" style="flex:1; padding:16px; border:1px solid var(--accent); border-radius:8px; text-align:center; cursor:pointer; background:rgba(232,115,26,0.05);">
+                    <i class="fas fa-credit-card" id="icon-credit" style="font-size:20px; color:var(--accent); display:block; margin-bottom:8px;"></i>
+                    <span style="font-size:11px;" id="text-credit">Thẻ tín dụng / Ghi nợ</span>
+                </div>
+                <div id="tab-bank" onclick="selectPayment('bank')" style="flex:1; padding:16px; border:1px solid var(--border-color); border-radius:8px; text-align:center; cursor:pointer;">
+                    <i class="fas fa-university" id="icon-bank" style="font-size:20px; color:var(--text-muted); display:block; margin-bottom:8px;"></i>
+                    <span style="font-size:11px; color:var(--text-muted);" id="text-bank">Chuyển khoản ngân hàng</span>
+                </div>
+            </div>
+
+            <!-- Credit Card Form -->
+            <div id="credit-form">
+                <div class="mb-3">
+                    <label class="form-label">SỐ THẺ</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-credit-card"></i></span>
+                        <input type="text" id="cardNumber" class="form-control" placeholder="0000 0000 0000 0000" maxlength="19" />
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">TÊN IN TRÊN THẺ</label>
+                    <input type="text" id="cardName" class="form-control" placeholder="NGUYEN VAN A" />
+                </div>
+                <div class="row g-2 mb-4">
+                    <div class="col-6">
+                        <label class="form-label">NGÀY HẾT HẠN</label>
+                        <input type="text" id="cardExpiry" class="form-control" placeholder="MM/YY" maxlength="5" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">MÃ CVV</label>
+                        <input type="text" id="cardCvv" class="form-control" placeholder="123" maxlength="3" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank Transfer QR -->
+            <div id="bank-form" style="display:none; text-align:center;">
+                <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">Vui lòng quét mã QR dưới đây để thanh toán tiền cọc.</p>
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=HD-RENTAL-PAYMENT" alt="QR Code" style="width:200px; height:200px; border-radius:8px; border:1px solid var(--border-color); padding:8px; background:white;" />
+                <p style="font-size:11px; color:var(--text-muted); margin-top:16px;">Nội dung CK: <strong>HD [SĐT của bạn]</strong></p>
+            </div>
+            <div style="text-align:center; font-size:11px; color:var(--text-muted);">
+                <i class="fas fa-lock"></i> Giao dịch được mã hóa an toàn 256-bit
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        let currentPayment = 'credit';
+
+        function selectPayment(method) {
+            currentPayment = method;
+            if (method === 'credit') {
+                document.getElementById('tab-credit').style.borderColor = 'var(--accent)';
+                document.getElementById('tab-credit').style.background = 'rgba(232,115,26,0.05)';
+                document.getElementById('icon-credit').style.color = 'var(--accent)';
+                document.getElementById('text-credit').style.color = 'var(--text-primary)';
+
+                document.getElementById('tab-bank').style.borderColor = 'var(--border-color)';
+                document.getElementById('tab-bank').style.background = 'transparent';
+                document.getElementById('icon-bank').style.color = 'var(--text-muted)';
+                document.getElementById('text-bank').style.color = 'var(--text-muted)';
+
+                document.getElementById('credit-form').style.display = 'block';
+                document.getElementById('bank-form').style.display = 'none';
+            } else {
+                document.getElementById('tab-bank').style.borderColor = 'var(--accent)';
+                document.getElementById('tab-bank').style.background = 'rgba(232,115,26,0.05)';
+                document.getElementById('icon-bank').style.color = 'var(--accent)';
+                document.getElementById('text-bank').style.color = 'var(--text-primary)';
+
+                document.getElementById('tab-credit').style.borderColor = 'var(--border-color)';
+                document.getElementById('tab-credit').style.background = 'transparent';
+                document.getElementById('icon-credit').style.color = 'var(--text-muted)';
+                document.getElementById('text-credit').style.color = 'var(--text-muted)';
+
+                document.getElementById('credit-form').style.display = 'none';
+                document.getElementById('bank-form').style.display = 'block';
+            }
+        }
+
+        // Format expiry date MM/YY
+        const expiryInput = document.getElementById('cardExpiry');
+        if(expiryInput) {
+            expiryInput.addEventListener('input', function(e) {
+                let val = this.value.replace(/\D/g, '');
+                if (val.length >= 3) {
+                    this.value = val.substring(0, 2) + '/' + val.substring(2, 4);
+                } else {
+                    this.value = val;
+                }
+            });
+        }
+
+        function showToast(message, type = 'error') {
+            const toastHtml = `
+                <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+                    <div class="toast align-items-center text-white bg-${type === 'error' ? 'danger' : 'success'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'} me-2"></i> ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            const container = document.createElement('div');
+            container.innerHTML = toastHtml;
+            document.body.appendChild(container);
+            const toastElement = container.querySelector('.toast');
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+            toastElement.addEventListener('hidden.bs.toast', () => {
+                container.remove();
+            });
+        }
+
+        function applyPromo() {
+            const code = document.getElementById('maKhuyenMai').value;
+            if(!code) {
+                showToast('Vui lòng nhập mã khuyến mãi');
+                return;
+            }
+            showToast('Đã áp dụng mã ' + code + ' thành công!', 'success');
+        }
+
+        // Validate on submit
+        document.getElementById('datXeForm').addEventListener('submit', function(e) {
+            // Combine date and time before submit
+            const ngayThueDate = '@Model.NgayThue.ToString("yyyy-MM-dd")';
+            const gioNhan = document.getElementById('gioNhan').value;
+            const ngayTraDate = '@Model.NgayTra.ToString("yyyy-MM-dd")';
+            const gioTra = document.getElementById('gioTra').value;
+            
+            document.getElementById('ngayThueHidden').value = ngayThueDate + 'T' + gioNhan;
+            document.getElementById('ngayTraHidden').value = ngayTraDate + 'T' + gioTra;
+            
+            if (currentPayment === 'credit') {
+                const cardNum = document.getElementById('cardNumber').value.replace(/\s/g, '');
+                if(cardNum.length < 16) {
+                    e.preventDefault();
+                    showToast('Vui lòng nhập đầy đủ 16 số thẻ!');
+                    return;
+                }
+                const cardName = document.getElementById('cardName').value.trim();
+                if(!cardName) {
+                    e.preventDefault();
+                    showToast('Vui lòng nhập tên in trên thẻ!');
+                    return;
+                }
+                const cvv = document.getElementById('cardCvv').value;
+                if(cvv.length < 3) {
+                    e.preventDefault();
+                    showToast('Vui lòng nhập đầy đủ 3 số CVV!');
+                    return;
+                }
+            }
+        });
+
+        // Calculate days on page load
+        tinhTien();
+        function tinhTien() {
+            const days = @Model.SoNgay;
+            document.getElementById('soNgay').textContent = days + ' ngày';
+        }
+    </script>
+}

@@ -1,0 +1,191 @@
+@model IEnumerable<QuanLyThueXe.Models.Xe>
+
+@{
+    ViewData["Title"] = "Danh Mục Xe";
+}
+
+<div class="row g-4">
+    <!-- Filter Sidebar -->
+    <div class="col-lg-3">
+        <div class="hd-filter">
+            <h4>BỘ LỌC <i class="fas fa-sliders-h" style="font-size:14px; color:var(--text-muted);"></i></h4>
+            
+            <form method="get" asp-action="DanhSach">
+                <div class="filter-group">
+                    <label>LOẠI XE</label>
+                    @if (ViewBag.PhongCachs != null) {
+                        foreach (var pc in ViewBag.PhongCachs as List<QuanLyThueXe.Models.DmPhongCach> ?? new List<QuanLyThueXe.Models.DmPhongCach>())
+                        {
+                        <div class="form-check" style="margin-bottom:6px;">
+                            <input class="form-check-input" type="checkbox" name="phongCach" value="@pc.MaPhongCach"
+                                   @(Context.Request.Query["phongCach"] == pc.MaPhongCach.ToString() ? "checked" : "") />
+                            <label class="form-check-label" style="font-size:13px; color:var(--text-secondary);">@pc.TenPhongCach</label>
+                        </div>
+                        }
+                    }
+                </div>
+
+                <div class="filter-group">
+                    <label>HÃNG XE</label>
+                    <select name="hangXe" class="form-select" style="font-size:13px;">
+                        <option value="">Tất cả</option>
+                        @if (ViewBag.HangXes != null) {
+                            foreach (var hang in ViewBag.HangXes as List<QuanLyThueXe.Models.DmHangXe> ?? new List<QuanLyThueXe.Models.DmHangXe>())
+                            {
+                            <option value="@hang.MaHangXe" selected="@(Context.Request.Query["hangXe"] == hang.MaHangXe.ToString())">
+                                @hang.TenHang
+                            </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>PHẠM VI GIÁ THUÊ</label>
+                    <div class="d-flex justify-content-between" style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">
+                        <span id="giaMinLabel">@(Context.Request.Query["giaMin"].Count > 0 && !string.IsNullOrEmpty(Context.Request.Query["giaMin"].ToString()) ? long.Parse(Context.Request.Query["giaMin"].ToString()!).ToString("N0") : "0") VND</span>
+                        <span id="giaMaxLabel">@(Context.Request.Query["giaMax"].Count > 0 && !string.IsNullOrEmpty(Context.Request.Query["giaMax"].ToString()) ? long.Parse(Context.Request.Query["giaMax"].ToString()!).ToString("N0") : "15,000,000") VND</span>
+                    </div>
+                    <div style="position:relative; width:100%; height:4px; background:rgba(255,255,255,0.1); border-radius:2px; margin-top:16px; margin-bottom:24px;">
+                        @{
+                            var minVal = Context.Request.Query["giaMin"].Count > 0 && !string.IsNullOrEmpty(Context.Request.Query["giaMin"].ToString()) ? long.Parse(Context.Request.Query["giaMin"].ToString()!) : 0;
+                            var maxVal = Context.Request.Query["giaMax"].Count > 0 && !string.IsNullOrEmpty(Context.Request.Query["giaMax"].ToString()) ? long.Parse(Context.Request.Query["giaMax"].ToString()!) : 15000000;
+                            var minPercent = (minVal * 100) / 15000000;
+                            var maxPercent = (maxVal * 100) / 15000000;
+                        }
+                        <div id="rangeProgress" style="position:absolute; height:100%; left:@(minPercent)%; right:@(100 - maxPercent)%; background:var(--accent); border-radius:2px;"></div>
+                        <input type="range" name="giaMin" class="dual-range" min="0" max="15000000" step="500000" value="@minVal" oninput="updateDualRange()" />
+                        <input type="range" name="giaMax" class="dual-range" min="0" max="15000000" step="500000" value="@maxVal" oninput="updateDualRange()" />
+                    </div>
+                    
+                    <style>
+                        .dual-range { position:absolute; width:100%; height:4px; top:0; pointer-events:none; -webkit-appearance:none; background:transparent; margin:0; }
+                        .dual-range::-webkit-slider-thumb { pointer-events:auto; -webkit-appearance:none; width:16px; height:16px; background:#fff; border:3px solid var(--accent); border-radius:50%; cursor:pointer; }
+                    </style>
+                    <script>
+                        function updateDualRange() {
+                            var minInput = document.querySelector('input[name="giaMin"]');
+                            var maxInput = document.querySelector('input[name="giaMax"]');
+                            var progress = document.getElementById('rangeProgress');
+                            
+                            var minVal = parseInt(minInput.value);
+                            var maxVal = parseInt(maxInput.value);
+                            
+                            if (minVal > maxVal) {
+                                var tmp = minVal;
+                                minVal = maxVal;
+                                maxVal = tmp;
+                            }
+                            
+                            document.getElementById('giaMinLabel').textContent = minVal.toLocaleString('vi') + ' VND';
+                            document.getElementById('giaMaxLabel').textContent = maxVal.toLocaleString('vi') + ' VND';
+                            
+                            progress.style.left = (minVal / 15000000) * 100 + '%';
+                            progress.style.right = (100 - (maxVal / 15000000) * 100) + '%';
+                        }
+                    </script>
+                </div>
+
+                <div class="filter-group">
+                    <label>ĐỜI XE</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach (var year in new[] { 2024, 2023, 2022, 2021 })
+                        {
+                            var isChecked = Context.Request.Query["namSanXuat"].Contains(year.ToString());
+                            <label style="padding:6px 12px; border:1px solid @(isChecked ? "var(--accent)" : "var(--border-color)"); background:@(isChecked ? "rgba(232,115,26,0.1)" : "transparent"); border-radius:6px; font-size:12px; color:@(isChecked ? "var(--accent)" : "var(--text-secondary)"); cursor:pointer;">
+                                <input type="checkbox" name="namSanXuat" value="@year" style="display:none;" @(isChecked ? "checked" : "") onchange="this.form.submit()" /> @year
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <label>TÌM KIẾM</label>
+                    <input type="text" name="search" class="form-control" placeholder="Tìm theo tên xe..." 
+                           value="@Context.Request.Query["search"]" style="font-size:13px;" />
+                </div>
+
+                <button type="submit" class="btn-hd w-100" style="margin-top:8px;">
+                    ÁP DỤNG BỘ LỌC
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Vehicle Grid -->
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 style="font-size:24px; font-weight:700; font-style:italic; margin-bottom:4px;">Danh sách xe hiện có</h2>
+                <p style="font-size:13px; color:var(--text-secondary);">Đang hiển thị @Model.Count() mô tô chất lượng cao</p>
+            </div>
+            <div>
+                <span style="font-size:12px; color:var(--text-muted);">SẮP XẾP:</span>
+                <select class="form-select d-inline-block" style="width:auto; font-size:13px; padding:4px 12px;">
+                    <option>Giá thấp nhất</option>
+                    <option>Giá cao nhất</option>
+                    <option>Đánh giá cao</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            @if (Model.Any())
+            {
+                @foreach (var xe in Model)
+                {
+                    <div class="col-lg-4 col-md-6">
+                        <div class="hd-xe-card">
+                            <div style="position:relative; overflow:hidden; height:200px; background:#1a1a1a;">
+                                @{
+                                    var anhChinh = xe.HinhAnhs.FirstOrDefault(h => h.IsAnhChinh) ?? xe.HinhAnhs.FirstOrDefault();
+                                    var imgSrc = anhChinh?.DuongDanAnh ?? "https://via.placeholder.com/400x250?text=No+Image";
+                                    var statusClass = xe.TrangThai == "ConTrong" ? "badge-available" : xe.TrangThai == "DangThue" ? "badge-rented" : "badge-maintenance";
+                                    var statusText = xe.TrangThai == "ConTrong" ? "CÒN XE" : xe.TrangThai == "DangThue" ? "ĐÃ ĐẶT" : "BẢO DƯỠNG";
+                                }
+                                <img src="@imgSrc" class="xe-img" alt="@xe.TenXe"
+                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/400x250?text=No+Image'" />
+                                <span class="badge-status @statusClass" style="position:absolute; top:12px; left:12px;">@statusText</span>
+                            </div>
+                            <div class="xe-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="xe-name">@xe.TenXe</h5>
+                                        <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+                                            <sup style="font-size:10px; color:var(--text-secondary);">@xe.NamSanXuat</sup>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="xe-info" style="margin-top:8px;">
+                                    <i class="fas fa-tachometer-alt"></i> @(xe.DungTich.HasValue ? $"{xe.DungTich}cc" : "N/A")
+                                    &nbsp;&nbsp;
+                                    <i class="fas fa-cog"></i> @xe.PhongCach.TenPhongCach
+                                </div>
+                            </div>
+                            <div class="xe-footer">
+                                <div>
+                                    <div style="font-size:10px; color:var(--text-muted); text-transform:uppercase;">GIÁ THUÊ/NGÀY</div>
+                                    <span class="xe-price">@xe.GiaThueNgay.ToString("N0")</span>
+                                    <span style="font-size:11px; color:var(--text-muted);"> VND</span>
+                                </div>
+                                <a asp-action="ChiTiet" asp-route-id="@xe.MaXe" class="btn-hd-outline" style="font-size:11px; padding:6px 14px;">
+                                    XEM CHI TIẾT
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12">
+                    <div class="hd-empty-state">
+                        <div class="empty-icon"><i class="fas fa-motorcycle"></i></div>
+                        <h3>Không tìm thấy xe nào</h3>
+                        <p>Hãy thử thay đổi bộ lọc để tìm xe phù hợp.</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,173 @@
+@{
+    var isLoginPage = ViewData["Title"]?.ToString() == "Đăng nhập" || ViewData["Title"]?.ToString() == "Đăng ký";
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - H-D Rental</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+<body>
+    @if (isLoginPage)
+    {
+        @RenderBody()
+    }
+    else
+    {
+        <!-- Sidebar -->
+        <aside class="hd-sidebar">
+            <div class="brand">
+                <a asp-controller="Home" asp-action="Index" style="text-decoration:none; color:#fff; display:flex; align-items:center;">
+                    <span class="brand-icon"><i class="fas fa-motorcycle"></i></span>
+                    <span class="brand-name">H-D RENTAL</span>
+                </a>
+                <span class="brand-sub">PREMIUM FLEET</span>
+            </div>
+            <nav class="hd-sidebar-nav">
+                @if (ViewData["Title"]?.ToString() == "Hồ sơ cá nhân")
+                {
+                    <a class="nav-item active" href="#v-pills-profile" data-bs-toggle="pill" role="tab" aria-controls="v-pills-profile" aria-selected="true" onclick="$('#v-pills-profile-tab').click()">
+                        <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
+                    </a>
+                    <a class="nav-item" href="#v-pills-settings" data-bs-toggle="pill" role="tab" aria-controls="v-pills-settings" aria-selected="false" onclick="$('#v-pills-settings-tab').click()">
+                        <i class="fas fa-cog"></i> Cài đặt & Bảo mật
+                    </a>
+                }
+                else
+                {
+                    <a class="nav-item @(currentController == "Home" && (currentAction == "Index" || currentAction == "ThongBao" || currentAction == "UuDai") ? "active" : "")" asp-controller="Home" asp-action="Index">
+                        <i class="fas fa-home"></i> Trang chủ
+                    </a>
+                    <a class="nav-item @(currentController == "Xe" ? "active" : "")" asp-controller="Xe" asp-action="DanhSach">
+                        <i class="fas fa-motorcycle"></i> Danh sách xe
+                    </a>
+                    @if (User.Identity?.IsAuthenticated == true && !User.IsInRole("Admin"))
+                    {
+                        <a class="nav-item @(currentController == "HopDong" ? "active" : "")" asp-controller="HopDong" asp-action="CuaToi">
+                            <i class="fas fa-calendar-alt"></i> Lịch đặt xe
+                        </a>
+                    }
+                    <a class="nav-item @(currentAction == "BaoHiem" ? "active" : "")" asp-controller="Home" asp-action="BaoHiem">
+                        <i class="fas fa-shield-alt"></i> Bảo hiểm
+                    </a>
+                    <a class="nav-item @(currentAction == "HoTro" ? "active" : "")" asp-controller="Home" asp-action="HoTro">
+                        <i class="fas fa-headset"></i> Hỗ trợ
+                    </a>
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+                    {
+                        <a class="nav-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                            <i class="fas fa-tachometer-alt"></i> Quản trị
+                        </a>
+                    }
+                }
+            </nav>
+            <div class="hd-sidebar-bottom">
+                <a href="@Url.Action("GioiThieu","Home")" class="btn-logout" style="text-decoration:none;">
+                    <i class="fas fa-info-circle"></i> Giới thiệu
+                </a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <form asp-controller="Account" asp-action="Logout" method="post" style="margin: 0;">
+                        <button type="submit" class="btn-logout" style="width:100%; text-align:left;">
+                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                        </button>
+                    </form>
+                }
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="hd-main">
+            <!-- Top Bar -->
+            @if (ViewData["Title"]?.ToString() != "Hồ sơ cá nhân")
+            {
+                <header class="hd-topbar" style="justify-content: space-between;">
+                    @if (currentController == "Home" && (currentAction == "Index" || currentAction == "ThongBao" || currentAction == "UuDai"))
+                    {
+                        <div class="hd-topbar-tabs">
+                            <a href="@Url.Action("Index","Home")" class="@(currentAction == "Index" ? "active" : "")">Models</a>
+                            <a href="@Url.Action("ThongBao","Home")" class="@(currentAction == "ThongBao" || currentAction == "UuDai" ? "active" : "")">Thông báo & Ưu đãi</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div></div> <!-- Empty div to push right content -->
+                    }
+                    <div class="hd-topbar-actions" style="margin-left:auto;">
+                        <div class="global-search-container" style="position:relative; display:flex; align-items:center; margin-right: 16px;">
+                            <div class="input-group">
+                                <input type="text" id="globalSearchInput" placeholder="Bạn muốn tìm kiếm điều gì?" class="form-control" style="font-size:13px; width:220px; background:var(--bg-card); color:var(--text-primary); border-color:var(--border-color); border-right:none;" autocomplete="off" />
+                                <span class="input-group-text" style="background:var(--bg-card); border-color:var(--border-color); border-left:none;"><i class="fas fa-search" style="color:var(--text-muted);"></i></span>
+                            </div>
+                            <div id="globalSearchResults" class="search-results-dropdown" style="display:none; position:absolute; top:100%; right:0; left:0; background:var(--bg-card); border:1px solid var(--border-color); border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.5); z-index:1000; padding:8px 0; margin-top:8px;">
+                            </div>
+                        </div>
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <span style="color:var(--text-secondary); font-size:13px; margin-right:12px; white-space:nowrap;">
+                                Xin chào, @User.Identity.Name
+                            </span>
+                        }
+                        else
+                        {
+                            <a class="btn-login" asp-controller="Account" asp-action="Login" style="margin-right:12px;">Đăng nhập</a>
+                        }
+                        <a href="@(User.Identity?.IsAuthenticated == true ? Url.Action("Profile","Account") : "#")" class="icon-btn" style="text-decoration:none;">
+                            <i class="fas fa-user-circle" style="font-size:20px;"></i>
+                        </a>
+                    </div>
+                </header>
+            }
+
+            <!-- Page Content -->
+            <div class="hd-content">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                }
+                <main role="main">
+                    @RenderBody()
+                </main>
+            </div>
+
+            <!-- Footer -->
+            <footer class="hd-footer">
+                <div>
+                    <span class="hd-footer-brand">H-D RENTAL</span>
+                    <span style="margin-left:12px;">&copy; 2024 H-D Rental. All rights reserved.</span>
+                </div>
+                <div>
+                    <a asp-controller="Home" asp-action="DieuKhoanDichVu">Điều khoản dịch vụ</a>
+                    <a asp-controller="Home" asp-action="ChinhSachBaoMat">Chính sách bảo mật</a>
+                    <a asp-controller="Home" asp-action="HopDongThueXe">Hợp đồng thuê xe</a>
+                    <a asp-controller="Home" asp-action="LienHe">Liên hệ chúng tôi</a>
+                </div>
+            </footer>
+        </div>
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/promo-manager.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

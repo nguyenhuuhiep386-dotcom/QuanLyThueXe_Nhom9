@@ -1,0 +1,17 @@
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\bin\Debug\net10.0\HashGen.exe
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\bin\Debug\net10.0\HashGen.deps.json
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\bin\Debug\net10.0\HashGen.runtimeconfig.json
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\bin\Debug\net10.0\HashGen.dll
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\bin\Debug\net10.0\HashGen.pdb
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\bin\Debug\net10.0\BCrypt-Net-Next.dll
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\obj\Debug\net10.0\HashGen.csproj.AssemblyReference.cache
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\obj\Debug\net10.0\HashGen.GeneratedMSBuildEditorConfig.editorconfig
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\obj\Debug\net10.0\HashGen.AssemblyInfoInputs.cache
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\obj\Debug\net10.0\HashGen.AssemblyInfo.cs
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\obj\Debug\net10.0\HashGen.csproj.CoreCompileInputs.cache
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\obj\Debug\net10.0\HashGen.csproj.Up2Date
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\obj\Debug\net10.0\HashGen.dll
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\obj\Debug\net10.0\refint\HashGen.dll
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\obj\Debug\net10.0\HashGen.pdb
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\obj\Debug\net10.0\HashGen.genruntimeconfig.cache
+D:\HocKi225\LapTrinhC#\QuanLyThueXe\HashGen\obj\Debug\net10.0\ref\HashGen.dll

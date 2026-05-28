@@ -1,0 +1,195 @@
+@model QuanLyThueXe.Models.ViewModels.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+    <div class="text-muted">
+        <i class="fas fa-calendar"></i> @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Tổng số xe</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TongSoXe</div>
+                        <small class="text-muted">
+                            Còn trống: @Model.SoXeConTrong | Đang thuê: @Model.SoXeDangThue
+                        </small>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-motorcycle fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Doanh thu tháng</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.DoanhThuThang.ToString("N0") VNĐ</div>
+                        <small class="text-muted">Tháng @DateTime.Now.Month/@DateTime.Now.Year</small>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Hợp đồng</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TongSoHopDong</div>
+                        <small class="text-muted">
+                            Chờ xác nhận: @Model.SoHopDongChoXacNhan | Đang thuê: @Model.SoHopDongDangThue
+                        </small>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-file-contract fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card border-left-warning shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Khách hàng</div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TongSoKhachHang</div>
+                        <small class="text-muted">Tổng số khách hàng</small>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Hợp đồng gần đây -->
+    <div class="col-lg-8 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-list"></i> Hợp đồng gần đây
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Mã HĐ</th>
+                                <th>Khách hàng</th>
+                                <th>Xe</th>
+                                <th>Ngày thuê</th>
+                                <th>Trạng thái</th>
+                                <th>Tổng tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var hd in Model.HopDongGanDay)
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-controller="HopDong" asp-action="Details" asp-route-id="@hd.MaHopDong">
+                                            #@hd.MaHopDong
+                                        </a>
+                                    </td>
+                                    <td>@hd.KhachHang.HoTen</td>
+                                    <td>@hd.Xe.TenXe</td>
+                                    <td>@hd.NgayThue.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        @if (hd.TrangThai == "ChoXacNhan")
+                                        {
+                                            <span class="badge bg-warning">Chờ xác nhận</span>
+                                        }
+                                        else if (hd.TrangThai == "DangThue")
+                                        {
+                                            <span class="badge bg-info">Đang thuê</span>
+                                        }
+                                        else if (hd.TrangThai == "DaTra")
+                                        {
+                                            <span class="badge bg-success">Đã trả</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Đã hủy</span>
+                                        }
+                                    </td>
+                                    <td>@hd.TongTien.ToString("N0") VNĐ</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Xe phổ biến -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-star"></i> Xe phổ biến
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    @foreach (var xe in Model.XePhoBien)
+                    {
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">@xe.TenXe</h6>
+                                <small>@xe.SoLanThue lần</small>
+                            </div>
+                            <p class="mb-1">
+                                <small class="text-muted">@xe.HangXe.TenHang - @xe.PhongCach.TenPhongCach</small>
+                            </p>
+                            <small>
+                                <i class="fas fa-star text-warning"></i> @xe.DanhGiaTrungBinh.ToString("0.0")
+                            </small>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .border-left-primary {
+        border-left: 0.25rem solid #4e73df !important;
+    }
+    .border-left-success {
+        border-left: 0.25rem solid #1cc88a !important;
+    }
+    .border-left-info {
+        border-left: 0.25rem solid #36b9cc !important;
+    }
+    .border-left-warning {
+        border-left: 0.25rem solid #f6c23e !important;
+    }
+</style>

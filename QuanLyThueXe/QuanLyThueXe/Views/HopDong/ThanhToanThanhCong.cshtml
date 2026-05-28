@@ -1,0 +1,42 @@
+@model QuanLyThueXe.Models.HopDong
+@{
+    ViewData["Title"] = "Thanh toán thành công";
+}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:16px; padding:40px; text-align:center; max-width:500px; width:100%;">
+        
+        <div style="width:80px; height:80px; border-radius:50%; background:rgba(40,167,69,0.1); color:#28a745; display:flex; align-items:center; justify-content:center; font-size:40px; margin:0 auto 24px;">
+            <i class="fas fa-check"></i>
+        </div>
+
+        <h2 style="font-size:24px; font-weight:700; margin-bottom:8px;">Thanh toán đặt cọc thành công!</h2>
+        <p style="color:var(--text-secondary); font-size:14px; margin-bottom:24px;">
+            Cảm ơn bạn đã lựa chọn H-D Rental. Yêu cầu đặt xe của bạn đã được gửi đi và đang chờ xác nhận từ quản trị viên.
+        </p>
+
+        <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:8px; padding:20px; text-align:left; margin-bottom:32px;">
+            <div class="d-flex justify-content-between mb-2">
+                <span style="color:var(--text-muted); font-size:13px;">Mã hợp đồng:</span>
+                <strong style="font-size:14px;">#@Model.MaHopDong</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span style="color:var(--text-muted); font-size:13px;">Mẫu xe:</span>
+                <strong style="font-size:14px;">@Model.Xe.TenXe</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+                <span style="color:var(--text-muted); font-size:13px;">Thời gian thuê:</span>
+                <strong style="font-size:14px;">@Model.NgayThue.ToString("dd/MM/yyyy") - @Model.NgayTra.ToString("dd/MM/yyyy")</strong>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span style="color:var(--text-muted); font-size:13px;">Tổng tiền dự kiến:</span>
+                <strong style="font-size:16px; color:var(--accent);">@Model.TongTien.ToString("N0")đ</strong>
+            </div>
+        </div>
+
+        <div class="d-flex gap-3 justify-content-center">
+            <a asp-controller="HopDong" asp-action="ChiTiet" asp-route-id="@Model.MaHopDong" class="btn-hd-outline" style="flex:1;">Xem chi tiết</a>
+            <a asp-controller="Home" asp-action="Index" class="btn-hd" style="flex:1;">Trở về trang chủ</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,80 @@
+@{
+    ViewData["Title"] = "Thông báo & Ưu đãi";
+}
+
+<div class="hd-section-header" style="margin-bottom:8px;">
+    <h1 style="font-size:28px; font-weight:700;">Trung tâm thông báo</h1>
+</div>
+<p style="font-size:14px; color:var(--text-secondary); margin-bottom:24px;">Luôn cập nhật thông tin về các chuyến đi và ưu đãi độc quyền.</p>
+
+<!-- Tabs -->
+<div class="d-flex gap-3 mb-4" style="border-bottom:1px solid var(--border-color); padding-bottom:12px;">
+    <a href="@Url.Action("ThongBao", "Home")" style="color:var(--accent); font-size:13px; font-weight:600; padding-bottom:12px; border-bottom:2px solid var(--accent); text-decoration:none;">
+        <i class="fas fa-bell"></i> THÔNG BÁO
+    </a>
+    <a href="@Url.Action("UuDai", "Home")" style="color:var(--text-muted); font-size:13px; padding-bottom:12px; text-decoration:none;">
+        <i class="fas fa-gift"></i> ƯU ĐÃI DÀNH RIÊNG CHO BẠN
+    </a>
+</div>
+
+<!-- Recent updates -->
+<h3 style="font-size:18px; font-weight:600; font-style:italic; margin-bottom:16px;">Cập nhật gần đây</h3>
+
+<a href="@Url.Action("ChiTietThongBao", "Home", new { id = 1 })" style="text-decoration:none; color:inherit; display:block;">
+    <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:20px; margin-bottom:12px; transition:0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border-color)'">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex gap-3 align-items-center">
+                <div style="width:4px; height:40px; background:var(--accent); border-radius:2px;"></div>
+                <div>
+                    <strong style="font-size:14px;">Chào mừng bạn đến với H-D Rental!</strong>
+                    <p style="font-size:12px; color:var(--text-muted); margin:4px 0 0;">Khám phá đội xe huyền thoại và bắt đầu hành trình của bạn.</p>
+                </div>
+            </div>
+            <span style="font-size:11px; color:var(--text-muted);">Hôm nay</span>
+        </div>
+    </div>
+</a>
+
+<a href="@Url.Action("ChiTietThongBao", "Home", new { id = 2 })" style="text-decoration:none; color:inherit; display:block;">
+    <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:20px; margin-bottom:12px; transition:0.2s;" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border-color)'">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex gap-3 align-items-center">
+                <div style="width:4px; height:40px; background:var(--text-muted); border-radius:2px;"></div>
+                <div>
+                    <strong style="font-size:14px;">Cập nhật chính sách bảo hiểm mới</strong>
+                    <p style="font-size:12px; color:var(--text-muted); margin:4px 0 0;">Gói bảo hiểm Premium Protection đã được nâng cấp với nhiều quyền lợi hơn.</p>
+                </div>
+            </div>
+            <span style="font-size:11px; color:var(--text-muted);">2 ngày trước</span>
+        </div>
+    </div>
+</a>
+
+<!-- Exclusive offers -->
+<h3 style="font-size:18px; font-weight:600; font-style:italic; margin:32px 0 16px;">Ưu đãi độc quyền</h3>
+<div style="text-align:right; margin-bottom:12px;">
+    <a href="@Url.Action("UuDai", "Home")" style="color:var(--accent); font-size:13px; text-decoration:none;">Xem tất cả</a>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-7">
+        <div style="position:relative; border-radius:var(--border-radius); overflow:hidden; height:280px;">
+            <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=700&q=80" 
+                 style="width:100%; height:100%; object-fit:cover;" alt="Promo"
+                 onerror="this.style.background='var(--bg-card)'" />
+            <div style="position:absolute; bottom:0; left:0; right:0; padding:24px; background:linear-gradient(transparent, rgba(0,0,0,0.85));">
+                <span style="background:var(--accent); padding:4px 10px; border-radius:4px; font-size:10px; font-weight:600;">✦ HẠNG BẠCH KIM</span>
+                <h4 style="font-size:22px; font-weight:700; margin:8px 0;">Vé Warrior Weekend</h4>
+                <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Nhận ngay ưu đãi giảm giá 30% cho mọi mẫu xe Touring khi thuê trên 48 giờ.</p>
+                <button onclick="alert('Đã áp dụng mã giảm giá 30% thành công!')" class="btn-hd" style="font-size:12px; padding:8px 20px; border:none;">SỬ DỤNG NGAY</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px; height:280px; display:flex; flex-direction:column; justify-content:center;">
+            <h4 style="font-size:18px; font-weight:700; margin-bottom:8px;">Kiểm tra xe miễn phí trước khi lên xe</h4>
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">Hãy đảm bảo xe của bạn sẵn sàng để lăn bánh với dịch vụ kiểm tra 20-bước miễn phí từ các kỹ thuật viên được chứng nhận.</p>
+            <button onclick="alert('Dịch vụ đã được ghi nhận vào tài khoản của bạn!')" class="btn-hd-outline w-100" style="text-align:center;">SỬ DỤNG NGAY</button>
+        </div>
+    </div>
+</div>

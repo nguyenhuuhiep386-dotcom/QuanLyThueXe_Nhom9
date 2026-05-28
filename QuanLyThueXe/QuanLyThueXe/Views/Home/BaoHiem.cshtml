@@ -1,0 +1,299 @@
+@{
+    ViewData["Title"] = "Bảo hiểm";
+}
+
+<h1 style="font-size:28px; font-weight:700; font-style:italic; margin-bottom:8px;">Bảo hiểm cá nhân</h1>
+<p style="font-size:14px; color:var(--text-secondary); margin-bottom:32px;">Xem chi tiết các gói bảo hiểm hiện tại của bạn và gửi yêu cầu bồi thường nhanh chóng khi có sự cố trên đường.</p>
+
+<!-- Insurance Cards -->
+<div class="row g-4 mb-5">
+    <div class="col-md-6">
+        <div style="border-radius:var(--border-radius); overflow:hidden; border:1px solid var(--border-color);">
+            <div style="height:160px; background:linear-gradient(135deg, #1a1a2e, #2a2a3e); display:flex; align-items:center; justify-content:center;">
+                <img src="https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=500&q=80" 
+                     style="width:100%; height:100%; object-fit:cover; opacity:0.5;" alt="Insurance"
+                     onerror="this.style.display='none'" />
+            </div>
+            <div style="padding:20px; background:var(--bg-card);">
+                <span style="background:#065f46; color:#34d399; padding:4px 10px; border-radius:4px; font-size:10px; font-weight:600;">ĐANG HOẠT ĐỘNG</span>
+                <h4 style="font-size:18px; font-weight:700; margin:12px 0 4px;">H-D Premium Protection</h4>
+                <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
+                    <i class="fas fa-calendar"></i> Ngày hết hạn: <strong>15/11/2024</strong>
+                </div>
+                <div style="font-size:13px; color:var(--text-secondary); margin-bottom:4px;"><i class="fas fa-shield-alt" style="color:var(--accent);"></i> Phạm vi bảo hiểm:</div>
+                <ul style="font-size:13px; color:var(--text-secondary); padding-left:20px; margin-bottom:16px;">
+                    <li>Tai nạn toàn diện</li>
+                    <li>Bị đánh cắp & Cháy nổ</li>
+                    <li>Trách nhiệm dân sự (Mức cao)</li>
+                </ul>
+                <button class="btn-hd-outline w-100" style="text-align:center;" data-bs-toggle="modal" data-bs-target="#contractModal">Xem hợp đồng</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div style="border-radius:var(--border-radius); overflow:hidden; border:1px solid var(--border-color);">
+            <div style="height:160px; background:linear-gradient(135deg, #2a1a0a, #3a2a1a); display:flex; align-items:center; justify-content:center;">
+                <img src="https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=500&q=80"
+                     style="width:100%; height:100%; object-fit:cover; opacity:0.5;" alt="Roadside"
+                     onerror="this.style.display='none'" />
+            </div>
+            <div style="padding:20px; background:var(--bg-card);">
+                <span style="background:#065f46; color:#34d399; padding:4px 10px; border-radius:4px; font-size:10px; font-weight:600;">ĐANG HOẠT ĐỘNG</span>
+                <h4 style="font-size:18px; font-weight:700; margin:12px 0 4px;">Roadside Assistance</h4>
+                <div style="font-size:13px; color:var(--text-muted); margin-bottom:12px;">
+                    <i class="fas fa-calendar"></i> Ngày hết hạn: <strong>15/11/2024</strong>
+                </div>
+                <div style="font-size:13px; color:var(--text-secondary); margin-bottom:4px;"><i class="fas fa-wrench" style="color:var(--accent);"></i> Dịch vụ bao gồm:</div>
+                <ul style="font-size:13px; color:var(--text-secondary); padding-left:20px; margin-bottom:16px;">
+                    <li>Cứu hộ 24/7 toàn quốc</li>
+                    <li>Sửa chữa lốp xe lưu động</li>
+                    <li>Cấp nhiên liệu khẩn cấp</li>
+                </ul>
+                <button class="btn-hd w-100" style="text-align:center; justify-content:center;" data-bs-toggle="modal" data-bs-target="#callModal" onclick="startCallAnimation()">Gọi cứu hộ ngay</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Claims Section -->
+<div class="row g-4">
+    <div class="col-md-5">
+        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px;">
+            <h4 style="font-size:18px; font-weight:600; margin-bottom:20px;">
+                <i class="fas fa-file-alt" style="color:var(--accent);"></i> Gửi yêu cầu bồi thường
+            </h4>
+            <div class="mb-3">
+                <label class="form-label">LOẠI SỰ CỐ</label>
+                <select class="form-select" style="font-size:13px;">
+                    <option>Tai nạn va chạm</option>
+                    <option>Hỏng xe giữa đường</option>
+                    <option>Mất cắp</option>
+                    <option>Khác</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">MÔ TẢ NGẮN GỌN</label>
+                <textarea class="form-control" rows="3" placeholder="Mô tả chi tiết tình huống..." style="font-size:13px;"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">HÌNH ẢNH HIỆN TRƯỜNG</label>
+                <input type="file" 
+                       class="form-control" 
+                       id="claimImages" 
+                       accept="image/*" 
+                       multiple />
+                <small class="text-muted">Có thể chọn nhiều ảnh (Max 5MB mỗi ảnh)</small>
+            </div>
+            <button type="button" class="btn-hd w-100" style="justify-content:center;" onclick="submitClaim()">
+                <i class="fas fa-paper-plane"></i> Gửi yêu cầu (Claim)
+            </button>
+        </div>
+    </div>
+    <div class="col-md-7">
+        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px;">
+            <h4 style="font-size:18px; font-weight:600; margin-bottom:20px;">Lịch sử Yêu cầu bồi thường</h4>
+            <div class="hd-empty-state" style="padding:40px;">
+                <div style="font-size:48px; color:var(--text-muted); margin-bottom:16px;"><i class="fas fa-clipboard-check"></i></div>
+                <h5 style="font-size:16px; font-weight:600;">Chưa có yêu cầu nào</h5>
+                <p style="font-size:13px; color:var(--text-secondary);">Bạn chưa ghi nhận bất kỳ sự cố hay yêu cầu bồi thường nào. Lịch sử các hồ sơ claim sẽ hiển thị tại đây.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contract Modal -->
+<div class="modal fade hd-modal" id="contractModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:12px;">
+            <div class="modal-header" style="border-bottom:1px solid var(--border-color);">
+                <h5 class="modal-title" style="font-weight:700; font-size:18px;"><i class="fas fa-file-contract" style="color:var(--accent);"></i> Hợp Đồng Bảo Hiểm Tiêu Chuẩn Quốc Gia</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="font-size:14px; color:var(--text-secondary); line-height:1.6; text-align:justify; max-height:60vh; overflow-y:auto; padding:32px;">
+                <h4 style="text-align:center; font-weight:700; color:var(--text-primary); margin-bottom:24px;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br><small style="font-weight:normal; font-size:14px;">Độc lập - Tự do - Hạnh phúc</small></h4>
+                <h5 style="text-align:center; font-weight:700; color:var(--text-primary); margin-bottom:24px;">HỢP ĐỒNG BẢO HIỂM MÔ TÔ CAO CẤP</h5>
+                <p><strong>Điều 1: Đối tượng bảo hiểm</strong><br>
+                Bảo hiểm này áp dụng cho xe mô tô phân khối lớn do H-D Rental cung cấp, bao gồm bảo hiểm trách nhiệm dân sự bắt buộc và bảo hiểm thân vỏ tự nguyện (trong trường hợp khách hàng mua gói cao cấp).</p>
+                <p><strong>Điều 2: Phạm vi bồi thường</strong><br>
+                Công ty bảo hiểm sẽ bồi thường cho Chủ xe những thiệt hại vật chất xe xảy ra do:
+                <ul style="padding-left:20px;">
+                    <li>Tai nạn bất ngờ, ngoài sự kiểm soát của chủ xe như đâm va, lật đổ.</li>
+                    <li>Cháy, nổ, hỏa hoạn do nguyên nhân kỹ thuật hoặc khách quan.</li>
+                    <li>Mất cắp toàn bộ xe (yêu cầu có xác nhận của cơ quan công an).</li>
+                </ul>
+                </p>
+                <p><strong>Điều 3: Các điểm loại trừ bảo hiểm</strong><br>
+                Công ty bảo hiểm không chịu trách nhiệm bồi thường trong các trường hợp:
+                <ul style="padding-left:20px;">
+                    <li>Hành vi cố ý gây thiệt hại của Chủ xe, lái xe.</li>
+                    <li>Lái xe không có Giấy phép lái xe hợp lệ hoặc lái xe trong tình trạng say xỉn, sử dụng ma túy.</li>
+                    <li>Thiệt hại do xe tham gia đua xe (kể cả trái phép và hợp pháp) không thông báo trước.</li>
+                </ul>
+                </p>
+                <p><strong>Điều 4: Nghĩa vụ của bên mua bảo hiểm</strong><br>
+                Khi xảy ra sự cố, bên mua bảo hiểm phải thông báo ngay cho tổng đài cứu hộ của H-D Rental trong vòng 24 giờ và phối hợp thực hiện các thủ tục giám định thiệt hại.</p>
+                <div style="text-align:right; margin-top:32px;">
+                    <p><em>Ngày 01 tháng 01 năm 2024</em><br><strong>ĐẠI DIỆN H-D RENTAL</strong><br><br>(Đã ký điện tử)</p>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top:none; justify-content:space-between;">
+                <button type="button" class="btn-hd-outline" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" class="btn-hd" onclick="window.print()"><i class="fas fa-print"></i> Tải xuống PDF</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call Modal Animation -->
+<div class="modal fade hd-modal" id="callModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content" style="background:#1a1a1a; border:1px solid #333; border-radius:24px; color:#fff;">
+            <div class="modal-body" style="text-align:center; padding:40px 20px;">
+                <div style="margin-bottom:24px; position:relative; width:80px; height:80px; margin:0 auto;">
+                    <div id="callPulse1" style="position:absolute; inset:0; border-radius:50%; background:rgba(232,115,26,0.2); animation:pulse 2s infinite;"></div>
+                    <div id="callPulse2" style="position:absolute; inset:10px; border-radius:50%; background:rgba(232,115,26,0.4); animation:pulse 2s infinite 0.5s;"></div>
+                    <img src="https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=100&q=80" style="position:absolute; inset:20px; width:40px; height:40px; border-radius:50%; object-fit:cover; z-index:2;" />
+                </div>
+                <h4 style="font-weight:600; font-size:18px; margin-top:24px;">Tổng đài Cứu Hộ 24/7</h4>
+                <p style="color:#aaa; font-size:14px; margin-bottom:8px;" id="callStatusText">Đang kết nối...</p>
+                <p style="color:#4ade80; font-size:16px; font-weight:700; margin-bottom:32px; display:none;" id="callTimer">00:00</p>
+                
+                <div class="d-flex justify-content-center gap-4 mb-2">
+                    <div style="text-align:center; cursor:pointer;" onclick="toggleMute()">
+                        <div id="btnMute" style="width:48px; height:48px; border-radius:50%; background:#333; display:flex; align-items:center; justify-content:center; margin:0 auto 8px; font-size:18px;">
+                            <i class="fas fa-microphone"></i>
+                        </div>
+                        <span style="font-size:11px; color:#aaa;">Tắt tiếng</span>
+                    </div>
+                    <div style="text-align:center; cursor:pointer;">
+                        <div style="width:48px; height:48px; border-radius:50%; background:#333; display:flex; align-items:center; justify-content:center; margin:0 auto 8px; font-size:18px;">
+                            <i class="fas fa-th"></i>
+                        </div>
+                        <span style="font-size:11px; color:#aaa;">Bàn phím</span>
+                    </div>
+                    <div style="text-align:center; cursor:pointer;" onclick="toggleSpeaker()">
+                        <div id="btnSpeaker" style="width:48px; height:48px; border-radius:50%; background:#333; display:flex; align-items:center; justify-content:center; margin:0 auto 8px; font-size:18px;">
+                            <i class="fas fa-volume-up"></i>
+                        </div>
+                        <span style="font-size:11px; color:#aaa;">Loa ngoài</span>
+                    </div>
+                </div>
+                
+                <div style="text-align:center; margin-top:24px;">
+                    <div style="cursor:pointer; width:64px; height:64px; border-radius:50%; background:#ef4444; display:flex; align-items:center; justify-content:center; margin:0 auto; font-size:24px; box-shadow:0 4px 12px rgba(239,68,68,0.4);" onclick="endCall()" data-bs-dismiss="modal">
+                        <i class="fas fa-phone-slash" style="color:#fff; transform:rotate(135deg);"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        @@media print {
+            /* Ẩn tất cả trừ modal-body */
+            body * {
+                visibility: hidden;
+            }
+            
+            .modal-body, .modal-body * {
+                visibility: visible;
+            }
+            
+            .modal-body {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white !important;
+                color: black !important;
+            }
+            
+            /* Ẩn các thành phần không cần */
+            .hd-sidebar,
+            .navbar,
+            .hd-topbar,
+            footer,
+            .hd-footer,
+            .modal-backdrop,
+            .btn,
+            .modal-header,
+            .modal-footer {
+                display: none !important;
+            }
+        }
+    </style>
+    <script>
+        let callTimerInterval;
+        let seconds = 0;
+        let isMuted = false;
+        let isSpeakerOn = false;
+
+        function startCallAnimation() {
+            document.getElementById('callStatusText').style.display = 'block';
+            document.getElementById('callStatusText').textContent = 'Đang kết nối...';
+            document.getElementById('callTimer').style.display = 'none';
+            document.getElementById('callPulse1').style.animation = 'pulse 2s infinite';
+            document.getElementById('callPulse2').style.animation = 'pulse 2s infinite 0.5s';
+            
+            clearInterval(callTimerInterval);
+            seconds = 0;
+            
+            setTimeout(() => {
+                document.getElementById('callStatusText').style.display = 'none';
+                document.getElementById('callTimer').style.display = 'block';
+                document.getElementById('callTimer').textContent = '00:00';
+                
+                // Change pulse colors to green to indicate connected
+                document.getElementById('callPulse1').style.background = 'rgba(74,222,128,0.2)';
+                document.getElementById('callPulse2').style.background = 'rgba(74,222,128,0.4)';
+                
+                callTimerInterval = setInterval(() => {
+                    seconds++;
+                    let m = Math.floor(seconds / 60);
+                    let s = seconds % 60;
+                    document.getElementById('callTimer').textContent = 
+                        (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+                }, 1000);
+            }, 3000); // Connect after 3 seconds
+        }
+
+        function endCall() {
+            clearInterval(callTimerInterval);
+            document.getElementById('callStatusText').style.display = 'block';
+            document.getElementById('callStatusText').textContent = 'Cuộc gọi đã kết thúc';
+            document.getElementById('callTimer').style.display = 'none';
+            document.getElementById('callPulse1').style.animation = 'none';
+            document.getElementById('callPulse2').style.animation = 'none';
+            document.getElementById('callPulse1').style.background = 'rgba(232,115,26,0.2)';
+            document.getElementById('callPulse2').style.background = 'rgba(232,115,26,0.4)';
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            const btn = document.getElementById('btnMute');
+            if (isMuted) {
+                btn.style.background = '#fff';
+                btn.style.color = '#333';
+                btn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+            } else {
+                btn.style.background = '#333';
+                btn.style.color = '#fff';
+                btn.innerHTML = '<i class="fas fa-microphone"></i>';
+            }
+        }
+
+        function toggleSpeaker() {
+            isSpeakerOn = !isSpeakerOn;
+            const btn = document.getElementById('btnSpeaker');
+            if (isSpeakerOn) {
+                btn.style.background = '#fff';
+                btn.style.color = '#333';
+            } else {
+                btn.style.background = '#333';
+                btn.style.color = '#fff';
+            }
+        }
+    </script>
+}

@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "6ocbzBqMV+E=",
+  "success": true,
+  "projectFilePath": "D:\\HocKi225\\LapTrinhC#\\QuanLyThueXe\\HashGen\\HashGen.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\NITRO 16\\.nuget\\packages\\bcrypt.net-next\\4.2.1\\bcrypt.net-next.4.2.1.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,157 @@
+@model QuanLyThueXe.Models.HopDong
+
+@{
+    ViewData["Title"] = "Chi tiết hợp đồng";
+    var statusColor = Model.TrangThai switch {
+        "ChoXacNhan" => "color:#fbbf24; background:#3d2e0a;",
+        "DaXacNhan" => "color:#60a5fa; background:#1e3a5f;",
+        "DangThue" => "color:#4ade80; background:#0a3d1e;",
+        "DaTra" => "color:#34d399; background:#064e3b;",
+        "DaHuy" => "color:#f87171; background:#3d0a0a;",
+        _ => "color:var(--text-muted); background:var(--bg-card);"
+    };
+    var statusText = Model.TrangThai switch {
+        "ChoXacNhan" => "CHỜ XÁC NHẬN",
+        "DaXacNhan" => "ĐÃ XÁC NHẬN",
+        "DangThue" => "ĐANG HOẠT ĐỘNG",
+        "DaTra" => "HOÀN THÀNH",
+        "DaHuy" => "ĐÃ HỦY",
+        _ => Model.TrangThai
+    };
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 style="font-size:24px; font-weight:700; font-style:italic;">Chi tiết Hợp đồng Thuê xe</h2>
+        <p style="font-size:13px; color:var(--text-muted);">Mã hợp đồng: <strong>#HDR-@Model.MaHopDong</strong></p>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+        <span style="@statusColor padding:6px 16px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:0.5px;">
+            @statusText
+        </span>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column -->
+    <div class="col-lg-8">
+        <!-- Vehicle Info -->
+        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px; margin-bottom:24px;">
+            <div class="d-flex gap-4">
+                @{
+                    var anh = Model.Xe.HinhAnhs.FirstOrDefault(h => h.IsAnhChinh) ?? Model.Xe.HinhAnhs.FirstOrDefault();
+                    var img = anh?.DuongDanAnh ?? "https://via.placeholder.com/200x140?text=Xe";
+                }
+                <img src="@img" alt="@Model.Xe.TenXe" style="width:200px; height:140px; object-fit:cover; border-radius:10px;"
+                     onerror="this.src='https://via.placeholder.com/200x140?text=Xe'" />
+                <div>
+                    <span class="badge-status badge-available" style="margin-bottom:8px; display:inline-block;">PREMIUM FLEET</span>
+                    <h3 style="font-size:20px; font-weight:700;">@Model.Xe.HangXe.TenHang @Model.Xe.TenXe</h3>
+                    <p style="font-size:13px; color:var(--text-muted);">Biển số: @Model.Xe.BienSo</p>
+                    <div style="font-size:13px; color:var(--text-secondary);">
+                        <i class="fas fa-cog" style="color:var(--accent);"></i> Động cơ: @Model.Xe.HangXe.TenHang (@(Model.Xe.DungTich.HasValue ? $"{Model.Xe.DungTich}cc" : "N/A"))
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Details -->
+        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px;">
+            <h4 style="font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px;">CHI TIẾT THANH TOÁN</h4>
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Mô tả</th>
+                        <th style="text-align:right;">Đơn giá</th>
+                        <th style="text-align:right;">Số lượng</th>
+                        <th style="text-align:right;">Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Thuê xe @Model.Xe.TenXe (@((Model.NgayTra - Model.NgayThue).Days) ngày)</td>
+                        <td style="text-align:right;">@Model.GiaThueGoc.ToString("N0")đ</td>
+                        <td style="text-align:right;">@((Model.NgayTra - Model.NgayThue).Days)</td>
+                        <td style="text-align:right;">@((Model.GiaThueGoc * (Model.NgayTra - Model.NgayThue).Days).ToString("N0"))đ</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" style="text-align:right; font-weight:600;">Tổng cộng</td>
+                        <td style="text-align:right; font-size:20px; font-weight:700; color:var(--accent);">@Model.TongTien.ToString("N0")đ</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        <!-- Cancel / Review -->
+        @if (Model.TrangThai == "ChoXacNhan")
+        {
+            <div style="margin-top:24px;">
+                <form asp-action="Huy" asp-route-id="@Model.MaHopDong" method="post" onsubmit="return confirm('Bạn có chắc muốn hủy hợp đồng này?')">
+                    <input type="hidden" name="lyDoHuy" value="Khách hàng hủy" />
+                    <button type="submit" class="btn-hd-outline" style="color:#f87171; border-color:#f87171;">
+                        <i class="fas fa-times"></i> Hủy hợp đồng
+                    </button>
+                </form>
+            </div>
+        }
+
+        @if (Model.TrangThai == "DaTra" && Model.DanhGia == null)
+        {
+            <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px; margin-top:24px;">
+                <h4 style="font-size:16px; font-weight:600; margin-bottom:16px;">Đánh giá chuyến đi</h4>
+                <form asp-action="DanhGia" asp-route-id="@Model.MaHopDong" method="post">
+                    <div class="mb-3">
+                        <label class="form-label">SỐ SAO</label>
+                        <select name="soSao" class="form-select" style="width:120px;">
+                            <option value="5">⭐⭐⭐⭐⭐</option>
+                            <option value="4">⭐⭐⭐⭐</option>
+                            <option value="3">⭐⭐⭐</option>
+                            <option value="2">⭐⭐</option>
+                            <option value="1">⭐</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">NHẬN XÉT</label>
+                        <textarea name="nhanXet" class="form-control" rows="3" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-hd"><i class="fas fa-paper-plane"></i> Gửi đánh giá</button>
+                </form>
+            </div>
+        }
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-lg-4">
+        <!-- Rental Period -->
+        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px; margin-bottom:24px;">
+            <h4 style="font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px;">THỜI GIAN THUÊ</h4>
+            <div class="d-flex gap-4">
+                <div>
+                    <div style="color:var(--accent); font-size:11px; margin-bottom:4px;"><i class="fas fa-calendar-check"></i> Bắt đầu</div>
+                    <strong style="font-size:16px;">@Model.NgayThue.ToString("dd/MM/yyyy")</strong>
+                    <div style="font-size:12px; color:var(--text-muted);">@Model.NgayThue.ToString("HH:mm")</div>
+                </div>
+                <div>
+                    <div style="color:#f87171; font-size:11px; margin-bottom:4px;"><i class="fas fa-calendar-times"></i> Kết thúc</div>
+                    <strong style="font-size:16px;">@Model.NgayTra.ToString("dd/MM/yyyy")</strong>
+                    <div style="font-size:12px; color:var(--text-muted);">@Model.NgayTra.ToString("HH:mm")</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Extend Rental -->
+        @if (Model.TrangThai == "DangThue")
+        {
+            <div style="text-align:center; margin-bottom:24px;">
+                <button class="btn-hd-outline w-100">GIA HẠN THUÊ XE</button>
+            </div>
+        }
+
+        <!-- Back -->
+        <a asp-action="CuaToi" class="btn-hd-outline w-100" style="text-align:center; display:block;">
+            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+        </a>
+    </div>
+</div>

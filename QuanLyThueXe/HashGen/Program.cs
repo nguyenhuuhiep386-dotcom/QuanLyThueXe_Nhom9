@@ -1,0 +1,1 @@
+using System; class Program { static void Main() { Console.WriteLine("Admin: " + BCrypt.Net.BCrypt.HashPassword("Admin@123456")); Console.WriteLine("Khachhang: " + BCrypt.Net.BCrypt.HashPassword("Khachhang@123456")); } }

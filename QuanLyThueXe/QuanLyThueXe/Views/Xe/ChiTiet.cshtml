@@ -1,0 +1,348 @@
+@model QuanLyThueXe.Models.Xe
+
+@{
+    ViewData["Title"] = "Chi Tiết Xe";
+}
+
+<!-- Breadcrumb -->
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-controller="Xe" asp-action="DanhSach">DANH SÁCH XE</a></li>
+        <li class="breadcrumb-item"><span style="color:var(--text-secondary);">@Model.PhongCach.TenPhongCach.ToUpper()</span></li>
+        <li class="breadcrumb-item"><span style="color:var(--text-secondary);">@Model.TenXe.ToUpper()</span></li>
+        <li class="breadcrumb-item active">THÔNG TIN CHI TIẾT</li>
+    </ol>
+</nav>
+
+<div class="hd-detail-grid">
+    <!-- Left Column -->
+    <div>
+        <!-- Main Image -->
+        <div style="position:relative;">
+            <span class="badge-status badge-available" style="position:absolute; top:16px; left:16px; z-index:2;">PREMIUM FLEET</span>
+            @{
+                var anhChinh = Model.HinhAnhs.FirstOrDefault(h => h.IsAnhChinh) ?? Model.HinhAnhs.FirstOrDefault();
+                var imgSrc = anhChinh?.DuongDanAnh ?? "https://via.placeholder.com/700x400?text=No+Image";
+            }
+            <img src="@imgSrc" class="img-fluid" id="mainImage" alt="@Model.TenXe"
+                 style="width:100%; border-radius:var(--border-radius); height:400px; object-fit:cover; opacity:0; transition: opacity 0.3s;"
+                 onload="this.style.opacity=1" />
+        </div>
+
+        <h1 style="font-size:28px; font-weight:700; margin:16px 0 4px;">@Model.TenXe</h1>
+        <p style="font-size:13px; color:var(--text-secondary);">@Model.HangXe.TenHang • @(Model.DungTich.HasValue ? $"{Model.DungTich}cc" : "") V-Twin Engine</p>
+
+        <!-- Thumbnails -->
+        @if (Model.HinhAnhs.Count > 1)
+        {
+            <div class="hd-detail-thumbs">
+                @foreach (var hinh in Model.HinhAnhs.Take(5))
+                {
+                    <img src="@hinh.DuongDanAnh" alt="@Model.TenXe"
+                         onclick="document.getElementById('mainImage').src='@hinh.DuongDanAnh'" />
+                }
+            </div>
+        }
+
+        <!-- Specs -->
+        <div class="hd-specs">
+            <div class="spec-item">
+                <div class="spec-icon"><i class="fas fa-tachometer-alt"></i></div>
+                <div class="spec-label">ĐỘNG CƠ</div>
+                <div class="spec-value">@(Model.DungTich.HasValue ? $"{Model.DungTich:N0}" : "N/A") <small>cc</small></div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-icon"><i class="fas fa-bolt"></i></div>
+                <div class="spec-label">MÔ-MEN XOẮN</div>
+                <div class="spec-value">155 <small>Nm</small></div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-icon"><i class="fas fa-weight-hanging"></i></div>
+                <div class="spec-label">TRỌNG LƯỢNG</div>
+                <div class="spec-value">317 <small>kg</small></div>
+            </div>
+            <div class="spec-item">
+                <div class="spec-icon"><i class="fas fa-gas-pump"></i></div>
+                <div class="spec-label">BÌNH XĂNG</div>
+                <div class="spec-value">18.9 <small>L</small></div>
+            </div>
+        </div>
+
+        <!-- Description -->
+        @if (!string.IsNullOrEmpty(Model.MoTa))
+        {
+            <div style="margin-top:32px;">
+                <h3 style="font-size:20px; font-weight:600; font-style:italic; margin-bottom:16px;">Trải nghiệm lái</h3>
+                <p style="font-size:14px; color:var(--text-secondary); line-height:1.8;">@Model.MoTa</p>
+            </div>
+        }
+
+        <!-- Reviews -->
+        @if (Model.DanhGias.Any(d => d.IsHienThi))
+        {
+            <div style="margin-top:40px;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 style="font-size:20px; font-weight:600; font-style:italic;">Đánh giá từ khách hàng</h3>
+                    <div>
+                        <span style="font-size:20px; font-weight:700;">@Model.DanhGiaTrungBinh.ToString("0.0")</span>
+                        <span class="hd-stars">
+                            @{
+                                var rating = (int)Math.Round(Model.DanhGiaTrungBinh);
+                                for (int i = 1; i <= 5; i++)
+                                {
+                                    if (i <= rating)
+                                    {
+                                        <i class="fas fa-star"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="far fa-star text-muted"></i>
+                                    }
+                                }
+                            }
+                        </span>
+                        <span style="font-size:12px; color:var(--text-muted);">(@Model.DanhGias.Count(d => d.IsHienThi) đánh giá)</span>
+                    </div>
+                </div>
+                <div class="row g-3">
+                    @foreach (var dg in Model.DanhGias.Where(d => d.IsHienThi).OrderByDescending(d => d.NgayDanhGia).Take(4))
+                    {
+                        <div class="col-md-6">
+                            <div class="hd-review-card">
+                                <div class="d-flex gap-3 align-items-start">
+                                    <div class="reviewer-avatar">@dg.KhachHang.HoTen[..2].ToUpper()</div>
+                                    <div>
+                                        <strong style="font-size:14px;">@dg.KhachHang.HoTen</strong>
+                                        <div class="hd-stars" style="font-size:12px;">
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <i class="fas fa-star @(i <= dg.SoSao ? "" : "text-muted")" style="@(i <= dg.SoSao ? "color:#fbbf24;" : "")"></i>
+                                            }
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(dg.NhanXet))
+                                        {
+                                            <p style="font-size:13px; color:var(--text-secondary); margin-top:8px; font-style:italic;">"@dg.NhanXet"</p>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div style="text-align:center; margin-top:16px;">
+                    <a href="#" style="color:var(--accent); font-size:12px; text-transform:uppercase; letter-spacing:1px;">
+                        XEM TẤT CẢ @Model.DanhGias.Count(d => d.IsHienThi) ĐÁNH GIÁ
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Right Column - Booking Panel -->
+    <div>
+        <div class="hd-booking-panel">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <span style="font-size:13px; color:var(--text-secondary);">Đặt chuyến đi</span>
+                    <div class="price">@Model.GiaThueNgay.ToString("N0")đ <small>/MỖI NGÀY</small></div>
+                </div>
+            </div>
+
+            <div style="margin-bottom:20px;">
+                <label style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px;">THỜI GIAN THUÊ</label>
+                <div class="row g-2 mt-1">
+                    <div class="col-6">
+                        <label style="font-size:10px; color:var(--text-muted);">NGÀY NHẬN</label>
+                        <input type="date" class="form-control" id="bookNgayThue" style="font-size:12px;" />
+                    </div>
+                    <div class="col-6">
+                        <label style="font-size:10px; color:var(--text-muted);">NGÀY TRẢ</label>
+                        <input type="date" class="form-control" id="bookNgayTra" style="font-size:12px;" />
+                    </div>
+                </div>
+                <small style="display:block; margin-top:8px; font-size:11px; color:var(--text-muted);">
+                    <i class="fas fa-info-circle"></i> Vui lòng chọn ngày trả xe sau ngày nhận ít nhất 24h.
+                </small>
+            </div>
+
+            <div style="margin-bottom:20px;" id="insuranceContainer">
+                <style>
+                    .insurance-option { transition: transform 0.2s, box-shadow 0.2s; }
+                    .insurance-option:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+                </style>
+                <label style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px; display:block;">GÓI BẢO HIỂM</label>
+                <div class="insurance-option" onclick="selectInsurance('coban')" id="opt-coban" style="padding:12px; border:1px solid var(--accent); border-radius:8px; background:rgba(232,115,26,0.05); cursor:pointer; margin-bottom:8px;">
+                    <div class="d-flex justify-content-between">
+                        <div><input type="radio" name="insurance" id="radio-coban" value="0" checked style="accent-color:var(--accent);"> <strong style="font-size:13px; color:var(--accent);" id="text-coban">Cơ bản</strong></div>
+                        <span style="font-size:12px; color:var(--accent);" id="price-coban">Miễn phí</span>
+                    </div>
+                    <small style="color:var(--text-muted); font-size:11px; margin-left:20px;">Bao gồm bảo hiểm bắt buộc</small>
+                </div>
+                <div class="insurance-option" onclick="selectInsurance('caocap')" id="opt-caocap" style="padding:12px; border:1px solid var(--border-color); border-radius:8px; cursor:pointer;">
+                    <div class="d-flex justify-content-between">
+                        <div><input type="radio" name="insurance" id="radio-caocap" value="1000000" style="accent-color:var(--accent);"> <strong style="font-size:13px; color:var(--text-primary);" id="text-caocap">Cao cấp</strong></div>
+                        <span style="font-size:12px; color:var(--text-muted);" id="price-caocap">+1,000,000đ</span>
+                    </div>
+                    <small style="color:var(--text-muted); font-size:11px; margin-left:20px;">Bảo hiểm toàn diện & Hỗ trợ đường bộ</small>
+                </div>
+            </div>
+
+            <div style="border-top:1px solid var(--border-color); padding-top:16px; margin-bottom:16px;">
+                <div class="d-flex justify-content-between" style="font-size:13px; margin-bottom:8px;">
+                    <span style="color:var(--text-secondary);">Tiền thuê (<span id="calcDays">0</span> ngày)</span>
+                    <span id="calcSubtotal">0đ</span>
+                </div>
+                <div class="d-flex justify-content-between" style="font-size:13px; margin-bottom:12px;">
+                    <span style="color:var(--text-secondary);" id="calcInsuranceName">Bảo hiểm cơ bản</span>
+                    <span id="calcInsurancePrice">0đ</span>
+                </div>
+                <div class="d-flex justify-content-between" style="font-size:16px; font-weight:700;">
+                    <span>TỔNG THANH TOÁN</span>
+                    <span style="color:var(--accent); font-size:22px;" id="calcTotal">0đ</span>
+                </div>
+            </div>
+
+            @if (User.Identity?.IsAuthenticated == true && Model.TrangThai == "ConTrong")
+            {
+                <button type="button" id="btnDatXe" class="btn-hd w-100 justify-content-center" style="padding:14px;">
+                    <i class="fas fa-motorcycle"></i> ĐẶT XE NGAY
+                </button>
+            }
+            else if (User.Identity?.IsAuthenticated != true)
+            {
+                <a asp-controller="Account" asp-action="Login" class="btn-hd w-100 justify-content-center" style="padding:14px;">
+                    <i class="fas fa-sign-in-alt"></i> ĐĂNG NHẬP ĐỂ ĐẶT XE
+                </a>
+            }
+
+            <div style="text-align:center; margin-top:12px; font-size:11px; color:var(--text-muted);">
+                <i class="fas fa-shield-alt"></i> Thanh toán an toàn &nbsp;&nbsp;
+                <i class="fas fa-map-marker-alt"></i> Quận 7, TP.HCM
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function changeMainImage(src) {
+            document.getElementById('mainImage').src = src;
+        }
+
+        // Calculate price
+        const pricePerDay = @Model.GiaThueNgay;
+        let insuranceFee = 0;
+
+        document.getElementById('bookNgayThue')?.addEventListener('change', calcPrice);
+        document.getElementById('bookNgayTra')?.addEventListener('change', calcPrice);
+
+        function selectInsurance(type) {
+            document.getElementById('radio-' + type).checked = true;
+            if(type === 'coban') {
+                insuranceFee = 0;
+                // Active style for coban
+                document.getElementById('opt-coban').style.borderColor = 'var(--accent)';
+                document.getElementById('opt-coban').style.background = 'rgba(232,115,26,0.05)';
+                document.getElementById('text-coban').style.color = 'var(--accent)';
+                document.getElementById('price-coban').style.color = 'var(--accent)';
+                
+                // Inactive style for caocap
+                document.getElementById('opt-caocap').style.borderColor = 'var(--border-color)';
+                document.getElementById('opt-caocap').style.background = 'transparent';
+                document.getElementById('text-caocap').style.color = 'var(--text-primary)';
+                document.getElementById('price-caocap').style.color = 'var(--text-muted)';
+                
+                document.getElementById('calcInsuranceName').textContent = 'Bảo hiểm cơ bản';
+                document.getElementById('calcInsurancePrice').textContent = '0đ';
+            } else {
+                insuranceFee = 1000000;
+                // Active style for caocap
+                document.getElementById('opt-caocap').style.borderColor = 'var(--accent)';
+                document.getElementById('opt-caocap').style.background = 'rgba(232,115,26,0.05)';
+                document.getElementById('text-caocap').style.color = 'var(--accent)';
+                document.getElementById('price-caocap').style.color = 'var(--accent)';
+                
+                // Inactive style for coban
+                document.getElementById('opt-coban').style.borderColor = 'var(--border-color)';
+                document.getElementById('opt-coban').style.background = 'transparent';
+                document.getElementById('text-coban').style.color = 'var(--text-primary)';
+                document.getElementById('price-coban').style.color = 'var(--text-muted)';
+
+                document.getElementById('calcInsuranceName').textContent = 'Bảo hiểm cao cấp';
+                document.getElementById('calcInsurancePrice').textContent = '1,000,000đ';
+            }
+            calcPrice();
+        }
+
+        function calcPrice() {
+            const d1 = document.getElementById('bookNgayThue').value;
+            const d2 = document.getElementById('bookNgayTra').value;
+            if (d1 && d2) {
+                const date1 = new Date(d1);
+                const date2 = new Date(d2);
+                if (date2 > date1) {
+                    const days = Math.ceil((date2 - date1) / 86400000);
+                    const sub = days * pricePerDay;
+                    document.getElementById('calcDays').textContent = days;
+                    document.getElementById('calcSubtotal').textContent = sub.toLocaleString('vi') + 'đ';
+                    document.getElementById('calcTotal').textContent = (sub + insuranceFee).toLocaleString('vi') + 'đ';
+                } else {
+                    document.getElementById('calcDays').textContent = '0';
+                    document.getElementById('calcSubtotal').textContent = '0đ';
+                    document.getElementById('calcTotal').textContent = '0đ';
+                }
+            }
+        }
+
+        function showToast(message, type = 'error') {
+            const toastHtml = `
+                <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+                    <div class="toast align-items-center text-white bg-${type === 'error' ? 'danger' : 'success'} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                <i class="fas ${type === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'} me-2"></i> ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            const container = document.createElement('div');
+            container.innerHTML = toastHtml;
+            document.body.appendChild(container);
+            const toastElement = container.querySelector('.toast');
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+            toastElement.addEventListener('hidden.bs.toast', () => {
+                container.remove();
+            });
+        }
+
+        document.getElementById('btnDatXe')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            const d1 = document.getElementById('bookNgayThue').value;
+            const d2 = document.getElementById('bookNgayTra').value;
+            
+            if (!d1 || !d2) {
+                showToast('Vui lòng chọn đầy đủ ngày nhận và ngày trả xe!');
+                return;
+            }
+            
+            const date1 = new Date(d1);
+            const date2 = new Date(d2);
+            
+            if (date1 < new Date().setHours(0,0,0,0)) {
+                showToast('Ngày nhận xe không hợp lệ (không được trong quá khứ).');
+                return;
+            }
+
+            if (date2 <= date1) {
+                showToast('Ngày trả xe phải sau ngày nhận ít nhất 1 ngày.');
+                return;
+            }
+            
+            const insuranceId = document.getElementById('radio-caocap').checked ? 'caocap' : 'coban';
+            window.location.href = `/HopDong/DatXe/@Model.MaXe?ngayNhan=${d1}&ngayTra=${d2}&insurance=${insuranceId}`;
+        });
+    </script>
+}

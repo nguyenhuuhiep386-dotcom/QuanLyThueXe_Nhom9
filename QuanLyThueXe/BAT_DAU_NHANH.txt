@@ -1,0 +1,129 @@
+╔══════════════════════════════════════════════════════════════╗
+║         HỆ THỐNG QUẢN LÝ THUÊ XE MÔ TÔ - NHÓM 9            ║
+║                  HƯỚNG DẪN BẮT ĐẦU NHANH                    ║
+╚══════════════════════════════════════════════════════════════╝
+
+📋 BƯỚC 1: TẠO DATABASE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Mở SQL Server Management Studio (SSMS)
+2. Kết nối đến SQL Server
+3. Mở file: database.sql
+4. Nhấn F5 để chạy script
+
+⚙️ BƯỚC 2: CẤU HÌNH CONNECTION STRING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Mở file: QuanLyThueXe\appsettings.json
+
+Nếu dùng Windows Authentication:
+  Server=localhost
+
+Nếu dùng SQL Server Express:
+  Server=.\SQLEXPRESS
+
+Nếu dùng SQL Authentication:
+  Server=localhost;User Id=sa;Password=yourpassword
+
+🚀 BƯỚC 3: CHẠY ỨNG DỤNG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CÁCH 1: Double-click file run.bat
+
+CÁCH 2: Chạy PowerShell:
+  .\run.ps1
+
+CÁCH 3: Command Line:
+  cd QuanLyThueXe
+  dotnet run
+
+🌐 BƯỚC 4: TRUY CẬP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HTTP:  http://localhost:5175
+HTTPS: https://localhost:7104
+
+👤 TÀI KHOẢN ĐĂNG NHẬP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ADMIN:
+  Email:    admin@thuexe.vn
+  Password: Admin@123456
+  URL:      https://localhost:7104/Admin/Dashboard
+
+KHÁCH HÀNG:
+  Email:    levan.an@gmail.com
+  Password: KhachHang@123456
+
+📁 CẤU TRÚC THƯ MỤC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+QuanLyThueXe/
+├── database.sql              ← Script tạo database
+├── run.bat                   ← Chạy ứng dụng (Windows)
+├── run.ps1                   ← Chạy ứng dụng (PowerShell)
+├── test-connection.ps1       ← Kiểm tra kết nối DB
+├── README.md                 ← Tài liệu chi tiết
+├── HUONG_DAN_CHAY.md        ← Hướng dẫn chi tiết
+├── DANH_SACH_CHUC_NANG.md   ← Danh sách chức năng
+└── QuanLyThueXe/            ← Source code
+    ├── appsettings.json      ← Cấu hình (connection string)
+    ├── Controllers/          ← Controllers
+    ├── Models/              ← Models
+    ├── Views/               ← Views
+    └── Areas/Admin/         ← Admin area
+
+🔧 KIỂM TRA KẾT NỐI DATABASE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Chạy: .\test-connection.ps1
+
+❗ XỬ LÝ LỖI THƯỜNG GẶP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. Lỗi kết nối SQL Server:
+   → Kiểm tra SQL Server đang chạy
+   → Kiểm tra tên server trong connection string
+   → Thử: localhost, ., .\SQLEXPRESS
+
+2. Lỗi Login failed:
+   → Kiểm tra username/password
+   → Enable SQL Server Authentication trong SSMS
+
+3. Lỗi Database không tồn tại:
+   → Chạy lại file database.sql
+
+4. Lỗi Port đã được sử dụng:
+   → Đổi port trong Properties\launchSettings.json
+
+📚 TÀI LIỆU THAM KHẢO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- README.md              : Tài liệu tổng quan
+- HUONG_DAN_CHAY.md     : Hướng dẫn chi tiết
+- DANH_SACH_CHUC_NANG.md: Danh sách chức năng
+
+✨ CHỨC NĂNG CHÍNH
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ADMIN:
+  ✓ Dashboard thống kê
+  ✓ Quản lý xe (CRUD)
+  ✓ Quản lý khách hàng
+  ✓ Quản lý hợp đồng (xác nhận, hủy, trả xe)
+  ⚠ Quản lý bảo dưỡng
+  ⚠ Quản lý khuyến mãi
+  ⚠ Báo cáo & thống kê
+
+KHÁCH HÀNG:
+  ✓ Xem danh sách xe
+  ✓ Xem chi tiết xe
+  ✓ Tìm kiếm, lọc xe
+  ⚠ Đặt xe
+  ⚠ Quản lý hợp đồng của tôi
+  ⚠ Đánh giá xe
+  ⚠ Hồ sơ cá nhân
+
+✓ = Đã hoàn thành
+⚠ = Cần bổ sung
+
+📞 HỖ TRỢ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Nếu gặp vấn đề:
+1. Đọc file HUONG_DAN_CHAY.md
+2. Chạy test-connection.ps1 để kiểm tra DB
+3. Xem logs trong console khi chạy ứng dụng
+
+╔══════════════════════════════════════════════════════════════╗
+║              CHÚC BẠN CHẠY DỰ ÁN THÀNH CÔNG! 🎉            ║
+╚══════════════════════════════════════════════════════════════╝
