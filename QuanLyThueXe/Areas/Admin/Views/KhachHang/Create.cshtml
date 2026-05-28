@@ -1,0 +1,90 @@
+﻿@model QuanLyThueXe.Models.KhachHang
+
+@{
+    ViewData["Title"] = "Thêm Khách hàng mới";
+}
+
+<div class="container-fluid py-4">
+    <div class="mb-4">
+        <div class="text-muted small mb-2">
+            <a asp-action="Index" class="text-muted text-decoration-none hover-white">Khách hàng</a>
+            <span class="mx-2">›</span>
+            <span class="text-white">Thêm Khách hàng mới</span>
+        </div>
+        <h3 class="fw-bold text-white mb-1">Thêm Khách hàng mới</h3>
+        <p class="text-muted small">Nhập thông tin chi tiết để đăng ký khách hàng mới vào hệ thống.</p>
+    </div>
+
+    <div class="dashboard-card p-4 rounded-4" style="background-color: #1E1E1E; border: 1px solid #2A2A2A; max-width: 900px;">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label asp-for="HoTen" class="form-label small text-muted fw-bold">Họ tên <span class="text-danger">*</span></label>
+                    <input asp-for="HoTen" class="form-control bg-dark border-secondary text-white p-3" placeholder="Vd: Nguyễn Văn A" required />
+                    <span asp-validation-for="HoTen" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="SoDienThoai" class="form-label small text-muted fw-bold">Số điện thoại <span class="text-danger">*</span></label>
+                    <input asp-for="SoDienThoai" class="form-control bg-dark border-secondary text-white p-3" placeholder="Vd: 0901234567" required />
+                    <span asp-validation-for="SoDienThoai" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="Email" class="form-label small text-muted fw-bold">Email</label>
+                    <input asp-for="Email" type="email" class="form-control bg-dark border-secondary text-white p-3" placeholder="Vd: email@example.com" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="SoGPLX" class="form-label small text-muted fw-bold">Số GPLX <span class="text-danger">*</span></label>
+                    <input asp-for="SoGPLX" class="form-control bg-dark border-secondary text-white p-3" placeholder="NHẬP SỐ GIẤY PHÉP LÁI XE" required />
+                    <span asp-validation-for="SoGPLX" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label small text-muted fw-bold">Loại giấy tờ tùy thân <span class="text-danger">*</span></label>
+                    <select asp-for="MaLoaiGiayTo" class="form-select bg-dark border-secondary text-white p-3" asp-items="ViewBag.MaLoaiGiayTo" required>
+                        <option value="">-- Chọn loại --</option>
+                    </select>
+                    <span asp-validation-for="MaLoaiGiayTo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label asp-for="SoGiayTo" class="form-label small text-muted fw-bold">Số giấy tờ (CMND/CCCD/Passport) <span class="text-danger">*</span></label>
+                    <input asp-for="SoGiayTo" class="form-control bg-dark border-secondary text-white p-3" placeholder="Nhập số giấy tờ" required />
+                    <span asp-validation-for="SoGiayTo" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="DiaChi" class="form-label small text-muted fw-bold">Địa chỉ</label>
+                    <textarea asp-for="DiaChi" class="form-control bg-dark border-secondary text-white p-3" rows="3" placeholder="Nhập địa chỉ chi tiết..."></textarea>
+                    <span asp-validation-for="DiaChi" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-12">
+                    <label asp-for="MaTinh" class="form-label small text-muted fw-bold">Tỉnh/Thành phố</label>
+                    <select asp-for="MaTinh" class="form-select bg-dark border-secondary text-white p-3" asp-items="ViewBag.MaTinh">
+                        <option value="">-- Chọn Tỉnh/Thành phố --</option>
+                    </select>
+                    <span asp-validation-for="MaTinh" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-3 mt-5 pt-3 border-top border-secondary">
+                <a asp-action="Index" class="btn btn-outline-secondary text-white px-5 py-2 fw-bold" style="background-color: #2A2A2A; border: none;">Hủy</a>
+                <button type="submit" class="btn btn-warning px-5 py-2 fw-bold text-dark" style="background-color: #FF7A00; border: none;">
+                    <i class="fa-solid fa-plus me-2"></i> Lưu dữ liệu
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
