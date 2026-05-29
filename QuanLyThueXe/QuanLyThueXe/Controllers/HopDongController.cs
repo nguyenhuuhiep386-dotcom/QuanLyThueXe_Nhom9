@@ -9,6 +9,7 @@ using System.Security.Claims;
 namespace QuanLyThueXe.Controllers
 {
     [Authorize(Roles = "KhachHang")]
+    [Route("[controller]/[action]")]
     public class HopDongController : Controller
     {
         private readonly QuanLyThueXeDbContext _context;
@@ -21,6 +22,7 @@ namespace QuanLyThueXe.Controllers
         }
 
         // GET: HopDong/DatXe/5
+        [HttpGet("{id}")]
         public async Task<IActionResult> DatXe(int id, string? ngayNhan, string? ngayTra, string? insurance)
         {
             var xe = await _context.Xes
@@ -38,10 +40,12 @@ namespace QuanLyThueXe.Controllers
             DateTime dtNgayThue = DateTime.Now.AddDays(1);
             DateTime dtNgayTra = DateTime.Now.AddDays(4);
 
-            // Parse ngayNhan and ngayTra from query string
-            if (!string.IsNullOrEmpty(ngayNhan) && DateTime.TryParse(ngayNhan, out var nt)) 
+            // Parse ngayNhan and ngayTra from query string (format yyyy-MM-dd from input type="date")
+            var culture = System.Globalization.CultureInfo.InvariantCulture;
+            string[] formats = { "yyyy-MM-dd", "yyyy-MM-ddTHH:mm", "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-ddTH:mm", "yyyy-MM-ddTH:mm:ss", "MM/dd/yyyy", "dd/MM/yyyy" };
+            if (!string.IsNullOrEmpty(ngayNhan) && DateTime.TryParseExact(ngayNhan, formats, culture, System.Globalization.DateTimeStyles.None, out var nt)) 
                 dtNgayThue = nt;
-            if (!string.IsNullOrEmpty(ngayTra) && DateTime.TryParse(ngayTra, out var ntr)) 
+            if (!string.IsNullOrEmpty(ngayTra) && DateTime.TryParseExact(ngayTra, formats, culture, System.Globalization.DateTimeStyles.None, out var ntr)) 
                 dtNgayTra = ntr;
 
             var viewModel = new DatXeViewModel
@@ -53,108 +57,163 @@ namespace QuanLyThueXe.Controllers
 
             if (insurance == "caocap")
             {
+                viewModel.PhiBaoHiem = 1000000;
                 viewModel.GhiChu = "Gói bảo hiểm: Cao cấp";
             }
 
             // Calculate initial price
             await TinhTien(viewModel);
 
+            // Fetch available promos for suggestions
+            ViewBag.KhuyenMais = await _context.KhuyenMais
+                .Where(k => k.IsActive && k.TuNgay <= DateTime.Now && k.DenNgay >= DateTime.Now && k.DaSuDung < k.SoLanSuDung)
+                .ToListAsync();
+
             return View(viewModel);
         }
 
         // POST: HopDong/DatXe
-        [HttpPost]
+        [HttpPost("{id?}")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DatXe(DatXeViewModel model, List<IFormFile>? taiLieus)
         {
-            ModelState.Remove("Xe");
-            ModelState.Remove("Xe.TenXe");
-            ModelState.Remove("Xe.BienSo");
-            ModelState.Remove("Xe.SoKhung");
-            ModelState.Remove("Xe.SoMay");
-            ModelState.Remove("Xe.TrangThai");
-            ModelState.Remove("Xe.HangXe");
-            ModelState.Remove("Xe.PhongCach");
-
-            if (!ModelState.IsValid)
+            foreach (var key in ModelState.Keys.Where(k => k.StartsWith("Xe.") || k == "Xe").ToList())
             {
+                ModelState.Remove(key);
+            }
+            
+            // Lấy giá trị ngày tháng thô từ form (nếu bị model binding lỗi do format)
+            var culture = System.Globalization.CultureInfo.InvariantCulture;
+            string[] formats = { "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-ddTHH:mm", "yyyy-MM-ddTH:mm:ss", "yyyy-MM-ddTH:mm", "yyyy-MM-dd", "MM/dd/yyyy", "dd/MM/yyyy" };
+            
+            var reqNgayThue = Request.Form["NgayThue"].ToString();
+            var reqNgayTra = Request.Form["NgayTra"].ToString();
+            
+            if (!string.IsNullOrEmpty(reqNgayThue) && DateTime.TryParseExact(reqNgayThue, formats, culture, System.Globalization.DateTimeStyles.None, out var nt)) model.NgayThue = nt;
+            else if (!string.IsNullOrEmpty(reqNgayThue) && DateTime.TryParse(reqNgayThue, culture, System.Globalization.DateTimeStyles.None, out var nt2)) model.NgayThue = nt2;
+            
+            if (!string.IsNullOrEmpty(reqNgayTra) && DateTime.TryParseExact(reqNgayTra, formats, culture, System.Globalization.DateTimeStyles.None, out var ntr)) model.NgayTra = ntr;
+            else if (!string.IsNullOrEmpty(reqNgayTra) && DateTime.TryParse(reqNgayTra, culture, System.Globalization.DateTimeStyles.None, out var ntr2)) model.NgayTra = ntr2;
+            
+            if (model.Xe == null || model.Xe.MaXe <= 0 || model.NgayThue == default || model.NgayTra == default)
+            {
+                int maXe = model.Xe?.MaXe ?? 0;
                 model.Xe = (await _context.Xes
                     .Include(x => x.HangXe)
                     .Include(x => x.PhongCach)
                     .Include(x => x.HinhAnhs)
-                    .FirstOrDefaultAsync(x => x.MaXe == model.Xe.MaXe))!;
-                await TinhTien(model);
+                    .FirstOrDefaultAsync(x => x.MaXe == maXe))!;
                 return View(model);
             }
 
-            try
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            
+            // Get or create KhachHang
+            var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaNguoiDung == userId);
+            if (khachHang == null)
             {
-                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-                var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaNguoiDung == userId);
-                if (khachHang == null)
-                {
-                    TempData["ErrorMessage"] = "Vui lòng cập nhật thông tin cá nhân trước khi đặt xe.";
-                    return RedirectToAction("Profile", "Account");
-                }
-
-                // Reload xe từ DB thay vì dùng model.Xe
-                var xe = await _context.Xes
-                    .Include(x => x.HangXe)
-                    .Include(x => x.PhongCach)
-                    .Include(x => x.HinhAnhs)
-                    .FirstOrDefaultAsync(x => x.MaXe == model.Xe.MaXe);
-
-                if (xe == null)
-                {
-                    TempData["ErrorMessage"] = "Xe không tồn tại.";
-                    return RedirectToAction("DanhSach", "Xe");
-                }
-
-                model.Xe = xe;
-                await TinhTien(model);
-
-                var hopDong = new HopDong
-                {
-                    MaXe = model.Xe.MaXe,
-                    MaKhachHang = khachHang.MaKhachHang,
-                    MaNguoiTao = userId,
-                    NgayThue = model.NgayThue,
-                    NgayTra = model.NgayTra,
-                    GiaThueGoc = model.GiaThueGoc,
-                    HeSoMua = model.HeSoMua,
-                    TongTien = model.TongTien,
-                    TrangThai = "ChoXacNhan",
-                    GhiChu = model.GhiChu,
-                    NgayTao = DateTime.Now
-                };
-
-                _context.HopDongs.Add(hopDong);
-                await _context.SaveChangesAsync();
-
-                if (taiLieus != null && taiLieus.Count > 0)
-                    await UploadTaiLieus(hopDong.MaHopDong, taiLieus);
-
-                if (!string.IsNullOrEmpty(model.MaKhuyenMai))
-                    await ApDungKhuyenMai(hopDong.MaHopDong, model.MaKhuyenMai);
-
-                return RedirectToAction(nameof(ThanhToanThanhCong), new { id = hopDong.MaHopDong });
+                TempData["ErrorMessage"] = "Vui lòng cập nhật thông tin cá nhân trước khi đặt xe.";
+                return RedirectToAction("Profile", "Account");
             }
-            catch (Exception ex)
+
+            // Calculate price
+            await TinhTien(model);
+
+            // Create contract
+            var hopDong = new HopDong
             {
-                // Tạm thời hiển thị lỗi để debug
-                TempData["ErrorMessage"] = $"Lỗi: {ex.Message} | Inner: {ex.InnerException?.Message}";
+                MaXe = model.Xe.MaXe,
+                MaKhachHang = khachHang.MaKhachHang,
+                MaNguoiTao = userId,
+                NgayThue = model.NgayThue,
+                NgayTra = model.NgayTra,
+                GiaThueGoc = model.GiaThueGoc,
+                HeSoMua = model.HeSoMua,
+                TongTien = model.TongTien,
+                TrangThai = "ChoXacNhan",
+                GhiChu = model.GhiChu,
+                NgayTao = DateTime.Now
+            };
 
-                model.Xe = (await _context.Xes
-                    .Include(x => x.HangXe)
-                    .Include(x => x.PhongCach)
-                    .Include(x => x.HinhAnhs)
-                    .FirstOrDefaultAsync(x => x.MaXe == model.Xe.MaXe))!;
-                await TinhTien(model);
-                return View(model);
+            _context.HopDongs.Add(hopDong);
+            await _context.SaveChangesAsync();
+
+            // Upload documents if any
+            if (taiLieus != null && taiLieus.Count > 0)
+            {
+                await UploadTaiLieus(hopDong.MaHopDong, taiLieus);
             }
+
+            // Apply promotion if any
+            if (!string.IsNullOrEmpty(model.MaKhuyenMai))
+            {
+                await ApDungKhuyenMai(hopDong.MaHopDong, model.MaKhuyenMai);
+            }
+
+            // Redirect to TaoHopDong page instead of ThanhToanThanhCong
+            TempData["SuccessMessage"] = "Thanh toán cọc thành công! Vui lòng ký xác nhận hợp đồng.";
+            return RedirectToAction("TaoHopDong", "HopDong", new { id = hopDong.MaHopDong });
         }
+
+        // GET: HopDong/TaoHopDong/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> TaoHopDong(int? id)
+        {
+            if (id == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy hợp đồng.";
+                return RedirectToAction(nameof(CuaToi));
+            }
+
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaNguoiDung == userId);
+
+            if (khachHang == null)
+            {
+                TempData["ErrorMessage"] = "Vui lòng cập nhật thông tin cá nhân trước.";
+                return RedirectToAction("Profile", "Account");
+            }
+
+            var hopDong = await _context.HopDongs
+                .Include(h => h.Xe)
+                .Include(h => h.KhachHang)
+                .FirstOrDefaultAsync(h => h.MaHopDong == id && h.MaKhachHang == khachHang.MaKhachHang);
+
+            if (hopDong == null)
+            {
+                TempData["ErrorMessage"] = "Không tìm thấy hợp đồng hoặc bạn không có quyền truy cập.";
+                return RedirectToAction(nameof(CuaToi));
+            }
+
+            return View(hopDong);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> XacNhanHopDong(int id, string signature)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaNguoiDung == userId);
+
+            var hopDong = await _context.HopDongs
+                .FirstOrDefaultAsync(h => h.MaHopDong == id && h.MaKhachHang == khachHang!.MaKhachHang);
+
+            if (hopDong == null)
+            {
+                return NotFound();
+            }
+
+            // Mock saving signature as document/note for now
+            hopDong.GhiChu = hopDong.GhiChu + "\n[Đã ký điện tử]";
+            hopDong.TrangThai = "ChoXacNhan";
+            
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(ThanhToanThanhCong), new { id = hopDong.MaHopDong });
+        }
+
         // GET: HopDong/ThanhToanThanhCong/5
+        [HttpGet("{id}")]
         public async Task<IActionResult> ThanhToanThanhCong(int id)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -173,6 +232,7 @@ namespace QuanLyThueXe.Controllers
         }
 
         // GET: HopDong/CuaToi
+        [HttpGet]
         public async Task<IActionResult> CuaToi(string? trangThai, string? thoiGian, string? search)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -188,6 +248,7 @@ namespace QuanLyThueXe.Controllers
                     .ThenInclude(x => x.HangXe)
                 .Include(h => h.Xe)
                     .ThenInclude(x => x.HinhAnhs)
+                .Include(h => h.DanhGia)
                 .Where(h => h.MaKhachHang == khachHang.MaKhachHang)
                 .AsQueryable();
 
@@ -225,6 +286,7 @@ namespace QuanLyThueXe.Controllers
         }
 
         // GET: HopDong/ChiTiet/5
+        [HttpGet("{id}")]
         public async Task<IActionResult> ChiTiet(int id)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
@@ -283,10 +345,124 @@ namespace QuanLyThueXe.Controllers
             return RedirectToAction(nameof(CuaToi));
         }
 
+        // POST: HopDong/TraXeTruocHan/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> TraXeTruocHan(int id)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaNguoiDung == userId);
+
+            var hopDong = await _context.HopDongs
+                .FirstOrDefaultAsync(h => h.MaHopDong == id && h.MaKhachHang == khachHang!.MaKhachHang);
+
+            if (hopDong == null) return NotFound();
+
+            if (hopDong.TrangThai != "DangThue")
+            {
+                TempData["ErrorMessage"] = "Chỉ có thể trả xe đối với hợp đồng đang thuê.";
+                return RedirectToAction(nameof(ChiTiet), new { id });
+            }
+
+            hopDong.TrangThai = "DaTra";
+            // Ghi lại ngày trả thực tế
+            hopDong.NgayTraThucTe = DateTime.Now;
+            // Phải đảm bảo NgayTra > NgayThue (theo constraint DB)
+            // Nếu trả sớm hơn dự kiến, giữ NgayTra gốc (không đổi)
+            // Chỉ cập nhật NgayCapNhat để biết lúc nào trả
+            hopDong.NgayCapNhat = DateTime.Now;
+
+            // Tính tiền thực tế theo ngày dùng
+            var ngayDung = (DateTime.Now - hopDong.NgayThue).Days;
+            if (ngayDung < 1) ngayDung = 1;
+            var tongTienThucTe = hopDong.GiaThueGoc * ngayDung * hopDong.HeSoMua;
+            hopDong.TongTien = tongTienThucTe;
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(DanhGiaTraXe), new { id });
+        }
+
+        // POST: HopDong/GiaHan/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> GiaHan(int id, int soNgayGiaHan)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaNguoiDung == userId);
+
+            var hopDong = await _context.HopDongs
+                .FirstOrDefaultAsync(h => h.MaHopDong == id && h.MaKhachHang == khachHang!.MaKhachHang);
+
+            if (hopDong == null) return NotFound();
+
+            if (hopDong.TrangThai != "DangThue")
+            {
+                TempData["ErrorMessage"] = "Chỉ có thể gia hạn đối với hợp đồng đang thuê.";
+                return RedirectToAction(nameof(ChiTiet), new { id });
+            }
+
+            if (soNgayGiaHan <= 0)
+            {
+                TempData["ErrorMessage"] = "Số ngày gia hạn không hợp lệ.";
+                return RedirectToAction(nameof(ChiTiet), new { id });
+            }
+
+            var tienGiaHan = hopDong.GiaThueGoc * hopDong.HeSoMua * soNgayGiaHan;
+            hopDong.NgayTra = hopDong.NgayTra.AddDays(soNgayGiaHan);
+            hopDong.TongTien += tienGiaHan;
+            hopDong.NgayCapNhat = DateTime.Now;
+
+            // Tạo bản ghi thanh toán phần gia hạn
+            var thanhToan = new ThanhToan
+            {
+                MaHopDong = id,
+                SoTien = tienGiaHan,
+                PhuongThuc = "TienMat",
+                LoaiThanhToan = "ThanhToanCuoi",
+                TrangThai = "ThanhCong",
+                ThoiGian = DateTime.Now,
+                GhiChu = $"Thanh toán gia hạn thêm {soNgayGiaHan} ngày"
+            };
+            _context.ThanhToans.Add(thanhToan);
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Gia hạn thêm {soNgayGiaHan} ngày thành công! (+{tienGiaHan:N0}đ chi phí)";
+            return RedirectToAction(nameof(ChiTiet), new { id });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DanhGiaTraXe(int id)
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaNguoiDung == userId);
+
+            var hopDong = await _context.HopDongs
+                .Include(h => h.Xe)
+                .Include(h => h.DanhGia)
+                .FirstOrDefaultAsync(h => h.MaHopDong == id && h.MaKhachHang == khachHang!.MaKhachHang);
+
+            if (hopDong == null) return NotFound();
+
+            if (hopDong.TrangThai != "DaTra")
+            {
+                TempData["ErrorMessage"] = "Chỉ có thể đánh giá sau khi trả xe.";
+                return RedirectToAction(nameof(ChiTiet), new { id });
+            }
+
+            if (hopDong.DanhGia != null)
+            {
+                TempData["ErrorMessage"] = "Bạn đã đánh giá hợp đồng này rồi.";
+                return RedirectToAction(nameof(CuaToi));
+            }
+
+            return View(hopDong);
+        }
+
         // POST: HopDong/DanhGia/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DanhGia(int id, int soSao, string? nhanXet)
+        public async Task<IActionResult> DanhGia(int id, int soSao, string? nhanXet, List<IFormFile> images)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
             var khachHang = await _context.KhachHangs.FirstOrDefaultAsync(k => k.MaNguoiDung == userId);
@@ -295,10 +471,7 @@ namespace QuanLyThueXe.Controllers
                 .Include(h => h.DanhGia)
                 .FirstOrDefaultAsync(h => h.MaHopDong == id && h.MaKhachHang == khachHang!.MaKhachHang);
 
-            if (hopDong == null)
-            {
-                return NotFound();
-            }
+            if (hopDong == null) return NotFound();
 
             if (hopDong.TrangThai != "DaTra")
             {
@@ -312,6 +485,36 @@ namespace QuanLyThueXe.Controllers
                 return RedirectToAction(nameof(ChiTiet), new { id });
             }
 
+            int diemThuong = 50; // Sao = 50đ
+
+            if (!string.IsNullOrWhiteSpace(nhanXet))
+            {
+                if (nhanXet.Length < 50) diemThuong += 25;
+                else diemThuong += 80;
+            }
+
+            // Upload ảnh
+            if (images != null && images.Count > 0)
+            {
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "danhgia");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                foreach (var file in images)
+                {
+                    if (file.Length > 0)
+                    {
+                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        var filePath = Path.Combine(uploadsFolder, fileName);
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+                        nhanXet += $"\n[Ảnh đính kèm: /uploads/danhgia/{fileName}]";
+                        diemThuong += 30; // 30đ mỗi ảnh
+                    }
+                }
+            }
+
             var danhGia = new DanhGia
             {
                 MaHopDong = id,
@@ -322,12 +525,26 @@ namespace QuanLyThueXe.Controllers
                 IsHienThi = true,
                 NgayDanhGia = DateTime.Now
             };
-
             _context.DanhGias.Add(danhGia);
+
+            // Cập nhật điểm
+            int currentPoints = 0;
+            if (!string.IsNullOrEmpty(khachHang.GhiChu))
+            {
+                try {
+                    var json = System.Text.Json.JsonDocument.Parse(khachHang.GhiChu);
+                    if (json.RootElement.TryGetProperty("Diem", out var diemEl)) {
+                        currentPoints = diemEl.GetInt32();
+                    }
+                } catch { }
+            }
+            currentPoints += diemThuong;
+            khachHang.GhiChu = $"{{\"Diem\": {currentPoints}}}";
+
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Cảm ơn bạn đã đánh giá!";
-            return RedirectToAction(nameof(ChiTiet), new { id });
+            TempData["SuccessMessage"] = $"Cảm ơn bạn đã đánh giá! Bạn được cộng {diemThuong} điểm thưởng.";
+            return RedirectToAction(nameof(CuaToi));
         }
 
         private async Task TinhTien(DatXeViewModel model)
@@ -350,6 +567,7 @@ namespace QuanLyThueXe.Controllers
             model.TenDotPhuPhi = phuPhi?.TenDot;
 
             var tamTinh = model.GiaThueGoc * model.SoNgay * model.HeSoMua;
+            var tongTruocGiam = tamTinh + model.PhiBaoHiem;
 
             // Apply promotion if any
             model.TienGiam = 0;
@@ -362,11 +580,11 @@ namespace QuanLyThueXe.Controllers
                                              k.DenNgay >= DateTime.Now &&
                                              k.DaSuDung < k.SoLanSuDung);
 
-                if (khuyenMai != null && (khuyenMai.DieuKienToiThieu == null || tamTinh >= khuyenMai.DieuKienToiThieu))
+                if (khuyenMai != null && (khuyenMai.DieuKienToiThieu == null || tongTruocGiam >= khuyenMai.DieuKienToiThieu))
                 {
                     if (khuyenMai.LoaiGiamGia == "PhanTram")
                     {
-                        model.TienGiam = tamTinh * khuyenMai.GiaTriGiam / 100;
+                        model.TienGiam = tongTruocGiam * khuyenMai.GiaTriGiam / 100;
                         if (khuyenMai.GiaTriGiamToiDa.HasValue && model.TienGiam > khuyenMai.GiaTriGiamToiDa.Value)
                         {
                             model.TienGiam = khuyenMai.GiaTriGiamToiDa.Value;
@@ -379,7 +597,7 @@ namespace QuanLyThueXe.Controllers
                 }
             }
 
-            model.TongTien = tamTinh - model.TienGiam;
+            model.TongTien = tongTruocGiam - model.TienGiam;
             if (model.TongTien < 0) model.TongTien = 0;
         }
 
@@ -444,6 +662,39 @@ namespace QuanLyThueXe.Controllers
                     await _context.SaveChangesAsync();
                 }
             }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CheckPromoCode(string code, decimal totalAmount)
+        {
+            if (string.IsNullOrEmpty(code)) return Json(new { success = false, message = "Vui lòng nhập mã khuyến mãi." });
+
+            var khuyenMai = await _context.KhuyenMais
+                .FirstOrDefaultAsync(k => k.MaCode == code &&
+                                         k.IsActive &&
+                                         k.TuNgay <= DateTime.Now &&
+                                         k.DenNgay >= DateTime.Now &&
+                                         k.DaSuDung < k.SoLanSuDung);
+
+            if (khuyenMai == null) 
+                return Json(new { success = false, message = "Mã khuyến mãi không hợp lệ hoặc đã hết hạn." });
+            
+            if (khuyenMai.DieuKienToiThieu.HasValue && totalAmount < khuyenMai.DieuKienToiThieu.Value)
+                return Json(new { success = false, message = $"Đơn hàng tối thiểu để áp dụng là {khuyenMai.DieuKienToiThieu.Value.ToString("N0")}đ." });
+
+            decimal discount = 0;
+            if (khuyenMai.LoaiGiamGia == "PhanTram")
+            {
+                discount = totalAmount * khuyenMai.GiaTriGiam / 100;
+                if (khuyenMai.GiaTriGiamToiDa.HasValue && discount > khuyenMai.GiaTriGiamToiDa.Value)
+                    discount = khuyenMai.GiaTriGiamToiDa.Value;
+            }
+            else
+            {
+                discount = khuyenMai.GiaTriGiam;
+            }
+
+            return Json(new { success = true, discount = discount, code = khuyenMai.MaCode });
         }
     }
 }

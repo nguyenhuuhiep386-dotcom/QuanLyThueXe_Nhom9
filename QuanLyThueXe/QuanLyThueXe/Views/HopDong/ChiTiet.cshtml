@@ -4,20 +4,21 @@
     ViewData["Title"] = "Chi tiết hợp đồng";
     var statusColor = Model.TrangThai switch {
         "ChoXacNhan" => "color:#fbbf24; background:#3d2e0a;",
-        "DaXacNhan" => "color:#60a5fa; background:#1e3a5f;",
-        "DangThue" => "color:#4ade80; background:#0a3d1e;",
-        "DaTra" => "color:#34d399; background:#064e3b;",
-        "DaHuy" => "color:#f87171; background:#3d0a0a;",
-        _ => "color:var(--text-muted); background:var(--bg-card);"
+        "DaXacNhan"  => "color:#60a5fa; background:#1e3a5f;",
+        "DangThue"   => "color:#4ade80; background:#0a3d1e;",
+        "DaTra"      => "color:#34d399; background:#064e3b;",
+        "DaHuy"      => "color:#f87171; background:#3d0a0a;",
+        _            => "color:var(--text-muted); background:var(--bg-card);"
     };
     var statusText = Model.TrangThai switch {
         "ChoXacNhan" => "CHỜ XÁC NHẬN",
-        "DaXacNhan" => "ĐÃ XÁC NHẬN",
-        "DangThue" => "ĐANG HOẠT ĐỘNG",
-        "DaTra" => "HOÀN THÀNH",
-        "DaHuy" => "ĐÃ HỦY",
-        _ => Model.TrangThai
+        "DaXacNhan"  => "ĐÃ XÁC NHẬN",
+        "DangThue"   => "ĐANG HOẠT ĐỘNG",
+        "DaTra"      => "HOÀN THÀNH",
+        "DaHuy"      => "ĐÃ HỦY",
+        _            => Model.TrangThai
     };
+    var daSo = Model.GhiChu != null && Model.GhiChu.Contains("[Đã ký điện tử]");
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -33,8 +34,9 @@
 </div>
 
 <div class="row g-4">
-    <!-- Left Column -->
+    <!-- ===== Left Column ===== -->
     <div class="col-lg-8">
+
         <!-- Vehicle Info -->
         <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px; margin-bottom:24px;">
             <div class="d-flex gap-4">
@@ -42,116 +44,536 @@
                     var anh = Model.Xe.HinhAnhs.FirstOrDefault(h => h.IsAnhChinh) ?? Model.Xe.HinhAnhs.FirstOrDefault();
                     var img = anh?.DuongDanAnh ?? "https://via.placeholder.com/200x140?text=Xe";
                 }
-                <img src="@img" alt="@Model.Xe.TenXe" style="width:200px; height:140px; object-fit:cover; border-radius:10px;"
+                <img src="@img" alt="@Model.Xe.TenXe"
+                     style="width:200px; height:140px; object-fit:cover; border-radius:10px;"
                      onerror="this.src='https://via.placeholder.com/200x140?text=Xe'" />
                 <div>
                     <span class="badge-status badge-available" style="margin-bottom:8px; display:inline-block;">PREMIUM FLEET</span>
                     <h3 style="font-size:20px; font-weight:700;">@Model.Xe.HangXe.TenHang @Model.Xe.TenXe</h3>
                     <p style="font-size:13px; color:var(--text-muted);">Biển số: @Model.Xe.BienSo</p>
                     <div style="font-size:13px; color:var(--text-secondary);">
-                        <i class="fas fa-cog" style="color:var(--accent);"></i> Động cơ: @Model.Xe.HangXe.TenHang (@(Model.Xe.DungTich.HasValue ? $"{Model.Xe.DungTich}cc" : "N/A"))
+                        <i class="fas fa-cog" style="color:var(--accent);"></i>
+                        Động cơ: @Model.Xe.HangXe.TenHang (@(Model.Xe.DungTich.HasValue ? $"{Model.Xe.DungTich}cc" : "N/A"))
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Payment Details -->
-        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px;">
+        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px; margin-bottom:24px;">
             <h4 style="font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px;">CHI TIẾT THANH TOÁN</h4>
             <table class="table mb-0">
                 <thead>
                     <tr>
-                        <th>Mô tả</th>
-                        <th style="text-align:right;">Đơn giá</th>
-                        <th style="text-align:right;">Số lượng</th>
-                        <th style="text-align:right;">Thành tiền</th>
+                        <th style="color:var(--text-muted);">Mô tả</th>
+                        <th style="text-align:right; color:var(--text-muted);">Giá/ngày</th>
+                        <th style="text-align:right; color:var(--text-muted);">Số ngày</th>
+                        <th style="text-align:right; color:var(--text-muted);">Thành tiền</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Thuê xe @Model.Xe.TenXe (@((Model.NgayTra - Model.NgayThue).Days) ngày)</td>
-                        <td style="text-align:right;">@Model.GiaThueGoc.ToString("N0")đ</td>
-                        <td style="text-align:right;">@((Model.NgayTra - Model.NgayThue).Days)</td>
-                        <td style="text-align:right;">@((Model.GiaThueGoc * (Model.NgayTra - Model.NgayThue).Days).ToString("N0"))đ</td>
+                        @{
+                            var ngayBill = Model.NgayTraThucTe.HasValue
+                                ? (int)(Model.NgayTraThucTe.Value - Model.NgayThue).TotalDays
+                                : (Model.NgayTra - Model.NgayThue).Days;
+                            if (ngayBill < 1) ngayBill = 1;
+                        }
+                        <td style="color:var(--text-secondary);">
+                            Thuê xe @Model.Xe.TenXe
+                            @if (Model.NgayTraThucTe.HasValue) {
+                                <span style="font-size:11px; color:#4ade80; margin-left:6px;">(Đã trả @Model.NgayTraThucTe.Value.ToString("dd/MM"))</span>
+                            }
+                        </td>
+                        <td style="text-align:right; color:var(--text-secondary);">@Model.GiaThueGoc.ToString("N0")đ</td>
+                        <td style="text-align:right; color:var(--text-secondary);">@ngayBill</td>
+                        <td style="text-align:right; color:var(--text-secondary);">@Model.TongTien.ToString("N0")đ</td>
                     </tr>
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="3" style="text-align:right; font-weight:600;">Tổng cộng</td>
+                        <td colspan="3" style="text-align:right; font-weight:600; color:var(--text-primary);">Tổng cộng</td>
                         <td style="text-align:right; font-size:20px; font-weight:700; color:var(--accent);">@Model.TongTien.ToString("N0")đ</td>
                     </tr>
                 </tfoot>
             </table>
         </div>
 
-        <!-- Cancel / Review -->
-        @if (Model.TrangThai == "ChoXacNhan")
-        {
-            <div style="margin-top:24px;">
-                <form asp-action="Huy" asp-route-id="@Model.MaHopDong" method="post" onsubmit="return confirm('Bạn có chắc muốn hủy hợp đồng này?')">
-                    <input type="hidden" name="lyDoHuy" value="Khách hàng hủy" />
-                    <button type="submit" class="btn-hd-outline" style="color:#f87171; border-color:#f87171;">
-                        <i class="fas fa-times"></i> Hủy hợp đồng
-                    </button>
-                </form>
-            </div>
-        }
+        <!-- ===== NỘI DUNG HỢP ĐỒNG (chế độ xem) ===== -->
+        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:32px 40px;">
+            <h4 style="font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:24px;">NỘI DUNG HỢP ĐỒNG</h4>
 
-        @if (Model.TrangThai == "DaTra" && Model.DanhGia == null)
-        {
-            <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px; margin-top:24px;">
-                <h4 style="font-size:16px; font-weight:600; margin-bottom:16px;">Đánh giá chuyến đi</h4>
-                <form asp-action="DanhGia" asp-route-id="@Model.MaHopDong" method="post">
-                    <div class="mb-3">
-                        <label class="form-label">SỐ SAO</label>
-                        <select name="soSao" class="form-select" style="width:120px;">
-                            <option value="5">⭐⭐⭐⭐⭐</option>
-                            <option value="4">⭐⭐⭐⭐</option>
-                            <option value="3">⭐⭐⭐</option>
-                            <option value="2">⭐⭐</option>
-                            <option value="1">⭐</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">NHẬN XÉT</label>
-                        <textarea name="nhanXet" class="form-control" rows="3" placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
-                    </div>
-                    <button type="submit" class="btn-hd"><i class="fas fa-paper-plane"></i> Gửi đánh giá</button>
-                </form>
-            </div>
-        }
-    </div>
+            <div style="font-size:14px; color:var(--text-secondary); line-height:2.0; text-align:justify;">
 
-    <!-- Right Column -->
-    <div class="col-lg-4">
-        <!-- Rental Period -->
-        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px; margin-bottom:24px;">
-            <h4 style="font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:1px; margin-bottom:16px;">THỜI GIAN THUÊ</h4>
-            <div class="d-flex gap-4">
-                <div>
-                    <div style="color:var(--accent); font-size:11px; margin-bottom:4px;"><i class="fas fa-calendar-check"></i> Bắt đầu</div>
-                    <strong style="font-size:16px;">@Model.NgayThue.ToString("dd/MM/yyyy")</strong>
-                    <div style="font-size:12px; color:var(--text-muted);">@Model.NgayThue.ToString("HH:mm")</div>
+                <!-- Header hành chính -->
+                <div class="text-center mb-4">
+                    <h5 style="font-weight:700; color:var(--text-primary); margin-bottom:4px;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</h5>
+                    <p style="font-weight:600; margin-bottom:16px;">Độc lập - Tự do - Hạnh phúc</p>
+                    <hr style="width:80px; margin:0 auto 20px; border-top:2px solid var(--text-primary);">
                 </div>
-                <div>
-                    <div style="color:#f87171; font-size:11px; margin-bottom:4px;"><i class="fas fa-calendar-times"></i> Kết thúc</div>
-                    <strong style="font-size:16px;">@Model.NgayTra.ToString("dd/MM/yyyy")</strong>
-                    <div style="font-size:12px; color:var(--text-muted);">@Model.NgayTra.ToString("HH:mm")</div>
+
+                <h5 style="text-align:center; color:var(--accent); font-weight:700; font-size:18px; margin-bottom:6px;">HỢP ĐỒNG THUÊ XE MÔ TÔ</h5>
+                <p style="text-align:center; font-style:italic; font-size:13px; color:var(--text-muted); margin-bottom:6px;">
+                    (Số: @Model.MaHopDong/HĐTX-HDR/@Model.NgayTao.Year)
+                </p>
+                <p style="text-align:center; font-style:italic; font-size:12px; color:var(--text-muted); margin-bottom:28px;">
+                    Căn cứ Bộ luật Dân sự số 91/2015/QH13; Luật Giao thông đường bộ; Luật Giao dịch điện tử và các quy định pháp luật hiện hành.
+                </p>
+
+                <p style="margin-bottom:20px;">Hôm nay, ngày @Model.NgayTao.Day tháng @Model.NgayTao.Month năm @Model.NgayTao.Year, tại Văn phòng H-D Rental, chúng tôi gồm có:</p>
+
+                <!-- Bên A -->
+                <div style="background:var(--bg-hover,rgba(255,255,255,0.04)); border-left:4px solid var(--text-primary); border-radius:0 8px 8px 0; padding:14px 20px; margin-bottom:16px;">
+                    <p style="font-weight:700; color:var(--text-primary); margin-bottom:8px;">BÊN CHO THUÊ (BÊN A): CÔNG TY TNHH H-D RENTAL VIỆT NAM</p>
+                    <p style="margin-bottom:4px;"><strong>Địa chỉ trụ sở:</strong> Quận 7, Thành phố Hồ Chí Minh</p>
+                    <p style="margin-bottom:4px;"><strong>Điện thoại:</strong> 1900-xxxx &nbsp;|&nbsp; <strong>Email:</strong> contact@hdrental.vn</p>
+                    <p style="margin-bottom:0;"><strong>Đại diện:</strong> Ông Nguyễn Văn Admin – Chức vụ: Giám đốc</p>
                 </div>
+
+                <!-- Bên B -->
+                <div style="background:var(--bg-hover,rgba(255,255,255,0.04)); border-left:4px solid var(--border-color); border-radius:0 8px 8px 0; padding:14px 20px; margin-bottom:24px;">
+                    <p style="font-weight:700; color:var(--text-primary); margin-bottom:8px;">BÊN THUÊ (BÊN B):</p>
+                    <p style="margin-bottom:4px;"><strong>Họ và tên:</strong> @Model.KhachHang.HoTen</p>
+                    <p style="margin-bottom:4px;"><strong>Số điện thoại:</strong> @Model.KhachHang.SoDienThoai</p>
+                    <p style="margin-bottom:4px;"><strong>CMND/CCCD:</strong> @Model.KhachHang.SoGiayTo</p>
+                    <p style="margin-bottom:0;"><strong>GPLX số:</strong> @Model.KhachHang.SoGPLX</p>
+                </div>
+
+                <p style="font-weight:700; text-align:center; margin-bottom:24px;">Hai bên thỏa thuận ký kết Hợp đồng thuê xe mô tô với các điều khoản sau đây trên cơ sở hoàn toàn tự nguyện, bình đẳng và phù hợp với quy định của pháp luật:</p>
+
+                <!-- Điều 1 -->
+                <h6 style="color:var(--text-primary); margin:24px 0 10px; font-weight:700; border-bottom:1px solid var(--border-color); padding-bottom:6px;">Điều 1. Đối tượng hợp đồng – Thông tin phương tiện</h6>
+                <p style="margin-bottom:10px;">Bên A đồng ý cho Bên B thuê phương tiện với thông tin sau:</p>
+                <div style="overflow-x:auto; margin-bottom:14px;">
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <tr style="background:var(--bg-hover,rgba(255,255,255,0.07));">
+                            <td style="padding:7px 10px; border:1px solid var(--border-color); font-weight:700; width:35%;">Thông tin</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color); font-weight:700;">Nội dung</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Loại xe / Nhãn hiệu</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">@Model.Xe.HangXe.TenHang @Model.Xe.TenXe</td>
+                        </tr>
+                        <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Biển kiểm soát</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">@Model.Xe.BienSo</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Màu sắc</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">@(Model.Xe.MoTa != null && Model.Xe.MoTa.Length > 0 ? Model.Xe.MoTa.Split(',')[0] : "Theo màu xe thực tế")</td>
+                        </tr>
+                        <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Dung tích xi-lanh</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">@(Model.Xe.DungTich.HasValue ? $"{Model.Xe.DungTich}cc" : "N/A")</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Tình trạng xe khi giao</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">&#9745; Tốt</td>
+                        </tr>
+                        <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Phụ kiện đi kèm</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">&#9745; Mũ bảo hiểm &nbsp; &#9745; Bộ đồ nghề</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Giấy tờ xe giao kèm</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">&#9745; Đăng ký xe &nbsp; &#9745; Đăng kiểm &nbsp; &#9745; Bảo hiểm TNDS</td>
+                        </tr>
+                    </table>
+                </div>
+                <p style="font-style:italic; color:var(--text-muted); font-size:13px; margin-bottom:0;">Hai bên cùng kiểm tra và xác nhận tình trạng xe tại thời điểm giao nhận. Bất kỳ hư hỏng nào không được ghi nhận tại đây sẽ được suy đoán phát sinh trong thời gian Bên B sử dụng.</p>
+
+                <!-- Điều 2 -->
+                <h6 style="color:var(--text-primary); margin:24px 0 10px; font-weight:700; border-bottom:1px solid var(--border-color); padding-bottom:6px;">Điều 2. Thời hạn thuê, địa điểm và giá trị hợp đồng</h6>
+                <div style="overflow-x:auto; margin-bottom:14px;">
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <tr style="background:var(--bg-hover,rgba(255,255,255,0.07));">
+                            <td style="padding:7px 10px; border:1px solid var(--border-color); font-weight:700; width:40%;">Nội dung</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color); font-weight:700;">Chi tiết</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Thời gian nhận xe</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">@Model.NgayThue.ToString("HH:mm, dd/MM/yyyy")</td>
+                        </tr>
+                        <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Thời gian trả xe</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">@Model.NgayTra.ToString("HH:mm, dd/MM/yyyy")</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Tổng thời gian thuê</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">@((Model.NgayTra - Model.NgayThue).Days) ngày @((Model.NgayTra - Model.NgayThue).Hours) giờ</td>
+                        </tr>
+                        <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Địa điểm nhận &amp; trả xe</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Văn phòng H-D Rental, Quận 7, TP.HCM</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color); font-weight:700;">Tổng giá trị hợp đồng</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color); font-weight:700; color:var(--accent);">@Model.TongTien.ToString("N0") VNĐ</td>
+                        </tr>
+                        <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Hình thức thanh toán</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">&#9745; Chuyển khoản &nbsp; &#9744; Tiền mặt &nbsp; &#9744; Ví điện tử</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Điều 3 -->
+                <h6 style="color:var(--text-primary); margin:24px 0 10px; font-weight:700; border-bottom:1px solid var(--border-color); padding-bottom:6px;">Điều 3. Nghĩa vụ của Bên A (Bên cho thuê)</h6>
+                <p style="margin-left:16px; margin-bottom:6px;">a) Giao xe đúng loại, đúng giờ và địa điểm đã thỏa thuận trong Điều 2; trường hợp chậm trễ quá <strong>30 phút</strong> mà không thông báo trước, Bên A phải giảm trừ <strong>01 giờ</strong> tiền thuê cho Bên B;</p>
+                <p style="margin-left:16px; margin-bottom:6px;">b) Đảm bảo xe ở tình trạng kỹ thuật an toàn, đã qua kiểm định, đầy đủ xăng và sạch sẽ khi giao;</p>
+                <p style="margin-left:16px; margin-bottom:6px;">c) Cung cấp đầy đủ giấy tờ hợp lệ: đăng ký xe, đăng kiểm còn hạn, bảo hiểm TNDS bắt buộc còn hiệu lực;</p>
+                <p style="margin-left:16px; margin-bottom:6px;">d) Hỗ trợ kỹ thuật và thay xe thay thế (cùng phân khúc) trong trường hợp xe bị hư hỏng không do lỗi Bên B;</p>
+                <p style="margin-left:16px; margin-bottom:6px;">e) Xuất hóa đơn VAT hoặc biên lai hợp lệ khi Bên B có yêu cầu;</p>
+                <p style="margin-left:16px; margin-bottom:0;">f) Bảo mật thông tin cá nhân của Bên B theo Chính sách bảo mật đã công bố tại <strong>hdrental.vn/privacy</strong>.</p>
+
+                <!-- Điều 4 -->
+                <h6 style="color:var(--text-primary); margin:24px 0 10px; font-weight:700; border-bottom:1px solid var(--border-color); padding-bottom:6px;">Điều 4. Nghĩa vụ của Bên B (Bên thuê)</h6>
+                <p style="margin-left:16px; margin-bottom:6px;">a) Thanh toán đầy đủ, đúng thời hạn theo lịch thanh toán tại Điều 2;</p>
+                <p style="margin-left:16px; margin-bottom:6px;">b) Trực tiếp điều khiển xe; tuyệt đối không cho người khác mượn, thuê lại, cầm cố hoặc chuyển giao xe dưới bất kỳ hình thức nào;</p>
+                <p style="margin-left:16px; margin-bottom:6px;">c) Sử dụng xe đúng mục đích dân sự hợp pháp; tuân thủ nghiêm Luật Giao thông đường bộ;</p>
+                <p style="margin-left:16px; margin-bottom:6px;">d) Bảo quản xe cẩn thận; không tự ý sửa chữa hoặc thay đổi bất kỳ thông số kỹ thuật nào của xe;</p>
+                <p style="margin-left:16px; margin-bottom:6px;">e) Trả xe đúng giờ, đúng địa điểm trong tình trạng như khi nhận (trừ hao mòn tự nhiên);</p>
+                <p style="margin-left:16px; margin-bottom:6px;">f) Thông báo ngay cho Bên A trong vòng <strong>01 giờ</strong> kể từ khi xảy ra tai nạn, hư hỏng, mất cắp hoặc bị cơ quan nhà nước tạm giữ phương tiện;</p>
+                <p style="margin-left:16px; margin-bottom:0;">g) Thông báo trước ít nhất <strong>02 giờ</strong> nếu có nhu cầu gia hạn thêm thời gian thuê.</p>
+
+                <!-- Điều 5 -->
+                <h6 style="color:var(--text-primary); margin:24px 0 10px; font-weight:700; border-bottom:1px solid var(--border-color); padding-bottom:6px;">Điều 5. Bảo hiểm và xử lý tai nạn, sự cố</h6>
+                <p style="margin-left:16px; margin-bottom:6px;">a) Xe được bảo hiểm trách nhiệm dân sự bắt buộc (TNDS) theo Nghị định 03/2021/NĐ-CP. Phạm vi bảo hiểm chỉ bao gồm thiệt hại cho bên thứ ba;</p>
+                <p style="margin-left:16px; margin-bottom:6px;">b) Khi xảy ra tai nạn, Bên B có nghĩa vụ: (i) Giữ nguyên hiện trường; (ii) Liên hệ ngay Bên A qua hotline; (iii) Lập biên bản với bên liên quan và cơ quan công an; (iv) Chụp ảnh hiện trường gửi cho Bên A trong vòng 24 giờ;</p>
+                <p style="margin-left:16px; margin-bottom:0;">c) Trường hợp mất xe: Bên B bồi thường theo giá trị thị trường xác định tại thời điểm mất, có tham chiếu biên bản công an và định giá độc lập.</p>
+
+                <!-- Điều 6 -->
+                <h6 style="color:var(--text-primary); margin:24px 0 10px; font-weight:700; border-bottom:1px solid var(--border-color); padding-bottom:6px;">Điều 6. Phí phạt vi phạm hợp đồng</h6>
+                <div style="overflow-x:auto; margin-bottom:6px;">
+                    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                        <tr style="background:var(--bg-hover,rgba(255,255,255,0.07));">
+                            <td style="padding:7px 10px; border:1px solid var(--border-color); font-weight:700;">Hành vi vi phạm</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color); font-weight:700; width:40%;">Mức phạt / Bồi thường</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Trả xe trễ dưới 3 giờ</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">20.000 VNĐ/giờ trễ</td>
+                        </tr>
+                        <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Trả xe trễ từ 3 giờ trở lên</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Tính thêm 01 ngày thuê</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Không thông báo sự cố trong vòng 1 giờ</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Phạt 500.000 VNĐ + chịu toàn bộ thiệt hại phát sinh</td>
+                        </tr>
+                        <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Cho người khác sử dụng xe</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Chấm dứt HĐ ngay, mất toàn bộ tiền cọc</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Vi phạm giao thông (bị phạt hành chính)</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Toàn bộ tiền phạt + phí xử lý 200.000 VNĐ/lần</td>
+                        </tr>
+                        <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Thiếu nhiên liệu khi trả xe</td>
+                            <td style="padding:7px 10px; border:1px solid var(--border-color);">Chi phí nhiên liệu thực tế + 20.000 VNĐ phí dịch vụ</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Điều 7 -->
+                <h6 style="color:var(--text-primary); margin:24px 0 10px; font-weight:700; border-bottom:1px solid var(--border-color); padding-bottom:6px;">Điều 7. Đơn phương chấm dứt hợp đồng</h6>
+                <p style="margin-left:16px; margin-bottom:6px;"><strong>7.1.</strong> Bên A có quyền đơn phương chấm dứt hợp đồng khi Bên B vi phạm nghiêm trọng quy định sử dụng xe, cung cấp thông tin giả mạo, hoặc bị cơ quan nhà nước tạm giữ phương tiện do vi phạm pháp luật.</p>
+                <p style="margin-left:16px; margin-bottom:0;"><strong>7.2.</strong> Bên B có quyền đơn phương chấm dứt hợp đồng khi Bên A giao xe không đúng loại hoặc không đảm bảo tiêu chuẩn kỹ thuật; trường hợp này Bên A phải hoàn trả tiền thuê theo số ngày chưa sử dụng.</p>
+
+                <!-- Điều 8 -->
+                <h6 style="color:var(--text-primary); margin:24px 0 10px; font-weight:700; border-bottom:1px solid var(--border-color); padding-bottom:6px;">Điều 8. Giải quyết tranh chấp</h6>
+                <p style="margin-left:16px; margin-bottom:6px;">a) Mọi tranh chấp được giải quyết trước tiên thông qua thương lượng trong thời hạn <strong>15 ngày</strong> kể từ ngày phát sinh;</p>
+                <p style="margin-left:16px; margin-bottom:6px;">b) Nếu thương lượng không thành, tranh chấp sẽ được đưa ra <strong>Tòa án nhân dân có thẩm quyền</strong> nơi Bên A đặt trụ sở;</p>
+                <p style="margin-left:16px; margin-bottom:0;">c) Phán quyết của Tòa án có giá trị chung thẩm và ràng buộc cả hai bên theo quy định pháp luật tố tụng dân sự Việt Nam.</p>
+
+                <!-- Điều 9 -->
+                <h6 style="color:var(--text-primary); margin:24px 0 10px; font-weight:700; border-bottom:1px solid var(--border-color); padding-bottom:6px;">Điều 9. Điều khoản chung</h6>
+                <p style="margin-left:16px; margin-bottom:6px;">a) Hợp đồng có hiệu lực kể từ thời điểm cả hai bên ký kết;</p>
+                <p style="margin-left:16px; margin-bottom:6px;">b) Mọi sửa đổi, bổ sung chỉ có giá trị khi được lập thành văn bản và có chữ ký của cả hai bên;</p>
+                <p style="margin-left:16px; margin-bottom:0;">c) Hợp đồng điện tử ký qua Nền tảng H-D Rental có giá trị pháp lý tương đương hợp đồng bản giấy theo Luật Giao dịch điện tử số 20/2023/QH15.</p>
+
+                <!-- Cam kết Bên B -->
+                <div style="background:rgba(255,193,7,0.1); border:1px solid #ffc107; border-radius:8px; padding:14px 20px; margin:20px 0;">
+                    <p style="font-weight:700; color:var(--text-primary); margin-bottom:6px;">
+                        <i class="fas fa-exclamation-triangle" style="color:#ffc107;"></i> CAM KẾT CỦA BÊN B
+                    </p>
+                    <p style="margin-bottom:0; font-size:13px;">Tôi xác nhận đã đọc, hiểu rõ và tự nguyện đồng ý với toàn bộ nội dung Hợp đồng này, Điều khoản dịch vụ và Chính sách bảo mật của H-D Rental. Tôi cam kết cung cấp thông tin trung thực, sử dụng xe đúng mục đích, tuân thủ pháp luật và chịu hoàn toàn trách nhiệm pháp lý đối với hành vi của mình trong thời gian thuê xe.</p>
+                </div>
+
+                <!-- Chữ ký -->
+                <hr style="border-top:1px solid var(--border-color); margin:28px 0 24px;">
+                <div class="row text-center">
+
+                    <!-- Bên A -->
+                    <div class="col-6">
+                        <p style="font-style:italic; font-size:12px; color:var(--text-muted); margin-bottom:4px;">
+                            TP. Hồ Chí Minh, ngày @Model.NgayTao.Day tháng @Model.NgayTao.Month năm @Model.NgayTao.Year
+                        </p>
+                        <h6 style="font-weight:700; color:var(--text-primary); margin-bottom:2px; text-transform:uppercase;">Đại diện Bên A</h6>
+                        <p style="font-style:italic; font-size:11px; color:var(--text-muted); margin-bottom:10px;">(Ký, ghi rõ họ tên và đóng dấu)</p>
+                        <div style="height:90px; display:flex; align-items:center; justify-content:center;">
+                            <img src="/images/signature_admin.png" style="max-height:70px; opacity:0.7;" alt="Chữ ký Admin" onerror="this.style.display='none'" />
+                        </div>
+                        <strong style="display:block; margin-top:8px; color:var(--text-primary);">Nguyễn Văn Admin</strong>
+                        <p style="font-size:12px; color:var(--text-muted);">Giám đốc – H-D Rental</p>
+                    </div>
+
+                    <!-- Bên B -->
+                    <div class="col-6">
+                        <p style="font-style:italic; font-size:12px; color:var(--text-muted); margin-bottom:4px;">
+                            TP. Hồ Chí Minh, ngày @Model.NgayTao.Day tháng @Model.NgayTao.Month năm @Model.NgayTao.Year
+                        </p>
+                        <h6 style="font-weight:700; color:var(--text-primary); margin-bottom:2px; text-transform:uppercase;">Đại diện Bên B</h6>
+                        <p style="font-style:italic; font-size:11px; color:var(--text-muted); margin-bottom:10px;">(Ký, ghi rõ họ tên)</p>
+
+                        <div style="height:90px; display:flex; align-items:center; justify-content:center; border:1px dashed var(--border-color); border-radius:8px; background:var(--bg-hover,rgba(255,255,255,0.02));">
+                            @if (daSo)
+                            {
+                                <div style="text-align:center;">
+                                    <i class="fas fa-check-circle" style="color:#4ade80; font-size:18px; margin-bottom:4px; display:block;"></i>
+                                    <span style="color:var(--accent); font-family:'Brush Script MT', cursive; font-size:22px;">@Model.KhachHang.HoTen</span>
+                                </div>
+                            }
+                            else
+                            {
+                                <span style="color:var(--text-muted); font-size:12px; font-style:italic;">
+                                    <i class="fas fa-clock" style="margin-right:4px;"></i>Chưa ký
+                                </span>
+                            }
+                        </div>
+
+                        <strong style="display:block; margin-top:8px; color:var(--text-primary);">@Model.KhachHang.HoTen</strong>
+                        <p style="font-size:12px; color:var(--text-muted);">Bên thuê xe</p>
+
+                        @if (daSo)
+                        {
+                            <span style="display:inline-block; margin-top:4px; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:600; color:#4ade80; background:#0a3d1e;">
+                                <i class="fas fa-file-signature"></i> Đã ký điện tử
+                            </span>
+                        }
+                    </div>
+                </div>
+
             </div>
         </div>
 
-        <!-- Extend Rental -->
-        @if (Model.TrangThai == "DangThue")
+        <!-- Hủy hợp đồng -->
+        @if (Model.TrangThai == "ChoXacNhan")
         {
-            <div style="text-align:center; margin-bottom:24px;">
-                <button class="btn-hd-outline w-100">GIA HẠN THUÊ XE</button>
+            <div style="margin-top:24px;">
+                <form id="formHuy" asp-action="Huy" asp-route-id="@Model.MaHopDong" method="post">
+                    <input type="hidden" name="lyDoHuy" value="Khách hàng hủy" />
+                </form>
+                <button type="button" class="btn-hd-outline w-100" style="color:#f87171; border-color:#f87171;" onclick="confirmHuy()">
+                    <i class="fas fa-times"></i> Hủy hợp đồng
+                </button>
             </div>
         }
 
-        <!-- Back -->
-        <a asp-action="CuaToi" class="btn-hd-outline w-100" style="text-align:center; display:block;">
-            <i class="fas fa-arrow-left"></i> Quay lại danh sách
-        </a>
+        <!-- Đánh giá -->
+        @if (Model.TrangThai == "DaTra" && Model.DanhGia == null)
+        {
+            <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px; margin-top:24px; text-align:center;">
+                <h4 style="font-size:16px; font-weight:600; margin-bottom:16px;">Bạn chưa đánh giá chuyến đi</h4>
+                <a asp-action="DanhGiaTraXe" asp-route-id="@Model.MaHopDong" class="btn-hd w-100">
+                    <i class="fas fa-star"></i> ĐÁNH GIÁ NGAY
+                </a>
+            </div>
+        }
+
+    </div>
+
+    <!-- ===== Right Column ===== -->
+    <div class="col-lg-4">
+
+        <!-- Thời gian thuê — redesigned -->
+        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:24px; margin-bottom:24px;">
+            <h4 style="font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:20px;">
+                <i class="fas fa-clock" style="margin-right:6px;"></i>THỜI GIAN THUÊ
+            </h4>
+
+            <!-- Ngày bắt đầu -->
+            <div style="display:flex; align-items:center; gap:14px; background:rgba(234,88,12,0.07); border:1px solid rgba(234,88,12,0.2); border-radius:10px; padding:14px 16px; margin-bottom:10px;">
+                <div style="width:38px; height:38px; background:rgba(234,88,12,0.15); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <i class="fas fa-calendar-check" style="color:var(--accent); font-size:15px;"></i>
+                </div>
+                <div>
+                    <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Bắt đầu</div>
+                    <strong style="font-size:17px; color:var(--text-primary); display:block; line-height:1.2;">@Model.NgayThue.ToString("dd/MM/yyyy")</strong>
+                    <div style="font-size:12px; color:var(--accent); margin-top:2px;"><i class="fas fa-clock" style="margin-right:3px;"></i>@Model.NgayThue.ToString("HH:mm")</div>
+                </div>
+            </div>
+
+            <!-- Arrow connector -->
+            <div style="text-align:center; color:var(--text-muted); margin:4px 0; font-size:13px; letter-spacing:2px;">
+                ↕
+            </div>
+
+            <!-- Ngày kết thúc -->
+            <div style="display:flex; align-items:center; gap:14px; background:rgba(248,113,113,0.07); border:1px solid rgba(248,113,113,0.2); border-radius:10px; padding:14px 16px; margin-bottom:16px;">
+                <div style="width:38px; height:38px; background:rgba(248,113,113,0.15); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <i class="fas fa-calendar-times" style="color:#f87171; font-size:15px;"></i>
+                </div>
+                <div>
+                    <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Kết thúc</div>
+                    <strong style="font-size:17px; color:var(--text-primary); display:block; line-height:1.2;">@Model.NgayTra.ToString("dd/MM/yyyy")</strong>
+                    <div style="font-size:12px; color:#f87171; margin-top:2px;"><i class="fas fa-clock" style="margin-right:3px;"></i>@Model.NgayTra.ToString("HH:mm")</div>
+                </div>
+            </div>
+
+            <!-- Tổng số ngày -->
+            @{
+                var tongNgayThue = (Model.NgayTra - Model.NgayThue).Days;
+                if (tongNgayThue < 1) tongNgayThue = 1;
+            }
+            <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.04); border-radius:8px; padding:10px 14px;">
+                <span style="font-size:12px; color:var(--text-muted);"><i class="fas fa-hourglass-half" style="margin-right:6px;"></i>Tổng thời gian thuê</span>
+                <span style="font-size:14px; font-weight:700; color:var(--text-primary);">@tongNgayThue ngày</span>
+            </div>
+        </div>
+
+        <!-- Gia hạn & Trả xe -->
+        @if (Model.TrangThai == "DangThue")
+        {
+            <!-- Gia hạn panel (inline, collapsed by default) -->
+            <div id="panelGiaHan" style="display:none; background:var(--bg-card); border:1px solid rgba(234,88,12,0.35); border-radius:var(--border-radius); padding:20px; margin-bottom:16px;">
+                <h5 style="font-size:14px; font-weight:700; color:var(--text-primary); margin-bottom:4px;">
+                    <i class="fas fa-calendar-plus" style="color:var(--accent); margin-right:6px;"></i>Gia hạn thuê xe
+                </h5>
+                <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">Nhập số ngày muốn gia hạn thêm</p>
+
+                <form id="formGiaHan" asp-action="GiaHan" asp-route-id="@Model.MaHopDong" method="post">
+                    <div style="margin-bottom:14px;">
+                        <label style="font-size:12px; color:var(--text-muted); font-weight:600; display:block; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Số ngày gia hạn</label>
+                        <input type="number" id="soNgayInput" name="soNgayGiaHan" min="1" step="1" placeholder="Ví dụ: 2"
+                               style="width:100%; background:var(--bg-input,rgba(255,255,255,0.07)); border:1px solid var(--border-color); border-radius:8px; padding:10px 14px; color:var(--text-primary); font-size:15px; font-weight:600; outline:none;"
+                               oninput="tinhGiaHan(this.value)" />
+                    </div>
+
+                    <!-- Chi phí preview -->
+                    <div id="previewGiaHan" style="display:none; background:rgba(234,88,12,0.08); border:1px solid rgba(234,88,12,0.25); border-radius:8px; padding:12px 14px; margin-bottom:14px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <span style="font-size:12px; color:var(--text-muted);">Chi phí phát sinh</span>
+                            <span id="previewSoTien" style="font-size:18px; font-weight:700; color:var(--accent);"></span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="font-size:12px; color:var(--text-muted);">Ngày trả mới</span>
+                            <span id="previewNgayMoi" style="font-size:13px; font-weight:600; color:var(--text-primary);"></span>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:8px;">
+                        <button type="submit" class="btn-hd" style="flex:1; padding:10px; font-size:13px;" id="btnXacNhanGiaHan" disabled>
+                            <i class="fas fa-check"></i> Xác nhận
+                        </button>
+                        <button type="button" class="btn-hd-outline" style="padding:10px 16px; font-size:13px;" onclick="toggleGiaHan(false)">
+                            Hủy
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 3 action buttons — compact & centered -->
+            <form id="formTraXe" asp-action="TraXeTruocHan" asp-route-id="@Model.MaHopDong" method="post" style="display:none;"></form>
+
+            <div style="display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:24px;">
+                <button type="button" onclick="toggleGiaHan(true)"
+                        style="width:80%; padding:11px 20px; background:transparent; border:1.5px solid var(--accent); color:var(--accent); border-radius:8px; font-size:13px; font-weight:600; letter-spacing:0.5px; cursor:pointer; transition:all 0.2s;"
+                        onmouseover="this.style.background='rgba(234,88,12,0.12)'" onmouseout="this.style.background='transparent'">
+                    <i class="fas fa-calendar-plus" style="margin-right:6px;"></i>GIA HẠN THUÊ XE
+                </button>
+                <button type="button" onclick="confirmTraXe()"
+                        style="width:80%; padding:11px 20px; background:#4ade80; border:1.5px solid #4ade80; color:#000; border-radius:8px; font-size:13px; font-weight:600; letter-spacing:0.5px; cursor:pointer; transition:all 0.2s;"
+                        onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                    <i class="fas fa-undo-alt" style="margin-right:6px;"></i>TRẢ XE TRƯỚC HẠN
+                </button>
+            </div>
+        }
+
+        <!-- Quay lại — compact & centered -->
+        <div style="text-align:center;">
+            <a asp-action="CuaToi"
+               style="display:inline-block; width:80%; padding:10px 20px; background:transparent; border:1.5px solid var(--border-color); color:var(--text-secondary); border-radius:8px; font-size:13px; font-weight:600; text-decoration:none; text-align:center; letter-spacing:0.5px; transition:all 0.2s;"
+               onmouseover="this.style.borderColor='var(--text-secondary)'; this.style.color='var(--text-primary)'"
+               onmouseout="this.style.borderColor='var(--border-color)'; this.style.color='var(--text-secondary)'">
+                <i class="fas fa-arrow-left" style="margin-right:6px;"></i>Quay lại danh sách
+            </a>
+        </div>
+
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function confirmHuy() {
+            Swal.fire({
+                title: 'Hủy hợp đồng',
+                text: "Bạn có chắc chắn muốn hủy hợp đồng này?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f87171',
+                cancelButtonColor: '#4b5563',
+                confirmButtonText: 'Đồng ý hủy',
+                cancelButtonText: 'Không'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('formHuy').submit();
+                }
+            })
+        }
+
+        function confirmTraXe() {
+            Swal.fire({
+                title: 'Trả xe trước hạn',
+                text: "Bạn có chắc chắn muốn trả xe trước hạn? Bạn sẽ được chuyển sang phần đánh giá.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#4ade80',
+                cancelButtonColor: '#4b5563',
+                confirmButtonText: 'Đồng ý trả xe',
+                cancelButtonText: 'Quay lại'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('formTraXe').submit();
+                }
+            })
+        }
+
+        const _giaThueGoc = @Model.GiaThueGoc;
+        const _heSoMua = @Model.HeSoMua;
+        const _ngayTra = new Date('@Model.NgayTra.ToString("yyyy-MM-ddTHH:mm:ss")');
+
+        function toggleGiaHan(show) {
+            const panel = document.getElementById('panelGiaHan');
+            panel.style.display = show ? 'block' : 'none';
+            if (show) {
+                document.getElementById('soNgayInput').focus();
+                panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                document.getElementById('soNgayInput').value = '';
+                document.getElementById('previewGiaHan').style.display = 'none';
+                document.getElementById('btnXacNhanGiaHan').disabled = true;
+            }
+        }
+
+        function tinhGiaHan(val) {
+            const n = parseInt(val);
+            const preview = document.getElementById('previewGiaHan');
+            const btn = document.getElementById('btnXacNhanGiaHan');
+            if (n > 0) {
+                const tien = _giaThueGoc * _heSoMua * n;
+                document.getElementById('previewSoTien').textContent = tien.toLocaleString('vi-VN') + 'đ';
+                const newDate = new Date(_ngayTra);
+                newDate.setDate(newDate.getDate() + n);
+                document.getElementById('previewNgayMoi').textContent = newDate.toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric' });
+                preview.style.display = 'block';
+                btn.disabled = false;
+            } else {
+                preview.style.display = 'none';
+                btn.disabled = true;
+            }
+        }
+    </script>
+}
