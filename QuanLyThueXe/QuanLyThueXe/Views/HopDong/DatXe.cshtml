@@ -14,9 +14,11 @@
 <div class="row g-4">
     <!-- Left - Booking Info -->
     <div class="col-lg-7">
-        <form asp-controller="HopDong" asp-action="DatXe" method="post"
-              enctype="multipart/form-data" id="datXeForm">
+        <form asp-controller="HopDong" asp-action="DatXe" asp-route-id="@Model.Xe.MaXe" method="post" enctype="multipart/form-data" id="datXeForm">
             <input type="hidden" asp-for="Xe.MaXe" />
+            <input type="hidden" asp-for="Xe.NamSanXuat" />
+            <input type="hidden" asp-for="Xe.GiaThueNgay" />
+            <input type="hidden" asp-for="PhiBaoHiem" />
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
             <!-- Deposit Amount -->
@@ -51,13 +53,13 @@
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
                     <label class="form-label"><i class="fas fa-calendar-alt"></i> NGÀY NHẬN XE</label>
-                    <input type="date" class="form-control" value="@Model.NgayThue.ToString("yyyy-MM-dd")" readonly style="background-color: var(--bg-secondary);" />
-                    <input asp-for="NgayThue" type="hidden" id="ngayThueHidden" />
+                    <input type="date" class="form-control" id="ngayThueDisplay" value="@Model.NgayThue.ToString("yyyy-MM-dd")" readonly style="background-color: var(--bg-secondary);" />
+                    <input type="hidden" name="NgayThue" id="ngayThueHidden" />
                 </div>
                 <div class="col-md-6">
                     <label class="form-label"><i class="fas fa-calendar-check"></i> NGÀY TRẢ XE</label>
-                    <input type="date" class="form-control" value="@Model.NgayTra.ToString("yyyy-MM-dd")" readonly style="background-color: var(--bg-secondary);" />
-                    <input asp-for="NgayTra" type="hidden" id="ngayTraHidden" />
+                    <input type="date" class="form-control" id="ngayTraDisplay" value="@Model.NgayTra.ToString("yyyy-MM-dd")" readonly style="background-color: var(--bg-secondary);" />
+                    <input type="hidden" name="NgayTra" id="ngayTraHidden" />
                 </div>
             </div>
 
@@ -70,11 +72,11 @@
                         {
                             if (h == 9)
                             {
-                                <option value="@(h):00" selected>@(h):00</option>
+                                <option value="@(h.ToString("00")):00" selected>@(h.ToString("00")):00</option>
                             }
                             else
                             {
-                                <option value="@(h):00">@(h):00</option>
+                                <option value="@(h.ToString("00")):00">@(h.ToString("00")):00</option>
                             }
                         }
                     </select>
@@ -86,11 +88,11 @@
                         {
                             if (h == 18)
                             {
-                                <option value="@(h):00" selected>@(h):00</option>
+                                <option value="@(h.ToString("00")):00" selected>@(h.ToString("00")):00</option>
                             }
                             else
                             {
-                                <option value="@(h):00">@(h):00</option>
+                                <option value="@(h.ToString("00")):00">@(h.ToString("00")):00</option>
                             }
                         }
                     </select>
@@ -104,10 +106,18 @@
                     <input asp-for="MaKhuyenMai" id="maKhuyenMai" class="form-control" placeholder="Nhập mã khuyến mãi" />
                     <button type="button" class="btn-hd" onclick="applyPromo()">ÁP DỤNG</button>
                 </div>
-                <div style="margin-top:8px;">
+                <div style="margin-top:8px;" id="promoSuggestions">
                     <span style="font-size:11px; color:var(--text-muted); margin-right:8px;">Gợi ý:</span>
-                    <span class="badge" style="background:rgba(232,115,26,0.1); color:var(--accent); border:1px solid var(--accent); cursor:pointer; font-weight:normal;" onclick="document.getElementById('maKhuyenMai').value='WEEKEND20'">WEEKEND20</span>
-                    <span class="badge" style="background:rgba(232,115,26,0.1); color:var(--accent); border:1px solid var(--accent); cursor:pointer; font-weight:normal; margin-left:4px;" onclick="document.getElementById('maKhuyenMai').value='WARRIOR'">WARRIOR</span>
+                    @if (ViewBag.KhuyenMais != null)
+                    {
+                        foreach (var km in (IEnumerable<QuanLyThueXe.Models.KhuyenMai>)ViewBag.KhuyenMais)
+                        {
+                            <span onclick="document.getElementById('maKhuyenMai').value='@km.MaCode'; applyPromo();" style="font-size:11px; color:var(--accent); border:1px solid var(--accent); padding:2px 6px; border-radius:4px; margin-right:4px; cursor:pointer;">@km.MaCode</span>
+                        }
+                    }
+                </div>
+                <div style="margin-top:8px; display:none;" id="promoApplied">
+                    <span style="font-size:12px; color:#4ade80;"><i class="fas fa-check-circle"></i> Đã áp dụng mã: <strong id="appliedPromoCode"></strong> - Giảm <strong id="appliedPromoAmount">0đ</strong></span>
                 </div>
             </div>
 
@@ -151,16 +161,20 @@
                         <strong style="color:#fbbf24;">x @Model.HeSoMua</strong>
                     </div>
                 }
-                @if (Model.TienGiam > 0)
+                @if (Model.PhiBaoHiem > 0)
                 {
                     <div class="d-flex justify-content-between mb-2" style="font-size:13px;">
-                        <span style="color:var(--text-secondary);">Giảm giá</span>
-                        <strong style="color:#4ade80;">-@Model.TienGiam.ToString("N0") VNĐ</strong>
+                        <span style="color:var(--text-secondary);">Phí bảo hiểm cao cấp</span>
+                        <strong style="color:var(--accent);">+@Model.PhiBaoHiem.ToString("N0") VNĐ</strong>
                     </div>
                 }
+                <div class="d-flex justify-content-between mb-2" style="font-size:13px; display:none;" id="discountRow">
+                    <span style="color:#4ade80;">Giảm giá (Khuyến mãi)</span>
+                    <strong style="color:#4ade80;" id="discountAmount">-0 VNĐ</strong>
+                </div>
                 <div style="border-top:1px solid var(--border-color); padding-top:12px; margin-top:8px;" class="d-flex justify-content-between">
                     <span style="font-weight:700;">TỔNG TIỀN</span>
-                    <span style="font-size:24px; font-weight:700; color:var(--accent);">@Model.TongTien.ToString("N0")đ</span>
+                    <span style="font-size:24px; font-weight:700; color:var(--accent);" id="totalAmount">@Model.TongTien.ToString("N0")đ</span>
                 </div>
             </div>
 
@@ -169,11 +183,9 @@
                 <a asp-controller="Xe" asp-action="ChiTiet" asp-route-id="@Model.Xe.MaXe" class="btn-hd-outline flex-fill" style="text-align:center; padding:14px;">
                     HỦY BỎ
                 </a>
-                <button type="submit" class="btn-hd flex-fill"
-                        style="justify-content:center; padding:14px;">
+                <button type="submit" class="btn-hd flex-fill" style="justify-content:center; padding:14px;">
                     <i class="fas fa-lock"></i> THANH TOÁN CỌC
                 </button>
-
             </div>
         </form>
     </div>
@@ -237,6 +249,34 @@
     <script>
         let currentPayment = 'credit';
 
+        document.addEventListener('DOMContentLoaded', function() {
+            // Xóa các mã giả cũ khỏi localStorage
+            const fakeCodes = ['WEEKEND20', 'WARRIOR', 'FREECHECK'];
+            let savedPromos = JSON.parse(localStorage.getItem('savedPromos') || '[]');
+            savedPromos = savedPromos.filter(p => !fakeCodes.includes(p.toUpperCase()));
+            localStorage.setItem('savedPromos', JSON.stringify(savedPromos));
+
+            const usedPromos = JSON.parse(localStorage.getItem('usedPromos') || '[]');
+            const suggestionsContainer = document.getElementById('promoSuggestions');
+            
+            // Lấy HTML hiện tại (chứa các mã thật từ Database)
+            let html = suggestionsContainer.innerHTML;
+            let addedFromLocal = false;
+
+            savedPromos.forEach(p => {
+                if (!usedPromos.includes(p)) {
+                    if (!html.includes(`'${p}'`) && !html.includes(`'${p.toUpperCase()}'`)) {
+                        html += `<span class="badge" style="background:rgba(232,115,26,0.1); color:var(--accent); border:1px solid var(--accent); cursor:pointer; font-weight:normal; margin-right:4px;" onclick="document.getElementById('maKhuyenMai').value='${p}'; applyPromo();">${p.toUpperCase()}</span>`;
+                        addedFromLocal = true;
+                    }
+                }
+            });
+
+            if (addedFromLocal) {
+                suggestionsContainer.innerHTML = html;
+            }
+        });
+
         function selectPayment(method) {
             currentPayment = method;
             if (method === 'credit') {
@@ -273,6 +313,15 @@
         if(expiryInput) {
             expiryInput.addEventListener('input', function(e) {
                 let val = this.value.replace(/\D/g, '');
+                
+                // Limit month to 01-12
+                if (val.length >= 2) {
+                    let month = parseInt(val.substring(0, 2));
+                    if (month > 12) month = 12;
+                    if (month < 1 && val.length === 2) month = 1;
+                    val = (month < 10 ? '0' : '') + month + val.substring(2);
+                }
+                
                 if (val.length >= 3) {
                     this.value = val.substring(0, 2) + '/' + val.substring(2, 4);
                 } else {
@@ -305,25 +354,55 @@
             });
         }
 
+        let currentDiscount = 0;
+        const baseTotal = @Model.TongTien;
+
         function applyPromo() {
-            const code = document.getElementById('maKhuyenMai').value;
+            const code = document.getElementById('maKhuyenMai').value.trim();
             if(!code) {
                 showToast('Vui lòng nhập mã khuyến mãi');
                 return;
             }
-            showToast('Đã áp dụng mã ' + code + ' thành công!', 'success');
+            
+            fetch(`/HopDong/CheckPromoCode?code=${encodeURIComponent(code)}&totalAmount=${baseTotal}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        currentDiscount = data.discount;
+                        
+                        // Update UI
+                        document.getElementById('discountRow').style.display = 'flex';
+                        document.getElementById('discountAmount').textContent = '-' + currentDiscount.toLocaleString('vi') + ' VNĐ';
+                        document.getElementById('totalAmount').textContent = (baseTotal - currentDiscount).toLocaleString('vi') + 'đ';
+                        
+                        document.getElementById('promoApplied').style.display = 'block';
+                        document.getElementById('appliedPromoCode').textContent = code.toUpperCase();
+                        document.getElementById('appliedPromoAmount').textContent = currentDiscount.toLocaleString('vi') + 'đ';
+                        
+                        showToast('Đã áp dụng mã ' + code.toUpperCase() + ' thành công! Giảm ' + currentDiscount.toLocaleString('vi') + 'đ', 'success');
+                    } else {
+                        showToast(data.message);
+                        // Reset if failed
+                        document.getElementById('maKhuyenMai').value = '';
+                    }
+                })
+                .catch(err => {
+                    showToast('Đã xảy ra lỗi khi kiểm tra mã khuyến mãi.');
+                });
         }
 
         // Validate on submit
         document.getElementById('datXeForm').addEventListener('submit', function(e) {
-            // Combine date and time before submit
-            const ngayThueDate = '@Model.NgayThue.ToString("yyyy-MM-dd")';
+            // Combine date and time before submit - đọc từ display input, không hardcode
+            const ngayThueDate = document.getElementById('ngayThueDisplay')?.value 
+                || '@Model.NgayThue.ToString("yyyy-MM-dd")';
             const gioNhan = document.getElementById('gioNhan').value;
-            const ngayTraDate = '@Model.NgayTra.ToString("yyyy-MM-dd")';
+            const ngayTraDate = document.getElementById('ngayTraDisplay')?.value 
+                || '@Model.NgayTra.ToString("yyyy-MM-dd")';
             const gioTra = document.getElementById('gioTra').value;
             
-            document.getElementById('ngayThueHidden').value = ngayThueDate + 'T' + gioNhan;
-            document.getElementById('ngayTraHidden').value = ngayTraDate + 'T' + gioTra;
+            document.getElementById('ngayThueHidden').value = ngayThueDate + 'T' + gioNhan + ':00';
+            document.getElementById('ngayTraHidden').value = ngayTraDate + 'T' + gioTra + ':00';
             
             if (currentPayment === 'credit') {
                 const cardNum = document.getElementById('cardNumber').value.replace(/\s/g, '');

@@ -40,6 +40,13 @@ namespace QuanLyThueXe.Data
             // Configure composite key for VaiTroQuyen
             modelBuilder.Entity<VaiTroQuyen>()
                 .HasKey(vq => new { vq.MaVaiTro, vq.MaQuyen });
+                
+            // Configure tables with triggers to prevent EF Core OUTPUT clause exception
+            modelBuilder.Entity<HopDong>()
+                .ToTable(tb => tb.HasTrigger("trg_TangSoLanThue"));
+
+            modelBuilder.Entity<DanhGia>()
+                .ToTable(tb => tb.HasTrigger("trg_CapNhatDanhGia"));
 
             // Configure relationships
             modelBuilder.Entity<NguoiDung>()
