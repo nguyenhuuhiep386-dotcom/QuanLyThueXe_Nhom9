@@ -1,0 +1,311 @@
+@model QuanLyThueXe.Models.KhuyenMai
+
+@{
+    ViewData["Title"] = "Tạo Khuyến mãi";
+    var isEdit = Model?.MaKhuyenMai > 0;
+}
+
+<div class="container-fluid py-4 px-4" style="max-width:860px;">
+
+    <nav class="mb-2" style="font-size:0.82rem;">
+        <a asp-action="Index" class="text-muted text-decoration-none hover-white">Khuyến mãi</a>
+        <span class="text-muted mx-2">›</span>
+        <span class="text-white">@(isEdit ? "Chỉnh sửa" : "Tạo mới")</span>
+    </nav>
+
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a asp-action="Index" class="btn-icon-back">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div>
+            <h3 class="fw-bold text-white mb-0">@(isEdit ? "Chỉnh sửa Khuyến mãi" : "Tạo Khuyến mãi mới")</h3>
+            <p class="text-muted small mb-0">Thiết lập chương trình ưu đãi cho khách hàng</p>
+        </div>
+    </div>
+
+    <div class="form-panel">
+        <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+            @Html.AntiForgeryToken()
+            @if (isEdit)
+            {
+                <input type="hidden" asp-for="MaKhuyenMai" />
+                <input type="hidden" asp-for="NgayTao" />
+                <input type="hidden" asp-for="DaSuDung" />
+            }
+
+            @* Thông tin cơ bản *@
+            <div class="section-header mb-3">
+                <i class="fa-solid fa-tag me-2"></i> Thông tin chương trình
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-8">
+                    <label class="field-label">Tên chương trình <span class="text-danger">*</span></label>
+                    <input asp-for="TenChuongTrinh" class="dark-input w-100"
+                           placeholder="VD: Khách hàng mới, Hè rực rỡ..." />
+                    <span asp-validation-for="TenChuongTrinh" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label class="field-label">Mã Code <span class="text-danger">*</span></label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-hashtag input-icon" style="color:#FF7A00;"></i>
+                        <input asp-for="MaCode" class="dark-input w-100 ps-5 code-input"
+                               placeholder="NEWCUST" style="text-transform:uppercase;" />
+                    </div>
+                    <span asp-validation-for="MaCode" class="text-danger small"></span>
+                </div>
+            </div>
+
+            @* Loại giảm giá *@
+            <div class="section-header mb-3">
+                <i class="fa-solid fa-percent me-2"></i> Cấu hình giảm giá
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label class="field-label">Loại giảm giá <span class="text-danger">*</span></label>
+                    <select asp-for="LoaiGiamGia" class="dark-select w-100" id="loaiGiamGia"
+                            onchange="toggleLoaiGiam()">
+                        <option value="PhanTram">Phần trăm (%)</option>
+                        <option value="SoTienCoDinh">Số tiền cố định (đ)</option>
+                    </select>
+                    <span asp-validation-for="LoaiGiamGia" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="field-label" id="labelGiaTri">Giá trị giảm <span class="text-danger">*</span></label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-percent input-icon" id="iconGiaTri"></i>
+                        <input asp-for="GiaTriGiam" type="number" class="dark-input w-100 ps-5"
+                               placeholder="10" min="0" step="0.01" />
+                    </div>
+                    <span asp-validation-for="GiaTriGiam" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-4" id="wrapGiamToiDa">
+                    <label class="field-label">Giảm tối đa (đ)</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-arrow-down input-icon"></i>
+                        <input asp-for="GiaTriGiamToiDa" type="number" class="dark-input w-100 ps-5"
+                               placeholder="200000" min="0" />
+                    </div>
+                </div>
+            </div>
+
+            @* Điều kiện & Lượt dùng *@
+            <div class="section-header mb-3">
+                <i class="fa-solid fa-sliders me-2"></i> Điều kiện & Giới hạn
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <label class="field-label">Điều kiện đơn tối thiểu (đ)</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-dong-sign input-icon"></i>
+                        <input asp-for="DieuKienToiThieu" type="number" class="dark-input w-100 ps-5"
+                               placeholder="500000" min="0" />
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="field-label">Số lượt sử dụng <span class="text-danger">*</span></label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-ticket input-icon"></i>
+                        <input asp-for="SoLanSuDung" type="number" class="dark-input w-100 ps-5"
+                               placeholder="100" min="1" />
+                    </div>
+                    <span asp-validation-for="SoLanSuDung" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label class="field-label">Trạng thái</label>
+                    <div class="toggle-wrap">
+                        <label class="toggle-switch">
+                            <input type="checkbox" asp-for="IsActive" id="toggleActive" />
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label" id="toggleLabel">Đang hoạt động</span>
+                    </div>
+                </div>
+            </div>
+
+            @* Thời hạn *@
+            <div class="section-header mb-3">
+                <i class="fa-regular fa-calendar me-2"></i> Thời gian hiệu lực
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="field-label">Ngày bắt đầu <span class="text-danger">*</span></label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-regular fa-calendar input-icon"></i>
+                        <input asp-for="TuNgay" type="date" class="dark-input w-100 ps-5" id="tuNgay" />
+                    </div>
+                    <span asp-validation-for="TuNgay" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="field-label">Ngày kết thúc <span class="text-danger">*</span></label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-regular fa-calendar input-icon"></i>
+                        <input asp-for="DenNgay" type="date" class="dark-input w-100 ps-5" id="denNgay" />
+                    </div>
+                    <span asp-validation-for="DenNgay" class="text-danger small"></span>
+                </div>
+            </div>
+
+            @* Preview *@
+            <div class="preview-box mb-4" id="previewBox">
+                <div class="preview-label">XEM TRƯỚC MÃ KHUYẾN MÃI</div>
+                <div class="preview-code" id="previewCode">CODE</div>
+                <div class="preview-desc" id="previewDesc">Nhập thông tin để xem trước</div>
+            </div>
+
+            @* Actions *@
+            <div class="d-flex justify-content-end gap-3 pt-3" style="border-top:1px solid #2A2A2A;">
+                <a asp-action="Index" class="btn-cancel px-4 py-2 fw-semibold">Hủy</a>
+                <button type="submit" class="btn-save px-4 py-2 fw-semibold">
+                    <i class="fa-regular fa-floppy-disk me-2"></i>
+                    @(isEdit ? "Cập nhật" : "Tạo khuyến mãi")
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function toggleLoaiGiam() {
+            var loai = document.getElementById('loaiGiamGia').value;
+            var wrapToiDa = document.getElementById('wrapGiamToiDa');
+            var iconGiaTri = document.getElementById('iconGiaTri');
+            var labelGiaTri = document.getElementById('labelGiaTri');
+
+            if (loai === 'PhanTram') {
+                wrapToiDa.style.display = '';
+                iconGiaTri.className = 'fa-solid fa-percent input-icon';
+                labelGiaTri.innerHTML = 'Giá trị giảm (%) <span class="text-danger">*</span>';
+            } else {
+                wrapToiDa.style.display = 'none';
+                iconGiaTri.className = 'fa-solid fa-dong-sign input-icon';
+                labelGiaTri.innerHTML = 'Số tiền giảm (đ) <span class="text-danger">*</span>';
+            }
+            updatePreview();
+        }
+
+        function updatePreview() {
+            var code    = document.querySelector('input[name="MaCode"]').value.toUpperCase() || 'CODE';
+            var loai    = document.getElementById('loaiGiamGia').value;
+            var giaTriEl = document.querySelector('input[name="GiaTriGiam"]');
+            var giaTri  = parseFloat(giaTriEl?.value) || 0;
+            var toiDaEl = document.querySelector('input[name="GiaTriGiamToiDa"]');
+            var toiDa   = parseFloat(toiDaEl?.value) || 0;
+            var dieuKienEl = document.querySelector('input[name="DieuKienToiThieu"]');
+            var dieuKien = parseFloat(dieuKienEl?.value) || 0;
+
+            document.getElementById('previewCode').textContent = code;
+
+            var desc = '';
+            if (loai === 'PhanTram' && giaTri > 0) {
+                desc = 'Giảm ' + giaTri + '%';
+                if (toiDa > 0) desc += ' (tối đa ' + toiDa.toLocaleString('vi-VN') + 'đ)';
+            } else if (giaTri > 0) {
+                desc = 'Giảm ' + giaTri.toLocaleString('vi-VN') + 'đ';
+            }
+            if (dieuKien > 0) desc += ' | Đơn tối thiểu ' + dieuKien.toLocaleString('vi-VN') + 'đ';
+            document.getElementById('previewDesc').textContent = desc || 'Nhập thông tin để xem trước';
+        }
+
+        // Toggle label
+        document.getElementById('toggleActive')?.addEventListener('change', function() {
+            document.getElementById('toggleLabel').textContent = this.checked ? 'Đang hoạt động' : 'Đã tắt';
+        });
+
+        // Auto uppercase mã code
+        document.querySelector('input[name="MaCode"]')?.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+            updatePreview();
+        });
+
+        // Live preview
+        document.querySelectorAll('.dark-input, .dark-select').forEach(el => {
+            el.addEventListener('input', updatePreview);
+            el.addEventListener('change', updatePreview);
+        });
+
+        // Ngày kết thúc min = ngày bắt đầu
+        document.getElementById('tuNgay')?.addEventListener('change', function() {
+            document.getElementById('denNgay').min = this.value;
+        });
+
+        // Init
+        toggleLoaiGiam();
+        updatePreview();
+    </script>
+}
+
+<style>
+    .hover-white:hover { color:#fff !important; }
+    .btn-icon-back {
+        width:36px; height:36px; background:#2A2A2A; border:none; border-radius:8px;
+        color:#aaa; display:flex; align-items:center; justify-content:center;
+        text-decoration:none; flex-shrink:0; transition:all 0.2s;
+    }
+    .btn-icon-back:hover { background:#333; color:#fff; }
+
+    .form-panel { background:#1E1E1E; border:1px solid #2A2A2A; border-radius:14px; padding:28px; }
+
+    .section-header {
+        font-size:0.75rem; font-weight:700; text-transform:uppercase;
+        letter-spacing:0.08em; color:#666; padding-bottom:10px;
+        border-bottom:1px solid #2A2A2A; display:flex; align-items:center;
+    }
+
+    .field-label { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#555; display:block; margin-bottom:6px; }
+
+    .dark-input, .dark-select {
+        background:#161616 !important; border:1px solid #2A2A2A !important;
+        color:#fff !important; border-radius:8px; padding:10px 14px; font-size:0.875rem;
+        transition:border-color 0.2s;
+    }
+    .dark-input:focus, .dark-select:focus {
+        border-color:#FF7A00 !important;
+        box-shadow:0 0 0 3px rgba(255,122,0,0.1) !important; outline:none;
+    }
+    .dark-input::placeholder { color:#444 !important; }
+    .code-input { font-family:monospace; font-weight:700; letter-spacing:0.08em; color:#FF7A00 !important; }
+
+    .input-icon-wrap { position:relative; }
+    .input-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:#555; pointer-events:none; z-index:2; }
+
+    /* Toggle */
+    .toggle-wrap { display:flex; align-items:center; gap:12px; padding:10px 0; }
+    .toggle-switch { position:relative; width:44px; height:24px; flex-shrink:0; }
+    .toggle-switch input { opacity:0; width:0; height:0; }
+    .toggle-slider {
+        position:absolute; inset:0; background:#2A2A2A; border-radius:24px;
+        cursor:pointer; transition:0.3s;
+    }
+    .toggle-slider:before {
+        content:''; position:absolute; width:18px; height:18px;
+        left:3px; top:3px; background:#666; border-radius:50%; transition:0.3s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background:rgba(25,135,84,0.3); }
+    .toggle-switch input:checked + .toggle-slider:before { transform:translateX(20px); background:#198754; }
+    .toggle-label { font-size:0.85rem; color:#888; }
+
+    /* Preview */
+    .preview-box {
+        background:linear-gradient(135deg, rgba(255,122,0,0.08), rgba(255,122,0,0.03));
+        border:1px dashed rgba(255,122,0,0.3); border-radius:12px;
+        padding:20px; text-align:center;
+    }
+    .preview-label { font-size:0.65rem; font-weight:700; letter-spacing:0.1em; color:#555; text-transform:uppercase; margin-bottom:8px; }
+    .preview-code { font-size:2rem; font-weight:800; color:#FF7A00; font-family:monospace; letter-spacing:0.1em; line-height:1; }
+    .preview-desc { font-size:0.82rem; color:#888; margin-top:6px; }
+
+    .btn-cancel { background:#2A2A2A; color:#aaa; border:none; border-radius:8px; text-decoration:none; transition:all 0.2s; display:inline-flex; align-items:center; }
+    .btn-cancel:hover { background:#333; color:#fff; }
+    .btn-save { background:#FF7A00; color:#111; border:none; border-radius:8px; cursor:pointer; transition:all 0.2s; display:inline-flex; align-items:center; }
+    .btn-save:hover { background:#e86d00; }
+    .btn-save:active { transform:scale(0.97); }
+</style>

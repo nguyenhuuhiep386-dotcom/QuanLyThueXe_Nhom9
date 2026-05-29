@@ -1,0 +1,402 @@
+@model QuanLyThueXe.Models.KhuyenMai
+
+@{
+    ViewData["Title"] = "Chi tiết Khuyến mãi";
+
+    var isExpired  = Model.DenNgay < DateTime.Now;
+    var isFull     = Model.DaSuDung >= Model.SoLanSuDung;
+    var isActive   = Model.IsActive && !isExpired && !isFull;
+    var phanTramDung = Model.SoLanSuDung > 0
+        ? (int)Math.Min(100, Math.Round((double)Model.DaSuDung / Model.SoLanSuDung * 100))
+        : 0;
+    var tongGiam = Model.LichSuKhuyenMais?.Sum(ls => ls.SoTienDuocGiam) ?? 0;
+}
+
+<div class="container-fluid py-4 px-4" style="max-width:1000px;">
+
+    <nav class="mb-2" style="font-size:0.82rem;">
+        <a asp-action="Index" class="text-muted text-decoration-none hover-white">Khuyến mãi</a>
+        <span class="text-muted mx-2">›</span>
+        <span class="text-white">Chi tiết</span>
+    </nav>
+
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div class="d-flex align-items-center gap-3">
+            <a asp-action="Index" class="btn-icon-back">
+                <i class="fa-solid fa-arrow-left"></i>
+            </a>
+            <div>
+                <h3 class="fw-bold text-white mb-0">@Model.TenChuongTrinh</h3>
+                <p class="text-muted small mb-0">
+                    Tạo bởi <strong class="text-secondary">@(Model.NguoiTao?.HoTen ?? "Hệ thống")</strong>
+                    lúc @Model.NgayTao.ToString("HH:mm dd/MM/yyyy")
+                </p>
+            </div>
+        </div>
+        <div class="d-flex gap-2 align-items-center">
+            @if (!Model.IsActive)
+            {
+                <span class="status-badge status-off"><span class="sdot"></span> Đã tắt</span>
+            }
+            else if (isExpired)
+            {
+                <span class="status-badge status-expired"><span class="sdot"></span> Hết hạn</span>
+            }
+            else if (isFull)
+            {
+                <span class="status-badge status-full"><span class="sdot"></span> Hết lượt</span>
+            }
+            else
+            {
+                <span class="status-badge status-active"><span class="sdot"></span> Đang chạy</span>
+            }
+
+            <a asp-action="Edit" asp-route-id="@Model.MaKhuyenMai" class="btn-edit">
+                <i class="fa-regular fa-pen-to-square me-2"></i> Chỉnh sửa
+            </a>
+
+            <form asp-action="ToggleActive" asp-route-id="@Model.MaKhuyenMai" method="post" class="d-inline">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn-toggle @(Model.IsActive ? "btn-toggle-off" : "btn-toggle-on")">
+                    <i class="fa-solid fa-power-off me-2"></i>
+                    @(Model.IsActive ? "Tắt" : "Bật")
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="code-banner mb-4">
+        <div class="code-banner-label">MÃ KHUYẾN MÃI</div>
+        <div class="code-banner-code">@Model.MaCode</div>
+        <div class="code-banner-desc">
+            @if (Model.LoaiGiamGia == "PhanTram")
+            {
+                <span>Giảm @Model.GiaTriGiam.ToString("0")%</span>
+                @if (Model.GiaTriGiamToiDa.HasValue)
+                {
+                    <span class="mx-2 text-muted">·</span>
+                    <span>Tối đa @Model.GiaTriGiamToiDa.Value.ToString("N0")đ</span>
+                }
+            }
+            else
+            {
+                <span>Giảm @Model.GiaTriGiam.ToString("N0")đ</span>
+            }
+            @if (Model.DieuKienToiThieu.HasValue)
+            {
+                <span class="mx-2 text-muted">·</span>
+                <span>Đơn tối thiểu @Model.DieuKienToiThieu.Value.ToString("N0")đ</span>
+            }
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-5">
+            <div class="row g-3 mb-4">
+                <div class="col-6">
+                    <div class="mini-stat">
+                        <div class="mini-stat-label">Đã dùng</div>
+                        <div class="mini-stat-value text-warning">@Model.DaSuDung</div>
+                        <div class="mini-stat-sub">/ @Model.SoLanSuDung lượt</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="mini-stat">
+                        <div class="mini-stat-label">Tổng tiết kiệm</div>
+                        <div class="mini-stat-value text-success" style="font-size:1.1rem;">
+                            @tongGiam.ToString("N0")đ
+                        </div>
+                        <div class="mini-stat-sub">cho khách hàng</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel mb-4">
+                <div class="panel-title mb-3">
+                    <i class="fa-solid fa-ticket me-2"></i> Tiến độ sử dụng
+                </div>
+                <div class="d-flex justify-content-between mb-1" style="font-size:0.82rem;">
+                    <span class="text-muted">@Model.DaSuDung / @Model.SoLanSuDung lượt</span>
+                    <span class="text-white fw-semibold">@phanTramDung%</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill @(isFull ? "fill-full" : "fill-active")"
+                         style="width:@phanTramDung%"></div>
+                </div>
+                @if (isFull)
+                {
+                    <div class="text-danger small mt-2"><i class="fa-solid fa-triangle-exclamation me-1"></i>Đã hết lượt sử dụng</div>
+                }
+                else
+                {
+                    <div class="text-muted small mt-2">Còn @(Model.SoLanSuDung - Model.DaSuDung) lượt khả dụng</div>
+                }
+            </div>
+
+            <div class="info-panel">
+                <div class="panel-title mb-3">
+                    <i class="fa-solid fa-circle-info me-2"></i> Thông tin khuyến mãi
+                </div>
+                <div class="info-row">
+                    <span class="info-key">Loại giảm giá</span>
+                    <span class="info-val">
+                        @if (Model.LoaiGiamGia == "PhanTram")
+                        {
+                            <span class="badge-type badge-percent"><i class="fa-solid fa-percent me-1"></i>Phần trăm</span>
+                        }
+                        else
+                        {
+                            <span class="badge-type badge-fixed"><i class="fa-solid fa-tag me-1"></i>Cố định</span>
+                        }
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-key">Giá trị giảm</span>
+                    <span class="info-val text-white fw-semibold">
+                        @(Model.LoaiGiamGia == "PhanTram"
+                            ? Model.GiaTriGiam.ToString("0") + "%"
+                            : Model.GiaTriGiam.ToString("N0") + "đ")
+                    </span>
+                </div>
+                @if (Model.GiaTriGiamToiDa.HasValue)
+                {
+                    <div class="info-row">
+                        <span class="info-key">Giảm tối đa</span>
+                        <span class="info-val text-white">@Model.GiaTriGiamToiDa.Value.ToString("N0")đ</span>
+                    </div>
+                }
+                <div class="info-row">
+                    <span class="info-key">Đơn tối thiểu</span>
+                    <span class="info-val text-white">
+                        @(Model.DieuKienToiThieu.HasValue
+                            ? Model.DieuKienToiThieu.Value.ToString("N0") + "đ"
+                            : "Không yêu cầu")
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-key">Ngày bắt đầu</span>
+                    <span class="info-val text-white">@Model.TuNgay.ToString("dd/MM/yyyy")</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-key">Ngày kết thúc</span>
+                    <span class="info-val @(isExpired ? "text-danger" : "text-white")">
+                        @Model.DenNgay.ToString("dd/MM/yyyy")
+                        @if (isExpired)
+                        {
+                            <span class="text-danger small ms-1">(Đã hết hạn)</span>
+                        }
+                        else
+                        {
+                            var conLai = (Model.DenNgay - DateTime.Now).Days;
+                            <span class="text-muted small ms-1">(còn @conLai ngày)</span>
+                        }
+                    </span>
+                </div>
+                <div class="info-row" style="border:none;">
+                    <span class="info-key">Trạng thái</span>
+                    <span class="info-val">
+                        @if (!Model.IsActive)
+                        {
+                            <span class="status-badge status-off"><span class="sdot"></span> Đã tắt</span>
+                        }
+                        else if (isExpired)
+                        {
+                            <span class="status-badge status-expired"><span class="sdot"></span> Hết hạn</span>
+                        }
+                        else if (isFull)
+                        {
+                            <span class="status-badge status-full"><span class="sdot"></span> Hết lượt</span>
+                        }
+                        else
+                        {
+                            <span class="status-badge status-active"><span class="sdot"></span> Đang chạy</span>
+                        }
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="info-panel h-100">
+                <div class="panel-title mb-3">
+                    <i class="fa-solid fa-clock-rotate-left me-2"></i>
+                    Lịch sử sử dụng
+                    <span class="ms-2 count-badge">@(Model.LichSuKhuyenMais?.Count ?? 0)</span>
+                </div>
+
+                @if (Model.LichSuKhuyenMais != null && Model.LichSuKhuyenMais.Any())
+                {
+                    <div class="history-list">
+                        @foreach (var ls in Model.LichSuKhuyenMais.OrderByDescending(x => x.ThoiGianApDung))
+                        {
+                            <div class="history-item">
+                                <div class="history-icon">
+                                    <i class="fa-solid fa-receipt"></i>
+                                </div>
+                                <div class="history-body">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <div class="history-name">
+                                                @(ls.HopDong?.KhachHang?.HoTen ?? "Khách hàng")
+                                            </div>
+                                            <div class="history-sub">
+                                                Hợp đồng #@ls.MaHopDong
+                                                · @ls.ThoiGianApDung.ToString("HH:mm dd/MM/yyyy")
+                                            </div>
+                                        </div>
+                                        <div class="history-amount">
+                                            -@ls.SoTienDuocGiam.ToString("N0")đ
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="fa-solid fa-ticket-simple"></i>
+                        <div>Chưa có lượt sử dụng nào</div>
+                        <small>Mã code chưa được áp dụng vào hợp đồng nào</small>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .hover-white:hover { color:#fff !important; }
+
+    .btn-icon-back {
+        width:36px; height:36px; background:#2A2A2A; border:none; border-radius:8px;
+        color:#aaa; display:flex; align-items:center; justify-content:center;
+        text-decoration:none; flex-shrink:0; transition:all 0.2s;
+    }
+    .btn-icon-back:hover { background:#333; color:#fff; }
+
+    .btn-edit {
+        background:#2A2A2A; color:#ccc; border:none; border-radius:8px;
+        padding:8px 16px; font-size:0.85rem; text-decoration:none;
+        display:inline-flex; align-items:center; transition:all 0.2s;
+    }
+    .btn-edit:hover { background:#333; color:#fff; }
+
+    .btn-toggle {
+        border:none; border-radius:8px; padding:8px 16px;
+        font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center;
+        transition:all 0.2s; font-weight:600;
+    }
+    .btn-toggle-off { background:rgba(220,53,69,0.1); color:#dc3545; border:1px solid rgba(220,53,69,0.2); }
+    .btn-toggle-off:hover { background:rgba(220,53,69,0.2); }
+    .btn-toggle-on  { background:rgba(25,135,84,0.1);  color:#198754; border:1px solid rgba(25,135,84,0.2); }
+    .btn-toggle-on:hover  { background:rgba(25,135,84,0.2); }
+
+    /* Code banner */
+    .code-banner {
+        background: linear-gradient(135deg, rgba(255,122,0,0.1), rgba(255,122,0,0.04));
+        border: 1px dashed rgba(255,122,0,0.35);
+        border-radius: 14px; padding: 24px 32px;
+        display: flex; align-items: center; gap: 32px; flex-wrap: wrap;
+    }
+    .code-banner-label {
+        font-size:0.65rem; font-weight:700; letter-spacing:0.1em;
+        color:#555; text-transform:uppercase;
+    }
+    .code-banner-code {
+        font-size:2.4rem; font-weight:800; color:#FF7A00;
+        font-family:monospace; letter-spacing:0.12em; line-height:1;
+    }
+    .code-banner-desc { font-size:0.88rem; color:#aaa; }
+
+    /* Mini stat */
+    .mini-stat {
+        background:#1E1E1E; border:1px solid #2A2A2A; border-radius:10px;
+        padding:14px 16px; text-align:center;
+    }
+    .mini-stat-label { font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#555; margin-bottom:4px; }
+    .mini-stat-value { font-size:1.4rem; font-weight:800; line-height:1.1; }
+    .mini-stat-sub   { font-size:0.72rem; color:#555; margin-top:2px; }
+
+    /* Progress */
+    .progress-track { height:6px; background:#2A2A2A; border-radius:6px; overflow:hidden; }
+    .progress-fill  { height:100%; border-radius:6px; transition:width 0.6s ease; }
+    .fill-active { background:linear-gradient(90deg, #FF7A00, #ffc107); }
+    .fill-full   { background:#dc3545; }
+
+    /* Info panel */
+    .info-panel {
+        background:#1E1E1E; border:1px solid #2A2A2A;
+        border-radius:12px; padding:20px;
+    }
+    .panel-title {
+        font-size:0.72rem; font-weight:700; text-transform:uppercase;
+        letter-spacing:0.08em; color:#555;
+        display:flex; align-items:center;
+        padding-bottom:12px; border-bottom:1px solid #2A2A2A;
+    }
+    .count-badge {
+        background:#2A2A2A; color:#888; font-size:0.72rem;
+        padding:2px 8px; border-radius:20px;
+    }
+
+    /* Info rows */
+    .info-row {
+        display:flex; justify-content:space-between; align-items:center;
+        padding:10px 0; border-bottom:1px solid #1A1A1A; font-size:0.84rem;
+    }
+    .info-key { color:#555; font-weight:500; }
+    .info-val { text-align:right; }
+
+    .badge-type { padding:3px 10px; border-radius:6px; font-size:0.78rem; font-weight:600; }
+    .badge-percent { background:rgba(255,193,7,0.1); color:#ffc107; }
+    .badge-fixed   { background:rgba(77,143,255,0.1); color:#4d8fff; }
+
+    /* Status badges */
+    .status-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; font-size:0.78rem; font-weight:500; }
+    .sdot { width:6px; height:6px; border-radius:50%; display:inline-block; }
+    .status-active  { background:rgba(25,135,84,0.1);   color:#198754; border:1px solid rgba(25,135,84,0.2); }
+    .status-active  .sdot { background:#198754; box-shadow:0 0 4px #198754; }
+    .status-expired { background:rgba(220,53,69,0.1);   color:#dc3545; border:1px solid rgba(220,53,69,0.2); }
+    .status-expired .sdot { background:#dc3545; }
+    .status-full    { background:rgba(255,193,7,0.1);   color:#ffc107; border:1px solid rgba(255,193,7,0.2); }
+    .status-full    .sdot { background:#ffc107; }
+    .status-off     { background:rgba(100,100,100,0.1); color:#666;    border:1px solid rgba(100,100,100,0.2); }
+    .status-off     .sdot { background:#555; }
+
+    /* History list */
+    .history-list { display:flex; flex-direction:column; gap:2px; max-height:420px; overflow-y:auto; }
+    .history-list::-webkit-scrollbar { width:4px; }
+    .history-list::-webkit-scrollbar-thumb { background:#333; border-radius:4px; }
+
+    .history-item {
+        display:flex; gap:12px; align-items:flex-start;
+        padding:12px 10px; border-radius:8px; transition:background 0.15s;
+    }
+    .history-item:hover { background:rgba(255,255,255,0.03); }
+
+    .history-icon {
+        width:34px; height:34px; flex-shrink:0;
+        background:#2A2A2A; border-radius:8px;
+        display:flex; align-items:center; justify-content:center;
+        color:#FF7A00; font-size:0.85rem;
+    }
+    .history-body { flex:1; min-width:0; }
+    .history-name { font-size:0.85rem; color:#ddd; font-weight:500; }
+    .history-sub  { font-size:0.75rem; color:#555; margin-top:2px; }
+    .history-amount {
+        font-size:0.85rem; font-weight:700; color:#4ade80;
+        white-space:nowrap; flex-shrink:0;
+    }
+
+    /* Empty state */
+    .empty-state {
+        text-align:center; padding:48px 20px;
+        display:flex; flex-direction:column; align-items:center; gap:8px;
+    }
+    .empty-state i { font-size:2rem; color:#333; }
+    .empty-state div { color:#555; font-size:0.88rem; }
+    .empty-state small { color:#444; font-size:0.78rem; }
+</style>

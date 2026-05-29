@@ -51,6 +51,13 @@ namespace QuanLyThueXe.Models
         [Column(TypeName = "decimal(15,0)")]
         public decimal PhuPhiTreHan { get; set; } = 0;
 
+        [Display(Name = "Khuyến mãi")]
+        public int? MaKhuyenMai { get; set; }
+
+        [Display(Name = "Số tiền giảm")]
+        [Column(TypeName = "decimal(15,0)")]
+        public decimal SoTienGiam { get; set; } = 0;
+
         [Required]
         [StringLength(20)]
         [Display(Name = "Trạng thái")]
@@ -80,6 +87,9 @@ namespace QuanLyThueXe.Models
 
         [ForeignKey("MaNguoiXacNhan")]
         public virtual NguoiDung? NguoiXacNhan { get; set; }
+
+        [ForeignKey("MaKhuyenMai")]
+        public virtual KhuyenMai? KhuyenMai { get; set; }
 
         public virtual DanhGia? DanhGia { get; set; }
         public virtual ICollection<HopDongTaiLieu> TaiLieus { get; set; } = new List<HopDongTaiLieu>();
