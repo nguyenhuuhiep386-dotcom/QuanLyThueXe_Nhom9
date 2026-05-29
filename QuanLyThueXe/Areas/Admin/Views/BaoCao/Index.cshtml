@@ -1,0 +1,541 @@
+@{
+    ViewData["Title"] = "Báo cáo & Thống kê";
+
+    var nam               = (int)ViewBag.Nam;
+    var danhSachNam       = (List<int>)ViewBag.DanhSachNam;
+    var doanhThuArr       = (decimal[])ViewBag.DoanhThuArr;
+    var soHopDongArr      = (int[])ViewBag.SoHopDongArr;
+
+    var tongDoanhThuNam   = (decimal)ViewBag.TongDoanhThuNam;
+    var tongHopDongNam    = (int)ViewBag.TongHopDongNam;
+    var tongDoanhThuThang = (decimal)ViewBag.TongDoanhThuThang;
+    var tongHopDongThang  = (int)ViewBag.TongHopDongThang;
+    var tangTruong        = (double)ViewBag.TangTruong;
+
+    var topXe             = (List<QuanLyThueXe.Areas.Admin.Controllers.TopXeViewModel>)ViewBag.TopXe;
+    var topKhach          = (List<QuanLyThueXe.Areas.Admin.Controllers.TopKhachViewModel>)ViewBag.TopKhach;
+
+    var trangThaiHD       = (List<QuanLyThueXe.Areas.Admin.Controllers.TrangThaiHDViewModel>)ViewBag.TrangThaiHD;
+    var doanhThuPhongCach = (List<QuanLyThueXe.Areas.Admin.Controllers.DoanhThuPhongCachViewModel>)ViewBag.DoanhThuPhongCach;
+
+    var tongXe       = (int)ViewBag.TongXe;
+    var xeConTrong   = (int)ViewBag.XeConTrong;
+    var xeDangThue   = (int)ViewBag.XeDangThue;
+    var tongKhach    = (int)ViewBag.TongKhach;
+    var hdChoXacNhan = (int)ViewBag.HdChoXacNhan;
+
+    // Chuỗi JSON cho Chart.js
+    var dtJson  = "[" + string.Join(",", doanhThuArr.Select(d => d.ToString(System.Globalization.CultureInfo.InvariantCulture))) + "]";
+    var hdJson  = "[" + string.Join(",", soHopDongArr) + "]";
+
+    var maxDt = doanhThuArr.Max();
+}
+
+<div class="container-fluid py-4">
+
+    
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <h3 class="fw-bold text-white mb-1">
+                <i class="fas fa-chart-bar text-warning me-2"></i>Báo cáo & Thống kê
+            </h3>
+            <p class="text-muted small mb-0">Tổng quan hoạt động kinh doanh cho thuê xe</p>
+        </div>
+
+        
+        <form asp-action="Index" method="get" class="d-flex align-items-center gap-2">
+            <label class="text-muted small">Năm:</label>
+            <select name="nam" class="dark-select" onchange="this.form.submit()">
+                @foreach (var y in danhSachNam)
+                {
+                    <option value="@y" selected="@(y == nam ? "selected" : null)">@y</option>
+                }
+            </select>
+        </form>
+    </div>
+
+    
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background:rgba(255,122,0,0.12);color:#FF7A00;">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="kpi-label">Doanh thu năm @nam</div>
+                <div class="kpi-value">@FormatTien(tongDoanhThuNam)</div>
+                <div class="kpi-sub">@tongHopDongNam hợp đồng hoàn thành</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background:rgba(77,143,255,0.12);color:#4d8fff;">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="kpi-label">Doanh thu tháng @DateTime.Now.Month</div>
+                <div class="kpi-value">@FormatTien(tongDoanhThuThang)</div>
+                <div class="kpi-sub @(tangTruong >= 0 ? "text-success" : "text-danger")">
+                    <i class="fas fa-@(tangTruong >= 0 ? "arrow-up" : "arrow-down") me-1"></i>
+                    @Math.Abs(tangTruong)% so với tháng trước
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background:rgba(25,135,84,0.12);color:#198754;">
+                    <i class="fas fa-motorcycle"></i>
+                </div>
+                <div class="kpi-label">Đội xe</div>
+                <div class="kpi-value">@tongXe xe</div>
+                <div class="kpi-sub">
+                    <span class="text-success">@xeConTrong trống</span>
+                    <span class="mx-1 text-muted">·</span>
+                    <span class="text-warning">@xeDangThue đang thuê</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background:rgba(220,53,69,0.12);color:#dc3545;">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="kpi-label">Khách hàng</div>
+                <div class="kpi-value">@tongKhach</div>
+                <div class="kpi-sub @(hdChoXacNhan > 0 ? "text-warning" : "text-muted")">
+                    @hdChoXacNhan hợp đồng chờ xác nhận
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="chart-panel">
+                <div class="chart-header">
+                    <div>
+                        <div class="chart-title">Doanh thu theo tháng</div>
+                        <div class="chart-sub">Năm @nam — đơn vị: triệu đồng</div>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center">
+                        <span class="legend-dot" style="background:#FF7A00;"></span>
+                        <span class="text-muted small">Doanh thu</span>
+                        <span class="legend-dot ms-2" style="background:#4d8fff;"></span>
+                        <span class="text-muted small">Hợp đồng</span>
+                    </div>
+                </div>
+                <canvas id="chartDoanhThu" height="100"></canvas>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="chart-panel h-100">
+                <div class="chart-header mb-3">
+                    <div class="chart-title">Trạng thái hợp đồng</div>
+                    <div class="chart-sub">Năm @nam</div>
+                </div>
+                <canvas id="chartTrangThai" height="180"></canvas>
+                <div class="mt-3" id="legendTrangThai"></div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="rank-panel">
+                <div class="rank-header">
+                    <i class="fas fa-trophy text-warning me-2"></i>
+                    Top 5 xe doanh thu cao nhất
+                    <span class="text-muted small ms-1">(năm @nam)</span>
+                </div>
+                @if (topXe.Any())
+                {
+                    var maxXe = topXe.Max(x => x.DoanhThu);
+                    @for (int i = 0; i < topXe.Count; i++)
+                    {
+                        var xe  = topXe[i];
+                        var pct = maxXe > 0 ? (int)(xe.DoanhThu / maxXe * 100) : 0;
+                        <div class="rank-item">
+                            <div class="rank-no @(i == 0 ? "rank-gold" : i == 1 ? "rank-silver" : i == 2 ? "rank-bronze" : "rank-normal")">
+                                @(i + 1)
+                            </div>
+                            <div class="rank-body">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <div>
+                                        <span class="rank-name">@xe.TenXe</span>
+                                        <span class="rank-tag ms-2">@xe.BienSo</span>
+                                    </div>
+                                    <span class="rank-value">@FormatTien(xe.DoanhThu)</span>
+                                </div>
+                                <div class="rank-bar-track">
+                                    <div class="rank-bar-fill" style="width:@pct%;background:@(i == 0 ? "#FF7A00" : i == 1 ? "#aaa" : i == 2 ? "#cd7f32" : "#3a3a3a");"></div>
+                                </div>
+                                <div class="rank-sub">@xe.SoLanThue lượt thuê</div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-rank">Chưa có dữ liệu</div>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="rank-panel">
+                <div class="rank-header">
+                    <i class="fas fa-crown text-warning me-2"></i>
+                    Top 5 khách hàng chi tiêu nhiều nhất
+                    <span class="text-muted small ms-1">(năm @nam)</span>
+                </div>
+                @if (topKhach.Any())
+                {
+                    var maxKhach = topKhach.Max(k => k.TongChiTieu);
+                    @for (int i = 0; i < topKhach.Count; i++)
+                    {
+                        var kh  = topKhach[i];
+                        var pct = maxKhach > 0 ? (int)(kh.TongChiTieu / maxKhach * 100) : 0;
+                        <div class="rank-item">
+                            <div class="rank-no @(i == 0 ? "rank-gold" : i == 1 ? "rank-silver" : i == 2 ? "rank-bronze" : "rank-normal")">
+                                @(i + 1)
+                            </div>
+                            <div class="rank-body">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <div>
+                                        <span class="rank-name">@kh.HoTen</span>
+                                        <span class="rank-tag ms-2">@kh.SoDienThoai</span>
+                                    </div>
+                                    <span class="rank-value">@FormatTien(kh.TongChiTieu)</span>
+                                </div>
+                                <div class="rank-bar-track">
+                                    <div class="rank-bar-fill" style="width:@pct%;background:@(i == 0 ? "#FF7A00" : i == 1 ? "#aaa" : i == 2 ? "#cd7f32" : "#3a3a3a");"></div>
+                                </div>
+                                <div class="rank-sub">@kh.SoHopDong hợp đồng</div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="empty-rank">Chưa có dữ liệu</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="chart-panel">
+                <div class="chart-header mb-3">
+                    <div class="chart-title">Doanh thu theo phong cách xe</div>
+                    <div class="chart-sub">Năm @nam</div>
+                </div>
+                <canvas id="chartPhongCach" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="rank-panel">
+                <div class="rank-header">
+                    <i class="fas fa-table me-2 text-muted"></i>
+                    Chi tiết theo tháng — năm @nam
+                </div>
+                <div style="overflow-x:auto;">
+                    <table class="month-table">
+                        <thead>
+                            <tr>
+                                <th>Tháng</th>
+                                <th class="text-end">Doanh thu</th>
+                                <th class="text-center">Hợp đồng</th>
+                                <th>Biểu đồ mini</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int t = 0; t < 12; t++)
+                            {
+                                var dt = doanhThuArr[t];
+                                var hd = soHopDongArr[t];
+                                var pct = maxDt > 0 ? (int)(dt / maxDt * 100) : 0;
+                                var isThisMonth = (t + 1) == DateTime.Now.Month && nam == DateTime.Now.Year;
+                                <tr class="@(isThisMonth ? "row-highlight" : "")">
+                                    <td>
+                                        Tháng @(t + 1)
+                                        @if (isThisMonth)
+                                        {
+                                            <span class="current-badge">Hiện tại</span>
+                                        }
+                                    </td>
+                                    <td class="text-end fw-semibold @(dt > 0 ? "text-white" : "text-muted")">
+                                        @(dt > 0 ? FormatTien(dt) : "—")
+                                    </td>
+                                    <td class="text-center @(hd > 0 ? "text-white" : "text-muted")">
+                                        @(hd > 0 ? hd.ToString() : "—")
+                                    </td>
+                                    <td style="min-width:80px;">
+                                        <div class="mini-bar-track">
+                                            <div class="mini-bar-fill" style="width:@pct%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="row-total">
+                                <td class="fw-bold text-white">Tổng cộng</td>
+                                <td class="text-end fw-bold text-warning">@FormatTien(tongDoanhThuNam)</td>
+                                <td class="text-center fw-bold text-white">@tongHopDongNam</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@functions {
+    string FormatTien(decimal amount)
+    {
+        if (amount >= 1_000_000_000)
+            return (amount / 1_000_000_000m).ToString("0.#") + " tỷ";
+        if (amount >= 1_000_000)
+            return (amount / 1_000_000m).ToString("0.#") + " tr";
+        return amount.ToString("N0") + "đ";
+    }
+}
+
+@section Scripts {
+<script>
+    // ── Dữ liệu từ server ────────────────────────────────────────────
+    const doanhThu  = @Html.Raw(dtJson);
+    const hopDong   = @Html.Raw(hdJson);
+    const thangLabels = ['T1','T2','T3','T4','T5','T6','T7','T8','T9','T10','T11','T12'];
+
+    // Màu chung
+    const orange = '#FF7A00';
+    const blue   = '#4d8fff';
+    const gridColor = 'rgba(255,255,255,0.05)';
+
+    Chart.defaults.color = '#555';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    // ── 1. Biểu đồ doanh thu theo tháng (Bar + Line) ─────────────────
+    new Chart(document.getElementById('chartDoanhThu'), {
+        data: {
+            labels: thangLabels,
+            datasets: [
+                {
+                    type: 'bar',
+                    label: 'Doanh thu (triệu đ)',
+                    data: doanhThu.map(v => +(v / 1_000_000).toFixed(1)),
+                    backgroundColor: doanhThu.map(v =>
+                        v > 0 ? 'rgba(255,122,0,0.7)' : 'rgba(42,42,42,0.5)'),
+                    borderRadius: 6,
+                    yAxisID: 'yDT',
+                    order: 2
+                },
+                {
+                    type: 'line',
+                    label: 'Hợp đồng',
+                    data: hopDong,
+                    borderColor: blue,
+                    backgroundColor: 'rgba(77,143,255,0.1)',
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: blue,
+                    fill: true,
+                    yAxisID: 'yHD',
+                    order: 1
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            interaction: { mode: 'index', intersect: false },
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: gridColor }, ticks: { color: '#555' } },
+                yDT: {
+                    type: 'linear', position: 'left',
+                    grid: { color: gridColor },
+                    ticks: { color: orange, callback: v => v + 'tr' }
+                },
+                yHD: {
+                    type: 'linear', position: 'right',
+                    grid: { display: false },
+                    ticks: { color: blue, stepSize: 1 }
+                }
+            }
+        }
+    });
+
+    // ── 2. Biểu đồ trạng thái hợp đồng (Doughnut) ───────────────────
+    const trangThaiData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        trangThaiHD.Select(x => new { label = x.TrangThai, value = x.SoLuong }).ToList()
+    ));
+
+    const colorMap = {
+        'DaTra':       '#198754',
+        'DangThue':    '#FF7A00',
+        'ChoXacNhan':  '#ffc107',
+        'DaHuy':       '#dc3545'
+    };
+    const labelMap = {
+        'DaTra':       'Đã trả',
+        'DangThue':    'Đang thuê',
+        'ChoXacNhan':  'Chờ xác nhận',
+        'DaHuy':       'Đã hủy'
+    };
+
+    if (trangThaiData.length > 0) {
+        new Chart(document.getElementById('chartTrangThai'), {
+            type: 'doughnut',
+            data: {
+                labels: trangThaiData.map(d => labelMap[d.label] || d.label),
+                datasets: [{
+                    data: trangThaiData.map(d => d.value),
+                    backgroundColor: trangThaiData.map(d => colorMap[d.label] || '#555'),
+                    borderWidth: 2,
+                    borderColor: '#1E1E1E'
+                }]
+            },
+            options: {
+                cutout: '65%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw} hợp đồng` } }
+                }
+            }
+        });
+
+        // Legend thủ công
+        const leg = document.getElementById('legendTrangThai');
+        trangThaiData.forEach(d => {
+            leg.innerHTML += `
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:0.8rem;">
+                    <span style="width:10px;height:10px;border-radius:3px;background:${colorMap[d.label]||'#555'};flex-shrink:0;"></span>
+                    <span style="color:#888;">${labelMap[d.label]||d.label}</span>
+                    <span style="color:#fff;font-weight:600;margin-left:auto;">${d.value}</span>
+                </div>`;
+        });
+    }
+
+    // ── 3. Biểu đồ phong cách xe (Horizontal Bar) ────────────────────
+    const pcData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        doanhThuPhongCach.Select(x => new { label = x.PhongCach, value = x.DoanhThu }).ToList()
+    ));
+
+    if (pcData.length > 0) {
+        const pcColors = ['#FF7A00','#4d8fff','#198754','#ffc107','#dc3545'];
+        new Chart(document.getElementById('chartPhongCach'), {
+            type: 'bar',
+            data: {
+                labels: pcData.map(d => d.label),
+                datasets: [{
+                    data: pcData.map(d => +(d.value / 1_000_000).toFixed(1)),
+                    backgroundColor: pcData.map((_, i) => pcColors[i % pcColors.length]),
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        grid: { color: gridColor },
+                        ticks: { color: '#555', callback: v => v + 'tr' }
+                    },
+                    y: { grid: { display: false }, ticks: { color: '#aaa' } }
+                }
+            }
+        });
+    }
+</script>
+}
+
+<style>
+    /* KPI Cards */
+    .kpi-card {
+        background: #1E1E1E; border: 1px solid #2A2A2A;
+        border-radius: 12px; padding: 18px 20px;
+    }
+    .kpi-icon {
+        width: 40px; height: 40px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1rem; margin-bottom: 12px;
+    }
+    .kpi-label { font-size: 0.72rem; color: #555; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .kpi-value { font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1.1; margin-bottom: 4px; }
+    .kpi-sub   { font-size: 0.75rem; color: #555; }
+
+    /* Chart panels */
+    .chart-panel {
+        background: #1E1E1E; border: 1px solid #2A2A2A;
+        border-radius: 12px; padding: 20px;
+    }
+    .chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+    .chart-title  { font-size: 0.88rem; font-weight: 700; color: #ddd; }
+    .chart-sub    { font-size: 0.72rem; color: #555; margin-top: 2px; }
+    .legend-dot   { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+
+    /* Select */
+    .dark-select {
+        background: #1E1E1E !important; border: 1px solid #2A2A2A !important;
+        color: #fff !important; border-radius: 8px; padding: 8px 14px;
+        font-size: 0.85rem;
+    }
+    .dark-select:focus { border-color: #FF7A00 !important; outline: none; }
+
+    /* Rank panel */
+    .rank-panel {
+        background: #1E1E1E; border: 1px solid #2A2A2A;
+        border-radius: 12px; padding: 20px; height: 100%;
+    }
+    .rank-header {
+        font-size: 0.78rem; font-weight: 700; color: #666;
+        text-transform: uppercase; letter-spacing: 0.06em;
+        padding-bottom: 12px; border-bottom: 1px solid #2A2A2A;
+        margin-bottom: 16px; display: flex; align-items: center;
+    }
+    .rank-item { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 14px; }
+    .rank-no {
+        width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.78rem; font-weight: 800;
+    }
+    .rank-gold   { background: rgba(255,193,7,0.15);  color: #ffc107; }
+    .rank-silver { background: rgba(170,170,170,0.1); color: #aaa; }
+    .rank-bronze { background: rgba(205,127,50,0.15); color: #cd7f32; }
+    .rank-normal { background: #2A2A2A; color: #555; }
+    .rank-body   { flex: 1; min-width: 0; }
+    .rank-name   { font-size: 0.85rem; color: #ddd; font-weight: 600; }
+    .rank-tag    { font-size: 0.72rem; color: #555; background: #2A2A2A; padding: 1px 6px; border-radius: 4px; }
+    .rank-value  { font-size: 0.83rem; font-weight: 700; color: #FF7A00; white-space: nowrap; }
+    .rank-bar-track { height: 4px; background: #2A2A2A; border-radius: 4px; overflow: hidden; margin: 4px 0; }
+    .rank-bar-fill  { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+    .rank-sub    { font-size: 0.72rem; color: #555; }
+    .empty-rank  { text-align: center; color: #444; padding: 32px 0; font-size: 0.85rem; }
+
+    /* Month table */
+    .month-table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+    .month-table th {
+        color: #555; font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.05em; padding: 8px 10px; border-bottom: 1px solid #2A2A2A;
+    }
+    .month-table td { padding: 8px 10px; border-bottom: 1px solid #1A1A1A; color: #666; }
+    .month-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+    .row-highlight td { background: rgba(255,122,0,0.04) !important; }
+    .row-total td { border-top: 1px solid #2A2A2A; padding-top: 12px; }
+    .current-badge {
+        font-size: 0.65rem; background: rgba(255,122,0,0.15); color: #FF7A00;
+        padding: 1px 6px; border-radius: 4px; margin-left: 6px; font-weight: 600;
+    }
+    .mini-bar-track { height: 4px; background: #2A2A2A; border-radius: 4px; overflow: hidden; }
+    .mini-bar-fill  { height: 100%; background: linear-gradient(90deg,#FF7A00,#ffc107); border-radius: 4px; transition: width 0.5s; }
+</style>

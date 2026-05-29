@@ -34,21 +34,23 @@ namespace QuanLyThueXe.Areas.Admin.Controllers
             // Doanh thu tháng hiện tại
             var thangHienTai = DateTime.Now.Month;
             var namHienTai = DateTime.Now.Year;
+
+            // ĐÃ KHÔI PHỤC: Chỉ tính tiền hợp đồng của THÁNG NÀY
             viewModel.DoanhThuThang = await _context.HopDongs
-                .Where(h => h.TrangThai == "DaTra" && 
+                .Where(h => (h.TrangThai == "DaTra" || h.TrangThai == "HoanThanh") &&
                            h.NgayTraThucTe.HasValue &&
                            h.NgayTraThucTe.Value.Month == thangHienTai &&
                            h.NgayTraThucTe.Value.Year == namHienTai)
                 .SumAsync(h => h.TongTien + h.PhuPhiTreHan);
 
-            // Doanh thu năm hiện tại
+            // ĐÃ KHÔI PHỤC: Chỉ tính tiền hợp đồng của NĂM NAY
             viewModel.DoanhThuNam = await _context.HopDongs
-                .Where(h => h.TrangThai == "DaTra" && 
+                .Where(h => (h.TrangThai == "DaTra" || h.TrangThai == "HoanThanh") &&
                            h.NgayTraThucTe.HasValue &&
                            h.NgayTraThucTe.Value.Year == namHienTai)
                 .SumAsync(h => h.TongTien + h.PhuPhiTreHan);
 
-            // Hợp đồng gần đây
+            // Hợp đồng gần đây...
             viewModel.HopDongGanDay = await _context.HopDongs
                 .Include(h => h.Xe)
                 .Include(h => h.KhachHang)
