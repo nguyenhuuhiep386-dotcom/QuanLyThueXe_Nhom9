@@ -65,6 +65,10 @@ namespace QuanLyThueXe.Models
         public virtual DmPhongCach PhongCach { get; set; } = null!;
 
         public virtual ICollection<XeHinhAnh> HinhAnhs { get; set; } = new List<XeHinhAnh>();
+        [NotMapped]
+        public string? AnhDaiDien =>
+        HinhAnhs.FirstOrDefault(a => a.IsAnhChinh)?.DuongDanAnh
+        ?? HinhAnhs.FirstOrDefault()?.DuongDanAnh;
         public virtual ICollection<HopDong> HopDongs { get; set; } = new List<HopDong>();
         public virtual ICollection<DanhGia> DanhGias { get; set; } = new List<DanhGia>();
         public virtual ICollection<BaoDuong> BaoDuongs { get; set; } = new List<BaoDuong>();
