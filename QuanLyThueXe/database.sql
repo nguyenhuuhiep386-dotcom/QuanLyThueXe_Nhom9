@@ -763,13 +763,13 @@ INSERT INTO KHACH_HANG (HoTen, SoDienThoai, Email, SoGPLX, MaLoaiGiayTo, SoGiayT
 (N'Nguyen Thi Dung', '0911000004', 'nguyenthi.dung@gmail.com', 'B1-456789', 2, '079201004444', '2022-03-08', N'22 Vo Van Tan, Q.3',   1, '2000-09-30', N'Nu',  5);
 
 INSERT INTO XE (TenXe, BienSo, MaHangXe, MaPhongCach, GiaThueNgay, NamSanXuat, DungTich, MoTa, TrangThai) VALUES
-(N'Harley Sportster S',       '51K1-12345', 1, 2, 1200000, 2022, 1250, N'Cruiser V-twin dac trung.',         N'ConTrong'),
-(N'Ducati Monster 937',       '51K1-23456', 2, 1, 1500000, 2023,  937, N'Naked sport hieu suat cao.',        N'ConTrong'),
-(N'Royal Enfield Meteor 350', '51K1-34567', 6, 2,  700000, 2023,  350, N'Classic cruiser nhe nhang.',        N'ConTrong'),
+(N'Harley Sportster S',       '51K1-12345', 1, 2, 1200000, 2022, 1250, N'Cruiser V-twin đặc trưng.',         N'ConTrong'),
+(N'Ducati Monster 937',       '51K1-23456', 2, 1, 1500000, 2023,  937, N'Naked sport hiệu suất cao.',        N'ConTrong'),
+(N'Royal Enfield Meteor 350', '51K1-34567', 6, 2,  700000, 2023,  350, N'Classic cruiser nhẹ nhàng.',        N'ConTrong'),
 (N'Honda CB650R',             '51K1-45678', 4, 1,  900000, 2022,  648, N'Neo Sports Cafe 4 xy-lanh.',        N'DangThue'),
 (N'Triumph Bonneville T120',  '51K1-56789', 7, 4, 1100000, 2021, 1200, N'British classic style.',            N'ConTrong'),
-(N'BMW R 1250 GS',            '51K1-67890', 3, 3, 1800000, 2023, 1254, N'Adventure tourer hang dau.',        N'BaoDuong'),
-(N'Kawasaki Z900',            '51K1-78901', 5, 1, 1000000, 2022,  948, N'Naked sport can bang.',             N'ConTrong'),
+(N'BMW R 1250 GS',            '51K1-67890', 3, 3, 1800000, 2023, 1254, N'Adventure tourer hàng đầu.',        N'BaoDuong'),
+(N'Kawasaki Z900',            '51K1-78901', 5, 1, 1000000, 2022,  948, N'Naked sport cân bằng.',             N'ConTrong'),
 (N'Indian Scout Bobber',      '51K1-89012', 8, 4, 1300000, 2022, 1133, N'American bobber 69 cubic inch.',    N'ConTrong');
 
 INSERT INTO XE_HINH_ANH (MaXe, DuongDanAnh, IsAnhChinh, ThuTu) VALUES
