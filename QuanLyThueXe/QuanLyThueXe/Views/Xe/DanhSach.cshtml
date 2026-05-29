@@ -10,7 +10,8 @@
         <div class="hd-filter">
             <h4>BỘ LỌC <i class="fas fa-sliders-h" style="font-size:14px; color:var(--text-muted);"></i></h4>
             
-            <form method="get" asp-action="DanhSach">
+            <form method="get" asp-action="DanhSach" id="filterForm">
+                <input type="hidden" name="sort" id="sortInput" value="@Context.Request.Query["sort"]" />
                 <div class="filter-group">
                     <label>LOẠI XE</label>
                     @if (ViewBag.PhongCachs != null) {
@@ -121,10 +122,11 @@
             </div>
             <div>
                 <span style="font-size:12px; color:var(--text-muted);">SẮP XẾP:</span>
-                <select class="form-select d-inline-block" style="width:auto; font-size:13px; padding:4px 12px;">
-                    <option>Giá thấp nhất</option>
-                    <option>Giá cao nhất</option>
-                    <option>Đánh giá cao</option>
+                <select class="form-select d-inline-block" style="width:auto; font-size:13px; padding:4px 12px;"
+                        onchange="document.getElementById('sortInput').value = this.value; document.getElementById('filterForm').submit();">
+                    <option value="danh-gia" selected="@(Context.Request.Query["sort"] == "danh-gia" || string.IsNullOrEmpty(Context.Request.Query["sort"]))">Đánh giá cao</option>
+                    <option value="gia-thap" selected="@(Context.Request.Query["sort"] == "gia-thap")">Giá thấp nhất</option>
+                    <option value="gia-cao" selected="@(Context.Request.Query["sort"] == "gia-cao")">Giá cao nhất</option>
                 </select>
             </div>
         </div>
