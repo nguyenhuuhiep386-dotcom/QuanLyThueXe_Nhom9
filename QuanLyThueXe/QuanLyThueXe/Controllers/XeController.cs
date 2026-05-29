@@ -14,7 +14,7 @@ namespace QuanLyThueXe.Controllers
         }
 
         // GET: Xe/DanhSach
-        public async Task<IActionResult> DanhSach(string? search, int? hangXe, int? phongCach, decimal? giaMin, decimal? giaMax, List<int> namSanXuat)
+        public async Task<IActionResult> DanhSach(string? search, int? hangXe, int? phongCach, decimal? giaMin, decimal? giaMax, List<int> namSanXuat, string? sort)
         {
             var query = _context.Xes
                 .Include(x => x.HangXe)
@@ -58,7 +58,28 @@ namespace QuanLyThueXe.Controllers
                 query = query.Where(x => namSanXuat.Contains(x.NamSanXuat));
             }
 
-            var xes = await query.OrderByDescending(x => x.DanhGiaTrungBinh).ToListAsync();
+            if (!string.IsNullOrEmpty(sort))
+            {
+                switch (sort)
+                {
+                    case "gia-thap":
+                        query = query.OrderBy(x => x.GiaThueNgay);
+                        break;
+                    case "gia-cao":
+                        query = query.OrderByDescending(x => x.GiaThueNgay);
+                        break;
+                    case "danh-gia":
+                    default:
+                        query = query.OrderByDescending(x => x.DanhGiaTrungBinh);
+                        break;
+                }
+            }
+            else
+            {
+                query = query.OrderByDescending(x => x.DanhGiaTrungBinh);
+            }
+
+            var xes = await query.ToListAsync();
 
             // Lấy danh sách hãng xe và phong cách cho filter
             ViewBag.HangXes = await _context.DmHangXes.Where(h => h.IsActive).ToListAsync();

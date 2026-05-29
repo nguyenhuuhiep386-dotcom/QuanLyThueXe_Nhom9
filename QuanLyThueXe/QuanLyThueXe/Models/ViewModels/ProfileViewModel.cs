@@ -32,3 +32,25 @@ namespace QuanLyThueXe.Models.ViewModels
         public string? DiaChi { get; set; }
     }
 }
+
+    public class BankInfoViewModel
+    {
+        public string BankName { get; set; } = string.Empty;
+        public string BankAccount { get; set; } = string.Empty;
+        public string BankOwner { get; set; } = string.Empty;
+    }
+
+    public class ChangePasswordViewModel
+    {
+        public string CurrentPassword { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
+        public string ConfirmPassword { get; set; } = string.Empty;
+    }
+
+    public class GPLXVerificationViewModel
+    {
+        public string Number { get; set; } = string.Empty;
+        public DateTime? IssueDate { get; set; }
+        public DateTime? ExpiryDate { get; set; }
+        public string Class { get; set; } = string.Empty;
+    }

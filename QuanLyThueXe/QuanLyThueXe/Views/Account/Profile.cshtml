@@ -4,158 +4,745 @@
     ViewData["Title"] = "Hồ sơ cá nhân";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-10">
-        <div class="tab-content" id="v-pills-tabContent">
-            <!-- Hồ sơ cá nhân Tab -->
-            <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
-                <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:32px;">
-                    <h2 style="font-size:20px; font-weight:700; margin-bottom:24px;">Thông tin cá nhân</h2>
-                    
-                    <!-- Avatar Upload Section -->
-                    <div class="text-center mb-4">
-                        <div class="avatar-upload">
-                            <div class="avatar-preview">
-                                <img src="/images/default-avatar.png" 
-                                     alt="Avatar" 
-                                     id="avatarPreview" 
-                                     onerror="this.src='https://ui-avatars.com/api/?name=User&background=e8731a&color=fff&size=150'" />
-                            </div>
-                            <label for="avatarInput" class="avatar-edit">
-                                <i class="fas fa-camera"></i>
+<style>
+    /* Design Tokens */
+    :root {
+        --profile-bg: #111111;
+        --card-bg: #1C1C1E;
+        --card-border: #2C2C2E;
+        --accent: #E8731A;
+        --text-main: #FFFFFF;
+        --text-sub: #8E8E93;
+        --success: #32D74B;
+    }
+
+    /* Common Components */
+    .profile-title-area {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 32px;
+    }
+    .profile-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    .profile-subtitle {
+        color: var(--text-sub);
+        font-size: 14px;
+    }
+    .tier-badge-top {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 8px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .p-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+    .p-card-header {
+        font-size: 11px;
+        color: var(--text-sub);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* User Info Card */
+    .user-info-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 24px;
+    }
+    .user-avatar-wrap {
+        position: relative;
+    }
+    .user-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 12px;
+        object-fit: cover;
+    }
+    .user-avatar-edit {
+        position: absolute;
+        bottom: -10px;
+        right: -10px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-main);
+        transition: 0.2s;
+    }
+    .user-avatar-edit:hover {
+        color: var(--accent);
+    }
+    .user-name {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+    .user-member-since {
+        font-size: 11px;
+        color: var(--text-sub);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 20px;
+    }
+    .user-details-row {
+        display: flex;
+        gap: 40px;
+    }
+    .user-detail-group h6 {
+        font-size: 10px;
+        color: var(--text-sub);
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+    .user-detail-group p {
+        font-size: 13px;
+        margin-bottom: 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .user-detail-group i {
+        color: var(--text-sub);
+        width: 14px;
+    }
+
+    /* Membership Card */
+    .member-tier-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+    .progress-bar-bg {
+        height: 4px;
+        background: #333;
+        border-radius: 2px;
+        margin-bottom: 8px;
+        overflow: hidden;
+    }
+    .progress-bar-fill {
+        height: 100%;
+        background: var(--text-main);
+        width: 60%;
+        border-radius: 2px;
+    }
+    .points-info {
+        font-size: 12px;
+        color: var(--text-sub);
+        margin-bottom: 24px;
+    }
+    .reward-box {
+        background: rgba(232, 115, 26, 0.1);
+        border: 1px solid rgba(232, 115, 26, 0.2);
+        border-radius: 8px;
+        padding: 16px;
+    }
+    .reward-title {
+        font-size: 10px;
+        color: var(--accent);
+        text-transform: uppercase;
+        margin-bottom: 8px;
+    }
+    .reward-desc {
+        font-size: 14px;
+        margin-bottom: 16px;
+    }
+
+    /* Current Trip Card */
+    .trip-card-content {
+        display: flex;
+        gap: 24px;
+        align-items: center;
+    }
+    .trip-image {
+        width: 160px;
+        height: 100px;
+        border-radius: 8px;
+        object-fit: cover;
+    }
+    .trip-name {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+    .trip-dates {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 16px;
+    }
+    .trip-date-group h6 {
+        font-size: 10px;
+        color: var(--text-sub);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    .trip-date-group p {
+        font-size: 14px;
+        font-weight: 500;
+        margin: 0;
+    }
+    .badge-renting {
+        background: var(--success);
+        color: #000;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+
+    /* Table */
+    .p-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .p-table th {
+        font-size: 10px;
+        color: var(--text-sub);
+        text-transform: uppercase;
+        text-align: left;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--card-border);
+    }
+    .p-table td {
+        font-size: 14px;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--card-border);
+    }
+    .p-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Payment Cards */
+    .payment-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+    .credit-card {
+        background: linear-gradient(135deg, #2A2A2C, #1C1C1E);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 20px;
+        position: relative;
+    }
+    .credit-card.default {
+        border-color: rgba(255,255,255,0.2);
+    }
+    .card-type {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 32px;
+    }
+    .card-number {
+        font-size: 18px;
+        letter-spacing: 2px;
+        margin-bottom: 16px;
+        font-family: monospace;
+    }
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: var(--text-sub);
+    }
+    .btn-add-card {
+        background: transparent;
+        border: 1px solid var(--card-border);
+        color: var(--text-main);
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 10px;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+    
+    /* Security Settings */
+    .security-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--card-border);
+    }
+    .security-item:last-child {
+        border-bottom: none;
+    }
+    .security-item-info h5 {
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+    .security-item-info p {
+        font-size: 11px;
+        color: var(--text-sub);
+        margin: 0;
+    }
+    .btn-edit-icon {
+        color: var(--text-sub);
+        background: transparent;
+        border: none;
+        cursor: pointer;
+    }
+    
+    /* Login History */
+    .device-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--card-border);
+    }
+    .device-item:last-child {
+        border-bottom: none;
+    }
+    .device-info {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+    }
+    .device-icon {
+        font-size: 24px;
+        color: var(--text-sub);
+    }
+    .device-details h5 {
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+    .device-details p {
+        font-size: 11px;
+        color: var(--text-sub);
+        margin: 0;
+    }
+
+    /* UI Toggle Switch */
+    .ui-switch {
+        position: relative;
+        display: inline-block;
+        width: 36px;
+        height: 20px;
+    }
+    .ui-switch input { opacity: 0; width: 0; height: 0; }
+    .ui-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: #333;
+        transition: .4s;
+        border-radius: 20px;
+    }
+    .ui-slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: .4s;
+        border-radius: 50%;
+    }
+    input:checked + .ui-slider { background-color: var(--text-main); }
+    input:checked + .ui-slider:before { transform: translateX(16px); background-color: #000; }
+</style>
+
+<!-- Tab Content -->
+<div class="tab-content" id="v-pills-tabContent">
+    
+    <!-- ==================== PROFILE TAB ==================== -->
+    <div class="tab-pane fade show active" id="v-pills-profile" role="tabpanel">
+        
+        <!-- Header -->
+        <div class="profile-title-area">
+            <div>
+                <h1 class="profile-title">Hồ sơ Cá nhân</h1>
+                <p class="profile-subtitle">Quản lý thông tin và hành trình của bạn.</p>
+            </div>
+            <div class="tier-badge-top" style="border-color:@ViewBag.TierColor;">
+                <i class="fas fa-star" style="color:@ViewBag.TierColor;"></i>
+                <span>THÀNH VIÊN @ViewBag.Tier.ToUpper()</span>
+                <span style="color:var(--text-sub);">|</span>
+                <span style="color:var(--text-sub);">@ViewBag.Points.ToString("N0") điểm thưởng</span>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Column: User Info & Trip -->
+            <div class="col-lg-8">
+                
+                <!-- User Info Card -->
+                <div class="p-card">
+                    <div class="user-info-grid">
+                        <div class="user-avatar-wrap">
+                            <img src="https://ui-avatars.com/api/?name=@(Model.HoTen ?? "User")&background=e8731a&color=fff&size=100" class="user-avatar" id="profileAvatar" />
+                            <label for="avatarUpload" class="user-avatar-edit">
+                                <i class="fas fa-pencil-alt" style="font-size: 12px;"></i>
                             </label>
-                            <input type="file" 
-                                   id="avatarInput" 
-                                   accept="image/*" 
-                                   style="display: none;" 
-                                   onchange="previewAvatar(this)" />
+                            <input type="file" id="avatarUpload" accept="image/*" style="display: none;" onchange="previewAvatar(this)" />
                         </div>
-                        <p style="font-size: 12px; color: var(--text-muted); margin-top: 12px;">
-                            Nhấn vào biểu tượng camera để thay đổi ảnh đại diện
-                        </p>
+                        <div>
+                            <h2 class="user-name">@(string.IsNullOrEmpty(Model.HoTen) ? "Chưa cập nhật" : Model.HoTen)</h2>
+                            <p class="user-member-since">KHÁCH HÀNG TỪ 2022</p>
+                            
+                            <div class="user-details-row">
+                                <div class="user-detail-group">
+                                    <h6>THÔNG TIN LIÊN HỆ</h6>
+                                    <p><i class="far fa-envelope"></i> @(string.IsNullOrEmpty(Model.Email) ? "Chưa có email" : Model.Email)</p>
+                                    <p><i class="fas fa-phone-alt"></i> @(string.IsNullOrEmpty(Model.SoDienThoai) ? "Chưa có SĐT" : Model.SoDienThoai)</p>
+                                </div>
+                                <div class="user-detail-group">
+                                    <h6>GIẤY PHÉP LÁI XE</h6>
+                                    <p style="color:var(--success);"><i class="far fa-check-circle" style="color:var(--success);"></i> Hạng A2 - @(string.IsNullOrEmpty(Model.SoGPLX) ? "Chưa cập nhật" : Model.SoGPLX)</p>
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#editProfileModal" style="color:var(--text-sub); text-decoration:none; font-size:11px; margin-left:22px; font-weight:600;"><i class="fas fa-pen" style="font-size:10px; margin-right:4px;"></i> CHỈNH SỬA HỒ SƠ</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Current Trip Card -->
+                <div class="p-card" style="position:relative;">
+                    <div style="position:absolute; top:24px; right:24px;">
+                        <span class="badge-renting">ĐANG THUÊ</span>
+                    </div>
+                    <div class="p-card-header">CHUYẾN ĐI HIỆN TẠI</div>
+                    <div class="trip-card-content">
+                        <img src="https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=400&q=80" class="trip-image" />
+                        <div>
+                            <h3 class="trip-name">Fat Boy 114</h3>
+                            <div class="trip-dates">
+                                <div class="trip-date-group">
+                                    <h6>NGÀY NHẬN</h6>
+                                    <p>15/10/2023</p>
+                                </div>
+                                <div class="trip-date-group">
+                                    <h6>NGÀY TRẢ</h6>
+                                    <p>20/10/2023</p>
+                                </div>
+                            </div>
+                            <button class="btn-hd-outline" data-bs-toggle="modal" data-bs-target="#tripDetailsModal" style="padding: 8px 16px; font-size:11px;">QUẢN LÝ CHUYẾN ĐI</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Membership -->
+            <div class="col-lg-4">
+                <div class="p-card" style="height: 100%; border-top: 4px solid @ViewBag.TierColor;">
+                    <div class="p-card-header">
+                        HẠNG THÀNH VIÊN
+                        <i class="fas fa-medal" style="font-size:16px; color:@ViewBag.TierColor;"></i>
+                    </div>
+                    <h3 class="member-tier-title">Thành viên @ViewBag.Tier</h3>
+                    
+                    @{
+                        int pts = ViewBag.Points ?? 0;
+                        int next = ViewBag.NextTierPoints ?? 500;
+                        int percent = next == 0 ? 100 : (pts * 100 / (pts + next));
+                    }
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width:@percent%; background:@ViewBag.TierColor;"></div>
+                    </div>
+                    @if (next > 0) {
+                        <p class="points-info">Còn @next.ToString("N0") điểm để lên hạng tiếp theo</p>
+                    } else {
+                        <p class="points-info">Bạn đã đạt hạng cao nhất!</p>
+                    }
+                    
+                    <div class="reward-box" style="background:rgba(255,255,255,0.05); border-color:var(--card-border);">
+                        <div class="reward-title">ƯU ĐÃI HIỆN CÓ</div>
+                        <p class="reward-desc">@if(pts>2000){<text>Giảm 20% cho lần thuê tiếp theo</text>}else if(pts>500){<text>Giảm 10% cho lần thuê tiếp theo</text>}else{<text>Tích luỹ thêm để nhận ưu đãi</text>}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bottom Row: History -->
+            <div class="col-lg-12">
+                <div class="p-card">
+                    <h3 style="font-size:18px; font-weight:600; margin-bottom:24px;">Lịch sử đánh giá</h3>
+                    @if (ViewBag.DanhGias != null && ((IEnumerable<QuanLyThueXe.Models.DanhGia>)ViewBag.DanhGias).Any())
+                    {
+                        <table class="p-table">
+                            <thead>
+                                <tr>
+                                    <th>NGÀY ĐÁNH GIÁ</th>
+                                    <th>MẪU XE</th>
+                                    <th>ĐÁNH GIÁ</th>
+                                    <th>SỐ SAO</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var dg in (IEnumerable<QuanLyThueXe.Models.DanhGia>)ViewBag.DanhGias)
+                                {
+                                    <tr>
+                                        <td style="color:var(--text-sub);">@dg.NgayDanhGia.ToString("dd/MM/yyyy")</td>
+                                        <td><a href="@Url.Action("ChiTiet", "Xe", new { id = dg.MaXe })" style="color:var(--text-main); text-decoration:none;">@dg.Xe.TenXe</a></td>
+                                        <td style="color:var(--text-sub); max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="@dg.NhanXet">
+                                            @(string.IsNullOrEmpty(dg.NhanXet) ? "(Không có nhận xét)" : dg.NhanXet.Replace("\n", " "))
+                                        </td>
+                                        <td style="color:#fbbf24; font-size:12px;">
+                                            @for (int i = 0; i < dg.SoSao; i++) { <i class="fas fa-star"></i> }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p style="color:var(--text-sub); font-style:italic;">Bạn chưa có đánh giá nào.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SETTINGS TAB ==================== -->
+    <div class="tab-pane fade" id="v-pills-settings" role="tabpanel">
+        
+        <!-- Header -->
+        <div class="profile-title-area">
+            <div>
+                <h1 class="profile-title">Cài đặt tài khoản</h1>
+                <p class="profile-subtitle">Quản lý phương thức thanh toán, quyền bảo mật và riêng tư, và phiên đăng nhập của bạn</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Column: Payment & Login History -->
+            <div class="col-lg-8">
+                <div class="p-card">
+                    <div class="p-card-header" style="font-size:14px; font-weight:600; text-transform:none; color:var(--text-main);">
+                        <span><i class="far fa-credit-card" style="margin-right:8px; color:var(--accent);"></i> Phương thức thanh toán</span>
+                        <button class="btn-add-card" data-bs-toggle="modal" data-bs-target="#addCardModal">+ THÊM CARD</button>
                     </div>
                     
-                    <form asp-action="Profile" method="post" id="profileForm">
-                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-
-                        <div class="row g-4">
-                            <div class="col-md-6">
-                                <label asp-for="HoTen" class="form-label" style="font-size:11px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;"></label>
-                                <input asp-for="HoTen" class="form-control" style="background:var(--bg-dark); border:1px solid var(--border-color); color:var(--text-primary); padding:10px 16px; font-size:14px;" placeholder="Nhập họ và tên" />
-                                <span asp-validation-for="HoTen" class="text-danger" style="font-size:12px;"></span>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="SoDienThoai" class="form-label" style="font-size:11px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;"></label>
-                                <input asp-for="SoDienThoai" class="form-control" style="background:var(--bg-dark); border:1px solid var(--border-color); color:var(--text-primary); padding:10px 16px; font-size:14px;" placeholder="Nhập số điện thoại" />
-                                <span asp-validation-for="SoDienThoai" class="text-danger" style="font-size:12px;"></span>
-                            </div>
-
-                            <div class="col-md-12">
-                                <label asp-for="Email" class="form-label" style="font-size:11px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;"></label>
-                                <input asp-for="Email" class="form-control" style="background:var(--bg-dark); border:1px solid var(--border-color); color:var(--text-primary); padding:10px 16px; font-size:14px;" placeholder="Nhập địa chỉ email" />
-                                <span asp-validation-for="Email" class="text-danger" style="font-size:12px;"></span>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="SoGiayTo" class="form-label" style="font-size:11px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;"></label>
-                                <input asp-for="SoGiayTo" class="form-control" style="background:var(--bg-dark); border:1px solid var(--border-color); color:var(--text-primary); padding:10px 16px; font-size:14px;" placeholder="Nhập số CMND/CCCD" />
-                                <span asp-validation-for="SoGiayTo" class="text-danger" style="font-size:12px;"></span>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label asp-for="SoGPLX" class="form-label" style="font-size:11px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;"></label>
-                                <input asp-for="SoGPLX" class="form-control" style="background:var(--bg-dark); border:1px solid var(--border-color); color:var(--text-primary); padding:10px 16px; font-size:14px;" placeholder="Nhập số Giấy Phép Lái Xe" />
-                                <span asp-validation-for="SoGPLX" class="text-danger" style="font-size:12px;"></span>
-                            </div>
-
-                            <div class="col-md-12">
-                                <label asp-for="DiaChi" class="form-label" style="font-size:11px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:1px;"></label>
-                                <textarea asp-for="DiaChi" class="form-control" rows="2" style="background:var(--bg-dark); border:1px solid var(--border-color); color:var(--text-primary); padding:10px 16px; font-size:14px;" placeholder="Nhập địa chỉ hiện tại của bạn"></textarea>
-                                <span asp-validation-for="DiaChi" class="text-danger" style="font-size:12px;"></span>
+                    <div class="payment-grid">
+                        <div class="credit-card default">
+                            <span style="position:absolute; top:20px; right:20px; font-size:10px; background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px;">Mặc định</span>
+                            <div class="card-type">VISA</div>
+                            <div class="card-number">**** **** **** 4242</div>
+                            <div class="card-footer">
+                                <span>Expires 12/25</span>
+                                <i class="far fa-trash-alt" style="cursor:pointer;" onclick="showToast('Tính năng xoá thẻ đang phát triển', 'error')"></i>
                             </div>
                         </div>
-
-                        <div class="mt-4 text-end">
-                            <button type="submit" id="submitProfileBtn" class="btn-hd" style="padding:10px 24px; font-size:14px;">
-                                Lưu thay đổi
-                            </button>
+                        <div class="credit-card">
+                            <div class="card-type">MASTERCARD</div>
+                            <div class="card-number">**** **** **** 8899</div>
+                            <div class="card-footer">
+                                <span>Expires 08/26</span>
+                                <i class="far fa-trash-alt" style="cursor:pointer;" onclick="showToast('Tính năng xoá thẻ đang phát triển', 'error')"></i>
+                            </div>
                         </div>
-                    </form>
+                    </div>
+                </div>
 
-                    <!-- Xác minh GPLX Section -->
-                    <div class="card mt-4" style="background:var(--bg-secondary); border:1px solid var(--border-color);">
-                        <div class="card-header" style="background:transparent; border-bottom:1px solid var(--border-color);">
-                            <h5 style="margin:0; font-size:16px; font-weight:600;">
-                                <i class="fas fa-id-card text-warning"></i> Xác minh Giấy phép lái xe
-                            </h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="form-label" style="font-size:11px; font-weight:600; color:var(--text-secondary); text-transform:uppercase;">Số GPLX</label>
-                                    <input type="text" 
-                                           class="form-control" 
-                                           id="gplxNumber"
-                                           placeholder="Nhập số GPLX" 
-                                           value="@Model.SoGPLX" />
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label" style="font-size:11px; font-weight:600; color:var(--text-secondary); text-transform:uppercase;">Upload ảnh GPLX</label>
-                                    <input type="file" 
-                                           class="form-control" 
-                                           id="gplxImage"
-                                           accept="image/*" />
+                <div class="p-card">
+                    <div class="p-card-header" style="font-size:14px; font-weight:600; text-transform:none; color:var(--text-main);">
+                        <span><i class="fas fa-history" style="margin-right:8px; color:var(--accent);"></i> Lịch sử đăng nhập</span>
+                    </div>
+                    
+                    <div>
+                        <div class="device-item">
+                            <div class="device-info">
+                                <i class="fas fa-laptop device-icon"></i>
+                                <div class="device-details">
+                                    <h5>MacBook Pro - Chrome</h5>
+                                    <p>Đà Nẵng, Việt Nam • IP: 192.168.1.1</p>
                                 </div>
                             </div>
-                            <div class="mt-3">
-                                <button type="button" class="btn btn-warning" onclick="verifyGPLX()">
-                                    <i class="fas fa-check"></i> Xác minh ngay
-                                </button>
-                                <small class="text-muted d-block mt-2" style="font-size:11px;">
-                                    <i class="fas fa-info-circle"></i> Xác minh GPLX giúp bạn thuê xe nhanh chóng hơn
-                                </small>
+                            <div style="font-size:10px; color:var(--accent); text-transform:uppercase; font-weight:600;">ĐANG HOẠT ĐỘNG</div>
+                        </div>
+                        <div class="device-item">
+                            <div class="device-info">
+                                <i class="fas fa-mobile-alt device-icon" style="padding:0 4px;"></i>
+                                <div class="device-details">
+                                    <h5>iPhone 14 Pro Max - Safari</h5>
+                                    <p>Huế, Thành Phố Huế • IP: 10.0.0.45</p>
+                                </div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:11px; color:var(--text-sub); margin-bottom:4px;">15/05/2026, 14:30</div>
+                                <div style="font-size:11px; color:var(--text-main); cursor:pointer;" onclick="showToast('Đã xóa thiết bị đăng nhập', 'success')">Xóa thiết bị</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Cài đặt Tab -->
-            <div class="tab-pane fade" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">
-                <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:32px;">
-                    <h2 style="font-size:20px; font-weight:700; margin-bottom:24px;">Cài đặt tài khoản</h2>
-                    
-                    <div class="mb-4 pb-4" style="border-bottom:1px solid var(--border-color);">
-                        <h4 style="font-size:16px; font-weight:600; margin-bottom:16px;">Đổi mật khẩu</h4>
-                        <form id="settingsForm">
-                            <div class="row g-3">
-                                <div class="col-md-4">
-                                    <input type="password" name="currentPass" class="form-control" placeholder="Mật khẩu hiện tại" style="font-size:13px;" />
-                                </div>
-                                <div class="col-md-4">
-                                    <input type="password" name="newPass" class="form-control" placeholder="Mật khẩu mới" style="font-size:13px;" />
-                                </div>
-                                <div class="col-md-4">
-                                    <input type="password" name="confirmPass" class="form-control" placeholder="Xác nhận mật khẩu" style="font-size:13px;" />
-                                </div>
-                            </div>
-                            <button type="button" id="submitSettingsBtn" class="btn-hd-outline mt-3" onclick="alert('Đã cập nhật mật khẩu thành công!')" style="font-size:13px; padding:6px 16px;">Cập nhật mật khẩu</button>
-                        </form>
+            <!-- Right Column: Security -->
+            <div class="col-lg-4">
+                <div class="p-card">
+                    <div class="p-card-header" style="font-size:14px; font-weight:600; text-transform:none; color:var(--text-main);">
+                        <span><i class="fas fa-shield-alt" style="margin-right:8px; color:var(--accent);"></i> Bảo mật</span>
                     </div>
+                    
+                    <div class="security-item">
+                        <div class="security-item-info">
+                            <h5>Mật khẩu</h5>
+                            <p>Thay đổi lần cuối vào lúc 3 tháng trước</p>
+                        </div>
+                        <button class="btn-edit-icon" data-bs-toggle="modal" data-bs-target="#changePasswordModal"><i class="fas fa-pencil-alt"></i></button>
+                    </div>
+                    
+                    <div class="security-item">
+                        <div class="security-item-info">
+                            <h5>2 Bước xác thực</h5>
+                            <p>Hiện tại đang tắt</p>
+                        </div>
+                        <label class="ui-switch">
+                            <input type="checkbox" onchange="showToast(this.checked ? 'Đã bật xác thực 2 lớp' : 'Đã tắt xác thực 2 lớp', 'success')">
+                            <span class="ui-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                    <div>
-                        <h4 style="font-size:16px; font-weight:600; margin-bottom:16px;">Thông báo</h4>
-                        <div class="form-check form-switch mb-3">
-                            <input class="form-check-input" type="checkbox" id="notiEmail" checked style="cursor:pointer;">
-                            <label class="form-check-label" for="notiEmail" style="font-size:14px; cursor:pointer;">Nhận thông báo qua Email</label>
-                            <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Nhận các cập nhật về trạng thái hợp đồng, ưu đãi.</p>
+</div>
+
+<!-- ==================== MODALS ==================== -->
+<style>
+    .hd-modal .modal-content {
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+    }
+    .hd-modal .modal-header {
+        border-bottom: 1px solid var(--card-border);
+        padding: 20px 24px;
+    }
+    .hd-modal .modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+    .hd-modal .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+    }
+    .hd-modal .modal-body {
+        padding: 24px;
+    }
+    .hd-modal .modal-footer {
+        border-top: 1px solid var(--card-border);
+        padding: 16px 24px;
+    }
+    .hd-form-control {
+        background-color: var(--profile-bg);
+        border: 1px solid var(--card-border);
+        color: var(--text-main);
+        border-radius: 8px;
+        padding: 12px 16px;
+    }
+    .hd-form-control:focus {
+        background-color: var(--profile-bg);
+        border-color: var(--accent);
+        color: var(--text-main);
+        box-shadow: none;
+    }
+    .hd-form-label {
+        font-size: 11px;
+        color: var(--text-sub);
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+</style>
+
+<!-- Modal: Chỉnh sửa hồ sơ -->
+<div class="modal fade hd-modal" id="editProfileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-action="Profile" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cập nhật Hồ sơ cá nhân</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="hd-form-label">Họ và tên</label>
+                            <input asp-for="HoTen" class="form-control hd-form-control" />
                         </div>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="notiSms" checked style="cursor:pointer;">
-                            <label class="form-check-label" for="notiSms" style="font-size:14px; cursor:pointer;">Nhận thông báo qua SMS</label>
-                            <p style="font-size:12px; color:var(--text-muted); margin-top:4px;">Nhận tin nhắn SMS khẩn cấp liên quan đến việc nhận và trả xe.</p>
+                        <div class="col-md-6">
+                            <label class="hd-form-label">Số điện thoại</label>
+                            <input asp-for="SoDienThoai" class="form-control hd-form-control" />
                         </div>
+                        <div class="col-md-12">
+                            <label class="hd-form-label">Email</label>
+                            <input asp-for="Email" type="email" class="form-control hd-form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="hd-form-label">Số CMND/CCCD</label>
+                            <input asp-for="SoGiayTo" class="form-control hd-form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="hd-form-label">Số Giấy phép lái xe</label>
+                            <input asp-for="SoGPLX" class="form-control hd-form-control" />
+                        </div>
+                        <div class="col-md-12">
+                            <label class="hd-form-label">Địa chỉ</label>
+                            <textarea asp-for="DiaChi" class="form-control hd-form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-hd-outline" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn-hd">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Quản lý chuyến đi -->
+<div class="modal fade hd-modal" id="tripDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết chuyến đi hiện tại</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="https://images.unsplash.com/photo-1558981285-6f0c94958bb6?w=400&q=80" style="width:100%; height:200px; object-fit:cover; border-radius:8px; margin-bottom:16px;" />
+                <h4 style="margin-bottom:8px;">Harley-Davidson Fat Boy 114</h4>
+                <p style="color:var(--text-sub); font-size:14px; margin-bottom:24px;">Biển số: 59A1-123.45 • Màu: Đen mờ</p>
+                <div class="row text-start g-3">
+                    <div class="col-6">
+                        <div class="hd-form-label">TÌNH TRẠNG</div>
+                        <div class="badge-renting" style="display:inline-block;">Đang cho thuê</div>
+                    </div>
+                    <div class="col-6">
+                        <div class="hd-form-label">VỊ TRÍ HIỆN TẠI</div>
+                        <div style="font-size:14px;">TP. Hồ Chí Minh</div>
+                    </div>
+                    <div class="col-12 mt-4">
+                        <button class="btn-hd-outline w-100" data-bs-dismiss="modal" onclick="showToast('Chức năng định vị GPS đang bảo trì', 'error')"><i class="fas fa-map-marker-alt"></i> Xem định vị GPS</button>
                     </div>
                 </div>
             </div>
@@ -163,53 +750,280 @@
     </div>
 </div>
 
+<!-- Modal: Đổi mã ưu đãi -->
+<div class="modal fade hd-modal" id="redeemCodeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center pt-0">
+                <i class="fas fa-gift" style="font-size:40px; color:var(--accent); margin-bottom:16px;"></i>
+                <h5 style="margin-bottom:24px;">Nhập mã ưu đãi</h5>
+                <input type="text" id="promoCodeInput" class="form-control hd-form-control text-center mb-3" placeholder="VD: SUMMER2024" style="text-transform:uppercase;" />
+                <button type="button" class="btn-hd w-100" data-bs-dismiss="modal" onclick="showToast('Mã ' + document.getElementById('promoCodeInput').value.toUpperCase() + ' đã được áp dụng thành công!', 'success')">Đổi Mã</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Thêm thẻ thanh toán -->
+<div class="modal fade hd-modal" id="addCardModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm thẻ thanh toán mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="hd-form-label">Số thẻ</label>
+                        <input type="text" id="newCardNum" class="form-control hd-form-control" placeholder="0000 0000 0000 0000" />
+                    </div>
+                    <div class="col-12">
+                        <label class="hd-form-label">Tên in trên thẻ</label>
+                        <input type="text" id="newCardName" class="form-control hd-form-control" placeholder="NGUYEN VAN A" />
+                    </div>
+                    <div class="col-6">
+                        <label class="hd-form-label">Ngày hết hạn</label>
+                        <input type="text" id="newCardExp" class="form-control hd-form-control" placeholder="MM/YY" />
+                    </div>
+                    <div class="col-6">
+                        <label class="hd-form-label">CVV</label>
+                        <input type="text" id="newCardCvv" class="form-control hd-form-control" placeholder="***" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top:1px solid var(--border-color); justify-content:center;">
+                <div class="text-center">
+                    <button type="button" class="btn-hd px-5" onclick="addNewCard()">Lưu thẻ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Đổi mật khẩu -->
+<div class="modal fade hd-modal" id="changePasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Đổi mật khẩu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="hd-form-label">Mật khẩu hiện tại</label>
+                        <input type="password" id="cpCurrent" class="form-control hd-form-control" />
+                    </div>
+                    <div class="col-12">
+                        <label class="hd-form-label">Mật khẩu mới</label>
+                        <input type="password" id="cpNew" class="form-control hd-form-control" />
+                    </div>
+                    <div class="col-12">
+                        <label class="hd-form-label">Nhập lại mật khẩu mới</label>
+                        <input type="password" id="cpConfirm" class="form-control hd-form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-hd w-100" onclick="changePassword()">Cập nhật mật khẩu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSRF Token for Avatar Upload -->
+@Html.AntiForgeryToken()
+
 @section Scripts {
     <script>
-        function verifyGPLX() {
-            const gplxNumber = document.getElementById('gplxNumber').value;
-            const gplxImage = document.getElementById('gplxImage').files;
-            
-            if (!gplxNumber) {
-                showToast('Vui lòng nhập số GPLX', 'warning');
-                return;
-            }
-            
-            if (gplxImage.length === 0) {
-                showToast('Vui lòng upload ảnh GPLX', 'warning');
-                return;
-            }
-            
-            // Giả lập xác minh
-            showToast('Đã gửi yêu cầu xác minh GPLX thành công!', 'success');
-        }
-
-        $(document).ready(function() {
-            var initialProfileState = $('#profileForm').serialize();
-            var $submitProfileBtn = $('#submitProfileBtn');
-            $submitProfileBtn.prop('disabled', true).css('opacity', '0.5');
-
-            $('#profileForm input, #profileForm textarea').on('input change', function() {
-                if ($('#profileForm').serialize() !== initialProfileState) {
-                    $submitProfileBtn.prop('disabled', false).css('opacity', '1');
-                } else {
-                    $submitProfileBtn.prop('disabled', true).css('opacity', '0.5');
-                }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tự động xử lý sự kiện chuyển tab (khắc phục lỗi Bootstrap 5 không nhận diện thẻ <a> nằm ngoài thẻ .nav)
+            const triggerTabList = document.querySelectorAll('.hd-sidebar-nav a[data-bs-toggle="pill"]');
+            triggerTabList.forEach(triggerEl => {
+                triggerEl.addEventListener('click', event => {
+                    event.preventDefault();
+                    
+                    const targetId = triggerEl.getAttribute('data-bs-target');
+                    if (targetId) {
+                        // Xóa active khỏi tất cả các tab
+                        document.querySelectorAll('.tab-pane').forEach(pane => {
+                            pane.classList.remove('show', 'active');
+                        });
+                        
+                        // Xóa active khỏi các nút bấm
+                        triggerTabList.forEach(btn => btn.classList.remove('active'));
+                        
+                        // Thêm active vào tab mục tiêu
+                        document.querySelector(targetId).classList.add('show', 'active');
+                        triggerEl.classList.add('active');
+                    }
+                });
             });
 
-            var initialSettingsState = $('#settingsForm').serialize();
-            var $submitSettingsBtn = $('#submitSettingsBtn');
-            $submitSettingsBtn.prop('disabled', true).css('opacity', '0.5');
+            // Restore avatar from localStorage
+            let savedAvatar = localStorage.getItem('userAvatar_@User.Identity?.Name');
+            if (savedAvatar) {
+                document.getElementById('profileAvatar').src = savedAvatar;
+            }
 
-            $('#settingsForm input, #settingsForm select').on('input change', function() {
-                if ($('#settingsForm').serialize() !== initialSettingsState) {
-                    $submitSettingsBtn.prop('disabled', false).css('opacity', '1');
+            // Format card expiry MM/YY
+            document.getElementById('newCardExp')?.addEventListener('input', function(e) {
+                let val = this.value.replace(/\D/g, '');
+                if (val.length >= 2) {
+                    let month = parseInt(val.substring(0, 2));
+                    if (month > 12) month = 12;
+                    if (month < 1 && val.length === 2) month = 1;
+                    val = (month < 10 ? '0' : '') + month + val.substring(2);
+                }
+                if (val.length >= 3) {
+                    this.value = val.substring(0, 2) + '/' + val.substring(2, 4);
                 } else {
-                    $submitSettingsBtn.prop('disabled', true).css('opacity', '0.5');
+                    this.value = val;
                 }
             });
         });
+
+        // Avatar preview and upload
+        function previewAvatar(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+                
+                // Preview tức thì
+                reader.onload = function(e) {
+                    document.getElementById('profileAvatar').src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+                
+                // Upload to server
+                const formData = new FormData();
+                formData.append('avatar', file);
+                
+                // Lấy AntiForgery token từ form
+                const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                const headers = {};
+                if (tokenInput) {
+                    headers['RequestVerificationToken'] = tokenInput.value;
+                }
+                
+                fetch('/Account/UploadAvatar', {
+                    method: 'POST',
+                    body: formData,
+                    headers: headers
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Cập nhật src bằng URL server
+                        document.getElementById('profileAvatar').src = data.avatarUrl + '?t=' + Date.now();
+                        localStorage.setItem('userAvatar_@User.Identity?.Name', data.avatarUrl);
+                        showToast('Đã cập nhật ảnh đại diện', 'success');
+                    } else {
+                        showToast(data.message || 'Không thể tải ảnh lên', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Upload error:', error);
+                    showToast('Đã xảy ra lỗi khi tải ảnh lên', 'error');
+                });
+            }
+        }
+
+        function addNewCard() {
+            let num = document.getElementById('newCardNum').value.trim();
+            let exp = document.getElementById('newCardExp').value.trim();
+            if(!num || !exp) { showToast('Vui lòng nhập đủ thông tin thẻ (Số thẻ, Ngày hết hạn)', 'error'); return; }
+            
+            // Validate expiry
+            let expParts = exp.split('/');
+            if (expParts.length === 2) {
+                let m = parseInt(expParts[0]);
+                let y = parseInt('20' + expParts[1]);
+                let now = new Date();
+                if (y < now.getFullYear() || (y === now.getFullYear() && m < (now.getMonth() + 1))) {
+                    showToast('Thẻ đã hết hạn!', 'error');
+                    return;
+                }
+            } else {
+                showToast('Định dạng ngày hết hạn không hợp lệ (MM/YY)', 'error');
+                return;
+            }
+            
+            let last4 = num.replace(/\s/g, '').slice(-4);
+            if(last4.length < 4) last4 = "****";
+            
+            let html = `
+            <div class="credit-card" style="animation: fadeIn 0.3s ease-out;">
+                <div class="card-type">NEW CARD</div>
+                <div class="card-number">**** **** **** ${last4}</div>
+                <div class="card-footer">
+                    <span>Expires ${exp}</span>
+                    <i class="far fa-trash-alt" style="cursor:pointer;" onclick="this.closest('.credit-card').remove(); showToast('Đã xóa thẻ', 'success')"></i>
+                </div>
+            </div>`;
+            
+            document.querySelector('.payment-grid').insertAdjacentHTML('beforeend', html);
+            showToast('Thêm thẻ thành công!', 'success');
+            var modal = bootstrap.Modal.getInstance(document.getElementById('addCardModal'));
+            modal.hide();
+            
+            document.getElementById('newCardNum').value = '';
+            document.getElementById('newCardName').value = '';
+            document.getElementById('newCardExp').value = '';
+            document.getElementById('newCardCvv').value = '';
+        }
+
+        function changePassword() {
+            const cur = document.getElementById('cpCurrent').value;
+            const n = document.getElementById('cpNew').value;
+            const conf = document.getElementById('cpConfirm').value;
+            if(!cur || !n || !conf) { showToast('Vui lòng nhập đủ thông tin', 'error'); return; }
+            
+            const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+            const headers = { 'Content-Type': 'application/json' };
+            if (tokenInput) headers['RequestVerificationToken'] = tokenInput.value;
+            
+            fetch('/Account/ChangePassword', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({ CurrentPassword: cur, NewPassword: n, ConfirmPassword: conf })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if(data.success) {
+                    showToast(data.message, 'success');
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                    modal.hide();
+                    document.getElementById('cpCurrent').value = '';
+                    document.getElementById('cpNew').value = '';
+                    document.getElementById('cpConfirm').value = '';
+                } else {
+                    showToast(data.message, 'error');
+                }
+            })
+            .catch(e => showToast('Đã xảy ra lỗi kết nối', 'error'));
+        }
+
+        function showToast(message, type = 'error') {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'bottom-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                background: 'var(--bg-card)',
+                color: 'var(--text-primary)',
+                iconColor: type === 'error' ? '#ef4444' : '#22c55e'
+            });
+
+            Toast.fire({
+                icon: type,
+                title: message
+            });
+        }
     </script>
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
 }

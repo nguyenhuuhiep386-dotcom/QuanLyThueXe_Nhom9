@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/custom.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
 </head>
 <body>
     @if (isLoginPage)
@@ -34,10 +35,10 @@
             <nav class="hd-sidebar-nav">
                 @if (ViewData["Title"]?.ToString() == "Hồ sơ cá nhân")
                 {
-                    <a class="nav-item active" href="#v-pills-profile" data-bs-toggle="pill" role="tab" aria-controls="v-pills-profile" aria-selected="true" onclick="$('#v-pills-profile-tab').click()">
+                    <a class="nav-item active" id="v-pills-profile-tab" data-bs-toggle="pill" data-bs-target="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="true" href="#">
                         <i class="fas fa-user-circle"></i> Hồ sơ cá nhân
                     </a>
-                    <a class="nav-item" href="#v-pills-settings" data-bs-toggle="pill" role="tab" aria-controls="v-pills-settings" aria-selected="false" onclick="$('#v-pills-settings-tab').click()">
+                    <a class="nav-item" id="v-pills-settings-tab" data-bs-toggle="pill" data-bs-target="#v-pills-settings" role="tab" aria-controls="v-pills-settings" aria-selected="false" href="#">
                         <i class="fas fa-cog"></i> Cài đặt & Bảo mật
                     </a>
                 }
@@ -129,20 +130,7 @@
 
             <!-- Page Content -->
             <div class="hd-content">
-                @if (TempData["SuccessMessage"] != null)
-                {
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                }
-                @if (TempData["ErrorMessage"] != null)
-                {
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                }
+
                 <main role="main">
                     @RenderBody()
                 </main>
@@ -166,6 +154,33 @@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+            Swal.fire({
+                icon: 'success',
+                title: 'Thành công',
+                text: '@Html.Raw(TempData["SuccessMessage"]?.ToString()?.Replace("'", "\\'"))',
+                timer: 3000,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+            </text>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: '@Html.Raw(TempData["ErrorMessage"]?.ToString()?.Replace("'", "\\'"))',
+                confirmButtonColor: '#ea580c'
+            });
+            </text>
+        }
+    </script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/promo-manager.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

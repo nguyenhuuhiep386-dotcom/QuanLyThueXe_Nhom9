@@ -4,43 +4,45 @@
     ViewData["Title"] = "Lịch đặt xe";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 style="font-size:24px; font-weight:700;">Lịch đặt xe</h2>
-    <div class="d-flex gap-2 align-items-center">
-        <form method="get" asp-action="CuaToi" id="searchForm" class="input-group" style="width:280px;">
-            <span class="input-group-text"><i class="fas fa-search"></i></span>
-            <input type="text" name="search" value="@Context.Request.Query["search"]" class="form-control" placeholder="Tìm kiếm mã đơn hàng..." style="font-size:13px;" />
-        </form>
+<form method="get" asp-action="CuaToi" id="filterForm">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="font-size:24px; font-weight:700;">Lịch đặt xe</h2>
+        <div class="d-flex gap-2 align-items-center">
+            <div class="input-group" style="width:280px;">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                <input type="text" name="search" value="@Context.Request.Query["search"]" class="form-control" placeholder="Tìm kiếm mã đơn hàng..." style="font-size:13px;" />
+            </div>
+        </div>
     </div>
-</div>
 
-<form method="get" asp-action="CuaToi" class="d-flex gap-3 mb-4 flex-wrap">
-    <div>
-        <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Trạng thái</label>
-        @{
-            var currentTrangThai = Context.Request.Query["trangThai"].ToString();
-        }
-        <select name="trangThai" class="form-select" style="font-size:13px; width:200px;" onchange="this.form.submit()">
-            <option value="">Tất cả trạng thái</option>
-            <option value="ChoXacNhan" selected="@(currentTrangThai == "ChoXacNhan")">Chờ xác nhận</option>
-            <option value="DaXacNhan" selected="@(currentTrangThai == "DaXacNhan")">Đã xác nhận</option>
-            <option value="DangThue" selected="@(currentTrangThai == "DangThue")">Đang thuê</option>
-            <option value="DaTra" selected="@(currentTrangThai == "DaTra")">Hoàn thành</option>
-            <option value="DaHuy" selected="@(currentTrangThai == "DaHuy")">Đã hủy</option>
-        </select>
-    </div>
-    <div>
-        <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Khoảng thời gian</label>
-        <select name="thoiGian" class="form-select" style="font-size:13px; width:200px;" onchange="this.form.submit()">
-            <option value="30" selected="@(Context.Request.Query["thoiGian"] == "30")">30 ngày gần nhất</option>
-            <option value="90" selected="@(Context.Request.Query["thoiGian"] == "90")">3 tháng gần nhất</option>
-            <option value="all" selected="@(Context.Request.Query["thoiGian"] == "all")">Tất cả</option>
-        </select>
-    </div>
-    <div style="margin-left:auto; align-self:flex-end;">
-        <button type="submit" class="btn-hd-outline" style="font-size:12px; padding:8px 16px;">
-            <i class="fas fa-filter"></i> Lọc
-        </button>
+    <div class="d-flex gap-3 mb-4 flex-wrap align-items-end">
+        <div>
+            <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Trạng thái</label>
+            @{
+                var currentTrangThai = Context.Request.Query["trangThai"].ToString();
+            }
+            <select name="trangThai" class="form-select" style="font-size:13px; width:200px;">
+                <option value="">Tất cả trạng thái</option>
+                <option value="ChoXacNhan" selected="@(currentTrangThai == "ChoXacNhan")">Chờ xác nhận</option>
+                <option value="DaXacNhan" selected="@(currentTrangThai == "DaXacNhan")">Đã xác nhận</option>
+                <option value="DangThue" selected="@(currentTrangThai == "DangThue")">Đang thuê</option>
+                <option value="DaTra" selected="@(currentTrangThai == "DaTra")">Hoàn thành</option>
+                <option value="DaHuy" selected="@(currentTrangThai == "DaHuy")">Đã hủy</option>
+            </select>
+        </div>
+        <div>
+            <label style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:4px;">Khoảng thời gian</label>
+            <select name="thoiGian" class="form-select" style="font-size:13px; width:200px;">
+                <option value="30" selected="@(Context.Request.Query["thoiGian"] == "30")">30 ngày gần nhất</option>
+                <option value="90" selected="@(Context.Request.Query["thoiGian"] == "90")">3 tháng gần nhất</option>
+                <option value="all" selected="@(Context.Request.Query["thoiGian"] == "all")">Tất cả</option>
+            </select>
+        </div>
+        <div>
+            <button type="submit" class="btn-hd-outline" style="font-size:12px; padding:8px 16px;">
+                <i class="fas fa-filter"></i> Lọc
+            </button>
+        </div>
     </div>
 </form>
 
@@ -56,6 +58,7 @@
                     <th>KHOẢNG THỜI GIAN</th>
                     <th>TỔNG CHI PHÍ</th>
                     <th>TRẠNG THÁI</th>
+                    <th style="text-align:center;">ĐÁNH GIÁ</th>
                 </tr>
             </thead>
             <tbody>
@@ -79,13 +82,30 @@
                     };
                     <tr style="cursor:pointer;" onclick="window.location.href='@Url.Action("ChiTiet", new { id = hd.MaHopDong })'">
                         <td><strong style="color:var(--text-primary);">#HD-@hd.MaHopDong</strong></td>
-                        <td><strong>@hd.Xe.TenXe</strong></td>
+                        <td><strong style="color:var(--text-primary);">@hd.Xe.TenXe</strong></td>
                         <td style="color:var(--text-secondary);">@hd.NgayThue.ToString("dd/MM") - @hd.NgayTra.ToString("dd/MM/yyyy")</td>
                         <td style="color:var(--accent); font-weight:600;">@hd.TongTien.ToString("N0")đ</td>
                         <td>
                             <span style="@statusColor padding:4px 12px; border-radius:16px; font-size:11px; font-weight:600;">
                                 @statusText
                             </span>
+                        </td>
+                        <td style="text-align:center;">
+                            @if (hd.TrangThai == "DaTra")
+                            {
+                                if (hd.DanhGia != null)
+                                {
+                                    <div style="color:#fbbf24; font-size:12px;">
+                                        @for (int i = 0; i < hd.DanhGia.SoSao; i++) { <i class="fas fa-star"></i> }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <a asp-action="DanhGiaTraXe" asp-route-id="@hd.MaHopDong" class="btn-hd-outline" style="padding:4px 12px; font-size:11px; color:green; font-weight:bold;" onclick="event.stopPropagation();">
+                                        Đánh giá
+                                    </a>
+                                }
+                            }
                         </td>
                     </tr>
                 }

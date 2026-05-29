@@ -2,6 +2,22 @@
     ViewData["Title"] = "Giới thiệu";
 }
 
+<style>
+    .core-value-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        padding: 40px 20px;
+        border-radius: 16px;
+        height: 100%;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    .core-value-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(232, 115, 26, 0.2);
+        border-color: var(--accent);
+    }
+</style>
+
 <div class="container-fluid" style="padding:0; margin-top:-24px;">
     <!-- Hero Section -->
     <div style="position:relative; height:600px; background:url('https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=2070') center/cover; display:flex; align-items:center;">
@@ -21,21 +37,21 @@
         </div>
         <div class="row g-4 text-center">
             <div class="col-md-4">
-                <div style="background:var(--bg-card); border:1px solid var(--border-color); padding:40px 20px; border-radius:16px; height:100%;">
+                <div class="core-value-card">
                     <i class="fas fa-motorcycle" style="font-size:48px; color:var(--accent); margin-bottom:24px;"></i>
                     <h4 style="font-weight:600; margin-bottom:16px;">Bộ Sưu Tập Đa Dạng</h4>
                     <p style="color:var(--text-secondary); font-size:14px;">Từ Sport, Cruiser cho đến Touring, chúng tôi cung cấp các dòng xe đời mới nhất từ các thương hiệu danh tiếng.</p>
                 </div>
             </div>
             <div class="col-md-4">
-                <div style="background:var(--bg-card); border:1px solid var(--border-color); padding:40px 20px; border-radius:16px; height:100%;">
+                <div class="core-value-card">
                     <i class="fas fa-shield-alt" style="font-size:48px; color:var(--accent); margin-bottom:24px;"></i>
                     <h4 style="font-weight:600; margin-bottom:16px;">Bảo Hiểm Toàn Diện</h4>
                     <p style="color:var(--text-secondary); font-size:14px;">Mọi chuyến đi đều được bảo vệ với các gói bảo hiểm linh hoạt, mang lại sự an tâm tuyệt đối cho bạn.</p>
                 </div>
             </div>
             <div class="col-md-4">
-                <div style="background:var(--bg-card); border:1px solid var(--border-color); padding:40px 20px; border-radius:16px; height:100%;">
+                <div class="core-value-card">
                     <i class="fas fa-headset" style="font-size:48px; color:var(--accent); margin-bottom:24px;"></i>
                     <h4 style="font-weight:600; margin-bottom:16px;">Hỗ Trợ 24/7</h4>
                     <p style="color:var(--text-secondary); font-size:14px;">Đội ngũ cứu hộ và chăm sóc khách hàng luôn sẵn sàng đồng hành cùng bạn trên mọi nẻo đường.</p>

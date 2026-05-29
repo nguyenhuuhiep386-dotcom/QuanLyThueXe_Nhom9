@@ -25,8 +25,7 @@
                 var imgSrc = anhChinh?.DuongDanAnh ?? "https://via.placeholder.com/700x400?text=No+Image";
             }
             <img src="@imgSrc" class="img-fluid" id="mainImage" alt="@Model.TenXe"
-                 style="width:100%; border-radius:var(--border-radius); height:400px; object-fit:cover; opacity:0; transition: opacity 0.3s;"
-                 onload="this.style.opacity=1" />
+                 style="width:100%; border-radius:var(--border-radius); height:400px; object-fit:cover;" />
         </div>
 
         <h1 style="font-size:28px; font-weight:700; margin:16px 0 4px;">@Model.TenXe</h1>
@@ -121,7 +120,10 @@
                                         </div>
                                         @if (!string.IsNullOrEmpty(dg.NhanXet))
                                         {
-                                            <p style="font-size:13px; color:var(--text-secondary); margin-top:8px; font-style:italic;">"@dg.NhanXet"</p>
+                                            var text = System.Text.RegularExpressions.Regex.Replace(dg.NhanXet, @"\[Ảnh đính kèm: (.*?)\]", "<img src=\"$1\" style=\"width:60px;height:60px;object-fit:cover;border-radius:4px;margin-top:8px;margin-right:8px;\" />");
+                                            <div style="font-size:13px; color:var(--text-secondary); margin-top:8px; font-style:italic;">
+                                                @Html.Raw(text.Replace("\n", "<br/>"))
+                                            </div>
                                         }
                                     </div>
                                 </div>
@@ -192,13 +194,20 @@
                     <span style="color:var(--text-secondary);">Tiền thuê (<span id="calcDays">0</span> ngày)</span>
                     <span id="calcSubtotal">0đ</span>
                 </div>
-                <div class="d-flex justify-content-between" style="font-size:13px; margin-bottom:12px;">
+                <div class="d-flex justify-content-between" style="font-size:13px; margin-bottom:8px;">
                     <span style="color:var(--text-secondary);" id="calcInsuranceName">Bảo hiểm cơ bản</span>
                     <span id="calcInsurancePrice">0đ</span>
+                </div>
+                <div class="d-flex justify-content-between" style="font-size:13px; margin-bottom:12px; display:none;" id="discountRow">
+                    <span style="color:#4ade80;">Giảm giá (Khuyến mãi)</span>
+                    <span style="color:#4ade80;" id="calcDiscount">-0đ</span>
                 </div>
                 <div class="d-flex justify-content-between" style="font-size:16px; font-weight:700;">
                     <span>TỔNG THANH TOÁN</span>
                     <span style="color:var(--accent); font-size:22px;" id="calcTotal">0đ</span>
+                </div>
+                <div style="font-size:11px; color:var(--text-muted); margin-top:8px; text-align:right;">
+                    * Mã khuyến mãi chỉ áp dụng cho tổng tiền thuê, không giảm tiền cọc
                 </div>
             </div>
 
@@ -342,7 +351,7 @@
             }
             
             const insuranceId = document.getElementById('radio-caocap').checked ? 'caocap' : 'coban';
-            window.location.href = `/HopDong/DatXe/@Model.MaXe?ngayNhan=${d1}&ngayTra=${d2}&insurance=${insuranceId}`;
+            window.location.href = `/HopDong/DatXe/@Model.MaXe?ngayNhan=${encodeURIComponent(d1)}&ngayTra=${encodeURIComponent(d2)}&insurance=${insuranceId}`;
         });
     </script>
 }
