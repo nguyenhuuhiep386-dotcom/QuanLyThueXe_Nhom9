@@ -690,3 +690,105 @@ a:hover { color: var(--accent-hover); }
 .avatar-edit:hover {
     transform: scale(1.1);
 }
+
+/* SweetAlert2 Dark Theme Customization */
+.swal2-popup {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+}
+
+.swal2-title {
+    color: var(--text-primary) !important;
+    font-size: 24px !important;
+    font-weight: 700 !important;
+}
+
+.swal2-html-container {
+    color: var(--text-secondary) !important;
+    font-size: 14px !important;
+}
+
+.swal2-input,
+.swal2-textarea,
+.swal2-select {
+    background: var(--bg-dark) !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    font-size: 14px !important;
+}
+
+.swal2-input:focus,
+.swal2-textarea:focus,
+.swal2-select:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px rgba(232, 115, 26, 0.1) !important;
+}
+
+.swal2-confirm {
+    background: var(--accent) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px 24px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+}
+
+.swal2-confirm:hover {
+    background: var(--accent-hover) !important;
+}
+
+.swal2-cancel {
+    background: transparent !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-primary) !important;
+    border-radius: 8px !important;
+    padding: 10px 24px !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
+}
+
+.swal2-cancel:hover {
+    background: var(--bg-card-hover) !important;
+}
+
+.swal2-icon.swal2-success [class^='swal2-success-line'] {
+    background-color: #4ade80 !important;
+}
+
+.swal2-icon.swal2-success .swal2-success-ring {
+    border-color: rgba(74, 222, 128, 0.3) !important;
+}
+
+.swal2-icon.swal2-error {
+    border-color: #f87171 !important;
+    color: #f87171 !important;
+}
+
+.swal2-icon.swal2-warning {
+    border-color: #fbbf24 !important;
+    color: #fbbf24 !important;
+}
+
+.swal2-icon.swal2-info {
+    border-color: #60a5fa !important;
+    color: #60a5fa !important;
+}
+
+.swal2-validation-message {
+    background: var(--bg-dark) !important;
+    color: #f87171 !important;
+    border: 1px solid #f87171 !important;
+}
+
+/* SweetAlert2 Toast */
+.swal2-toast {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}
+
+.swal2-toast .swal2-title {
+    color: var(--text-primary) !important;
+    font-size: 14px !important;
+}

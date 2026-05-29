@@ -3,51 +3,225 @@
 }
 
 <div class="container my-5">
-    <div class="card shadow-lg">
-        <div class="card-body p-5">
-            <!-- Header Hành Chính -->
-            <div class="text-center mb-5">
-                <h2 class="fw-bold text-uppercase mb-2" style="font-size: 1.5rem;">
-                    CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
-                </h2>
-                <p class="fw-bold mb-4" style="font-size: 1.1rem;">
-                    Độc lập - Tự do - Hạnh phúc
-                </p>
-                <hr style="width: 100px; margin: 0 auto; border-top: 2px solid #000;">
+    <div style="background:#fff; color:#111; border-radius:12px; box-shadow:0 4px 24px rgba(0,0,0,0.18); padding:48px 56px;">
+
+        <!-- Header Hành Chính -->
+        <div class="text-center mb-5">
+            <h2 style="font-size:1.4rem; font-weight:700; text-transform:uppercase; color:#111; margin-bottom:8px;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</h2>
+            <p style="font-size:1.1rem; font-weight:700; color:#111; margin-bottom:16px;">Độc lập - Tự do - Hạnh phúc</p>
+            <hr style="width:100px; margin:0 auto; border-top:2px solid #111;">
+        </div>
+
+        <!-- Tiêu đề chính -->
+        <h1 style="text-align:center; font-size:1.6rem; font-weight:700; color:#111; margin-bottom:12px;">CHÍNH SÁCH BẢO MẬT THÔNG TIN</h1>
+        <p style="text-align:center; font-style:italic; color:#555; margin-bottom:8px;">
+            (Ban hành kèm theo Quyết định số 02/2025/QĐ-HDR ngày @DateTime.Now.ToString("dd/MM/yyyy"))
+        </p>
+        <p style="text-align:center; font-style:italic; color:#555; margin-bottom:40px;">
+            Áp dụng trên toàn hệ thống H-D Rental tại Việt Nam
+        </p>
+
+        <!-- Căn cứ pháp lý -->
+        <div style="background:#f8f9fa; border-left:4px solid #333; border-radius:0 8px 8px 0; padding:16px 20px; margin-bottom:32px;">
+            <p style="font-weight:700; margin-bottom:8px; color:#111;">Căn cứ pháp lý:</p>
+            <p style="margin-bottom:6px; color:#333;">- Luật An toàn thông tin mạng số 86/2015/QH13 ngày 19/11/2015;</p>
+            <p style="margin-bottom:6px; color:#333;">- Nghị định số 13/2023/NĐ-CP ngày 17/04/2023 về bảo vệ dữ liệu cá nhân;</p>
+            <p style="margin-bottom:6px; color:#333;">- Luật Giao dịch điện tử số 20/2023/QH15 ngày 22/06/2023;</p>
+            <p style="margin-bottom:6px; color:#333;">- Nghị định số 52/2013/NĐ-CP về thương mại điện tử (được sửa đổi bởi Nghị định 85/2021/NĐ-CP);</p>
+            <p style="margin-bottom:0; color:#333;">- Các quy định pháp luật hiện hành khác có liên quan.</p>
+        </div>
+
+        <!-- Nội dung -->
+        <div style="line-height:2.0; color:#222;">
+
+            <!-- Lời mở đầu -->
+            <p style="text-align:justify; margin-bottom:24px;">
+                H-D Rental ("Chúng tôi") cam kết bảo vệ quyền riêng tư và dữ liệu cá nhân của khách hàng ("Bạn") khi sử dụng dịch vụ tại website <strong>hdrental.vn</strong> và ứng dụng di động H-D Rental. Chính sách bảo mật này mô tả cách chúng tôi thu thập, lưu trữ, sử dụng và bảo vệ thông tin của bạn theo đúng quy định của pháp luật Việt Nam. Vui lòng đọc kỹ trước khi sử dụng dịch vụ.
+            </p>
+
+            <!-- Điều 1 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 1. Phạm vi áp dụng</h4>
+            <p style="text-align:justify; margin-bottom:12px;">
+                Chính sách này áp dụng cho tất cả cá nhân, tổ chức sử dụng dịch vụ thuê xe của H-D Rental thông qua các kênh sau:
+            </p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Website chính thức: <strong>hdrental.vn</strong>;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Ứng dụng di động H-D Rental trên iOS và Android;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) Các điểm giao dịch trực tiếp, hotline và kênh hỗ trợ khách hàng;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">d) Các kênh liên kết, đối tác hợp tác chính thức của H-D Rental.</p>
+
+            <!-- Điều 2 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 2. Thông tin chúng tôi thu thập</h4>
+            <p style="text-align:justify; margin-bottom:12px;"><strong>2.1. Thông tin bạn cung cấp trực tiếp:</strong></p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Thông tin định danh: Họ tên đầy đủ, ngày sinh, giới tính, quốc tịch;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Giấy tờ tùy thân: Số CMND/CCCD/Hộ chiếu, ngày cấp, nơi cấp;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) Giấy phép lái xe: Số GPLX, hạng, ngày cấp, ngày hết hạn;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">d) Thông tin liên lạc: Số điện thoại, địa chỉ email, địa chỉ thường trú/tạm trú;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">e) Thông tin tài chính: Số tài khoản ngân hàng, thông tin thẻ thanh toán (được mã hóa), lịch sử giao dịch.</p>
+
+            <p style="text-align:justify; margin-bottom:12px;"><strong>2.2. Thông tin thu thập tự động:</strong></p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Dữ liệu thiết bị: Địa chỉ IP, loại thiết bị, hệ điều hành, phiên bản trình duyệt;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Dữ liệu hành vi: Lịch sử tìm kiếm, trang đã xem, thời gian truy cập, tần suất sử dụng;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) Dữ liệu vị trí: Vị trí GPS (khi bạn cấp quyền) để hỗ trợ dịch vụ giao/nhận xe;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">d) Cookie và công nghệ theo dõi tương tự (xem chi tiết tại Điều 9).</p>
+
+            <p style="text-align:justify; margin-bottom:12px;"><strong>2.3. Thông tin từ bên thứ ba:</strong></p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Dữ liệu xác minh danh tính từ cơ quan nhà nước có thẩm quyền;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">b) Thông tin từ mạng xã hội khi bạn đăng nhập bằng tài khoản Google, Facebook (chỉ bao gồm tên, email và ảnh đại diện công khai).</p>
+
+            <!-- Điều 3 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 3. Mục đích sử dụng thông tin</h4>
+            <p style="text-align:justify; margin-bottom:12px;">Thông tin của bạn được sử dụng cho các mục đích sau:</p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) <strong>Cung cấp dịch vụ:</strong> Xác thực danh tính, xử lý đặt xe, ký kết và thực hiện hợp đồng thuê xe;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) <strong>Thanh toán:</strong> Xử lý giao dịch thanh toán, hoàn tiền cọc và giải quyết tranh chấp tài chính;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) <strong>Hỗ trợ khách hàng:</strong> Phản hồi yêu cầu, xử lý khiếu nại, hỗ trợ sự cố trong quá trình sử dụng dịch vụ;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">d) <strong>Thông báo dịch vụ:</strong> Gửi xác nhận đơn hàng, nhắc nhở trả xe, thông báo thay đổi chính sách qua email/SMS;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">e) <strong>Marketing (khi có sự đồng ý):</strong> Gửi thông tin khuyến mãi, ưu đãi thành viên phù hợp với sở thích của bạn;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">f) <strong>An toàn và bảo mật:</strong> Phát hiện, ngăn chặn gian lận, lạm dụng dịch vụ và các hành vi vi phạm pháp luật;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">g) <strong>Tuân thủ pháp luật:</strong> Thực hiện nghĩa vụ báo cáo, lưu trữ hồ sơ theo quy định cơ quan nhà nước;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">h) <strong>Cải thiện dịch vụ:</strong> Phân tích dữ liệu ẩn danh để nâng cấp hệ thống, cải thiện trải nghiệm người dùng và phát triển sản phẩm mới.</p>
+
+            <!-- Điều 4 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 4. Cơ sở pháp lý xử lý dữ liệu</h4>
+            <p style="text-align:justify; margin-bottom:12px;">Chúng tôi chỉ xử lý dữ liệu cá nhân của bạn khi có một trong các căn cứ pháp lý sau:</p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) <strong>Sự đồng ý:</strong> Bạn đã cung cấp sự đồng ý rõ ràng cho mục đích xử lý cụ thể (ví dụ: nhận email marketing);</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) <strong>Thực hiện hợp đồng:</strong> Việc xử lý là cần thiết để cung cấp dịch vụ thuê xe mà bạn đã yêu cầu;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) <strong>Nghĩa vụ pháp lý:</strong> Xử lý dữ liệu theo yêu cầu bắt buộc của pháp luật (ví dụ: lưu trữ hồ sơ thuế, báo cáo cơ quan chức năng);</p>
+            <p style="margin-left:20px; margin-bottom:16px;">d) <strong>Lợi ích hợp pháp:</strong> Xử lý cần thiết để bảo vệ lợi ích hợp pháp của H-D Rental mà không xâm phạm quyền lợi cơ bản của bạn (ví dụ: phòng chống gian lận).</p>
+
+            <!-- Điều 5 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 5. Bảo mật và bảo vệ dữ liệu</h4>
+            <p style="text-align:justify; margin-bottom:12px;"><strong>5.1. Biện pháp kỹ thuật:</strong></p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Mã hóa dữ liệu truyền tải bằng giao thức SSL/TLS 1.3 tiêu chuẩn quốc tế;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Mã hóa dữ liệu lưu trữ (AES-256) cho thông tin nhạy cảm như thông tin thanh toán, giấy tờ tùy thân;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) Hệ thống tường lửa (firewall) và phát hiện xâm nhập (IDS/IPS) nhiều lớp;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">d) Sao lưu dữ liệu tự động hàng ngày tại nhiều trung tâm dữ liệu độc lập;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">e) Kiểm tra bảo mật định kỳ và kiểm tra thâm nhập (penetration testing) hàng năm.</p>
+
+            <p style="text-align:justify; margin-bottom:12px;"><strong>5.2. Biện pháp tổ chức:</strong></p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Hạn chế quyền truy cập dữ liệu theo nguyên tắc "tối thiểu cần thiết" (least privilege);</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Đào tạo nhân viên về bảo mật thông tin và ký cam kết bảo mật;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) Quy trình xử lý sự cố rò rỉ dữ liệu với thời gian phản hồi tối đa 72 giờ;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">d) Chỉ định Nhân viên Bảo vệ Dữ liệu (DPO) chịu trách nhiệm giám sát tuân thủ.</p>
+
+            <p style="text-align:justify; margin-bottom:16px;"><strong>5.3.</strong> Mặc dù chúng tôi áp dụng mọi biện pháp bảo mật hợp lý, không có hệ thống nào có thể đảm bảo an toàn tuyệt đối 100%. Chúng tôi khuyến khích bạn bảo vệ thông tin đăng nhập cá nhân và không chia sẻ mật khẩu với người khác.</p>
+
+            <!-- Điều 6 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 6. Chia sẻ thông tin với bên thứ ba</h4>
+            <p style="text-align:justify; margin-bottom:12px;">Chúng tôi cam kết không bán, cho thuê hoặc trao đổi thông tin cá nhân của bạn. Tuy nhiên, chúng tôi có thể chia sẻ thông tin trong các trường hợp sau:</p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) <strong>Đối tác cung cấp dịch vụ:</strong> Các đơn vị hỗ trợ vận hành như cổng thanh toán (VNPay, Momo, VNPT Pay), đơn vị gửi email/SMS, dịch vụ lưu trữ đám mây – các đơn vị này bị ràng buộc bảo mật bằng hợp đồng và không được sử dụng dữ liệu ngoài mục đích ủy thác;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) <strong>Cơ quan nhà nước:</strong> Khi có yêu cầu hợp pháp từ cơ quan công an, tòa án hoặc cơ quan nhà nước có thẩm quyền theo quy định pháp luật;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) <strong>Bảo vệ quyền lợi hợp pháp:</strong> Khi cần thiết để điều tra, ngăn chặn hành vi gian lận, vi phạm hợp đồng hoặc bảo vệ quyền lợi của H-D Rental, nhân viên và khách hàng;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">d) <strong>Chuyển nhượng doanh nghiệp:</strong> Trong trường hợp sáp nhập, mua lại hoặc tái cơ cấu, dữ liệu có thể được chuyển giao với điều kiện bên nhận tiếp tục áp dụng chính sách bảo mật tương đương;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">e) <strong>Có sự đồng ý của bạn:</strong> Trong các trường hợp khác khi bạn đã đồng ý rõ ràng bằng văn bản.</p>
+
+            <!-- Điều 7 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 7. Chuyển dữ liệu ra nước ngoài</h4>
+            <p style="text-align:justify; margin-bottom:12px;">
+                Trong một số trường hợp, dữ liệu cá nhân của bạn có thể được lưu trữ hoặc xử lý tại máy chủ đặt ngoài lãnh thổ Việt Nam (ví dụ: dịch vụ đám mây quốc tế). Trong trường hợp này:
+            </p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Chúng tôi chỉ chuyển dữ liệu sang các quốc gia có mức độ bảo vệ dữ liệu tương đương hoặc cao hơn Việt Nam;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Mọi giao dịch chuyển dữ liệu đều có hợp đồng bảo vệ dữ liệu ràng buộc bên nhận;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">c) Chúng tôi thực hiện đánh giá tác động bảo vệ dữ liệu trước mỗi lần chuyển giao theo yêu cầu của Nghị định 13/2023/NĐ-CP.</p>
+
+            <!-- Điều 8 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 8. Thời gian lưu trữ dữ liệu</h4>
+            <p style="text-align:justify; margin-bottom:12px;">Chúng tôi lưu trữ dữ liệu cá nhân trong các khoảng thời gian sau:</p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) <strong>Hồ sơ hợp đồng thuê xe:</strong> Tối thiểu 5 năm kể từ ngày kết thúc hợp đồng theo quy định pháp luật về lưu trữ;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) <strong>Thông tin tài chính/hóa đơn:</strong> 10 năm theo Luật Kế toán và Luật Thuế;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) <strong>Tài khoản không hoạt động:</strong> Sau 3 năm không sử dụng, chúng tôi sẽ thông báo trước 30 ngày và xóa hoặc ẩn danh hóa dữ liệu nếu không có phản hồi;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">d) <strong>Dữ liệu marketing:</strong> Cho đến khi bạn rút lại sự đồng ý hoặc yêu cầu xóa;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">e) <strong>Nhật ký hệ thống (logs):</strong> Tối đa 12 tháng phục vụ mục đích bảo mật và kiểm toán.</p>
+            <p style="text-align:justify; margin-bottom:16px;">Sau khi hết thời hạn lưu trữ, dữ liệu sẽ được xóa an toàn hoặc ẩn danh hóa không thể truy nguyên.</p>
+
+            <!-- Điều 9 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 9. Cookie và công nghệ theo dõi</h4>
+            <p style="text-align:justify; margin-bottom:12px;">Website H-D Rental sử dụng cookie và các công nghệ tương tự để cải thiện trải nghiệm của bạn:</p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) <strong>Cookie bắt buộc:</strong> Cần thiết để website hoạt động (đăng nhập, giỏ hàng, bảo mật phiên). Không thể tắt;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) <strong>Cookie chức năng:</strong> Ghi nhớ tùy chỉnh của bạn (ngôn ngữ, khu vực). Có thể tắt nhưng ảnh hưởng đến trải nghiệm;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) <strong>Cookie phân tích:</strong> Thu thập dữ liệu ẩn danh về cách sử dụng website (Google Analytics). Bạn có thể từ chối;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">d) <strong>Cookie marketing:</strong> Phục vụ quảng cáo cá nhân hóa. Chỉ kích hoạt khi bạn đồng ý.</p>
+            <p style="text-align:justify; margin-bottom:16px;">Bạn có thể quản lý cookie thông qua cài đặt trình duyệt hoặc tại trang <strong>Cài đặt Cookie</strong> trên website của chúng tôi.</p>
+
+            <!-- Điều 10 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 10. Quyền của khách hàng đối với dữ liệu cá nhân</h4>
+            <p style="text-align:justify; margin-bottom:12px;">Theo Nghị định 13/2023/NĐ-CP, bạn có các quyền sau đây:</p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) <strong>Quyền được biết:</strong> Được thông báo về việc dữ liệu cá nhân được xử lý như thế nào;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) <strong>Quyền đồng ý:</strong> Quyết định đồng ý hay không đồng ý cho phép xử lý dữ liệu cá nhân;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) <strong>Quyền truy cập:</strong> Yêu cầu xem, tra cứu thông tin cá nhân chúng tôi đang lưu trữ;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">d) <strong>Quyền chỉnh sửa:</strong> Yêu cầu cập nhật, sửa đổi dữ liệu không chính xác hoặc không đầy đủ;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">e) <strong>Quyền xóa dữ liệu:</strong> Yêu cầu xóa dữ liệu cá nhân (ngoại trừ trường hợp pháp luật yêu cầu lưu trữ);</p>
+            <p style="margin-left:20px; margin-bottom:8px;">f) <strong>Quyền hạn chế xử lý:</strong> Yêu cầu tạm dừng xử lý dữ liệu trong khi xem xét khiếu nại;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">g) <strong>Quyền phản đối:</strong> Từ chối việc xử lý dữ liệu cho mục đích marketing trực tiếp;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">h) <strong>Quyền di chuyển dữ liệu:</strong> Nhận bản sao dữ liệu cá nhân ở định dạng có thể đọc được (CSV, JSON);</p>
+            <p style="margin-left:20px; margin-bottom:8px;">i) <strong>Quyền rút lại đồng ý:</strong> Rút lại sự đồng ý bất cứ lúc nào mà không ảnh hưởng đến tính hợp pháp của việc xử lý trước đó;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">j) <strong>Quyền khiếu nại:</strong> Gửi khiếu nại đến Cục An toàn thông tin (Bộ Thông tin và Truyền thông) nếu cho rằng quyền lợi bị vi phạm.</p>
+            <p style="text-align:justify; margin-bottom:16px;">Để thực hiện các quyền trên, vui lòng liên hệ theo thông tin tại <strong>Điều 13</strong>. Chúng tôi sẽ phản hồi trong vòng <strong>30 ngày làm việc</strong> kể từ ngày nhận được yêu cầu hợp lệ.</p>
+
+            <!-- Điều 11 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 11. Bảo mật tài khoản người dùng</h4>
+            <p style="text-align:justify; margin-bottom:12px;">Để bảo vệ tài khoản của bạn, H-D Rental khuyến nghị:</p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Sử dụng mật khẩu mạnh (tối thiểu 8 ký tự, kết hợp chữ hoa, chữ thường, số và ký tự đặc biệt);</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Kích hoạt xác thực hai yếu tố (2FA) qua SMS hoặc ứng dụng Authenticator;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) Không đăng nhập trên thiết bị công cộng hoặc mạng WiFi không bảo mật;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">d) Đăng xuất sau mỗi phiên sử dụng trên thiết bị dùng chung;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">e) Thông báo ngay cho chúng tôi qua hotline <strong>1900-xxxx</strong> nếu nghi ngờ tài khoản bị xâm phạm.</p>
+            <p style="text-align:justify; margin-bottom:16px;">H-D Rental không bao giờ gửi email hoặc tin nhắn yêu cầu bạn cung cấp mật khẩu. Nếu nhận được yêu cầu như vậy, đây là dấu hiệu lừa đảo – vui lòng bỏ qua và báo cáo cho chúng tôi.</p>
+
+            <!-- Điều 12 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 12. Xử lý vi phạm và sự cố bảo mật</h4>
+            <p style="text-align:justify; margin-bottom:12px;">Trong trường hợp xảy ra sự cố rò rỉ dữ liệu:</p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Chúng tôi sẽ thực hiện các biện pháp ngăn chặn và khắc phục ngay lập tức;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Thông báo cho Cục An toàn thông tin (Bộ TT&TT) trong vòng 72 giờ theo quy định;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) Thông báo cho khách hàng bị ảnh hưởng qua email/SMS trong thời gian sớm nhất có thể;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">d) Nội dung thông báo sẽ bao gồm: bản chất sự cố, dữ liệu bị ảnh hưởng, hành động đã thực hiện và hướng dẫn bảo vệ cho khách hàng.</p>
+
+            <!-- Điều 13 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 13. Thông tin liên hệ</h4>
+            <p style="text-align:justify; margin-bottom:12px;">Mọi thắc mắc, yêu cầu hoặc khiếu nại liên quan đến chính sách bảo mật, vui lòng liên hệ:</p>
+            <div style="background:#f8f9fa; border-radius:8px; padding:20px 24px; margin-bottom:16px;">
+                <p style="margin-bottom:8px;"><strong>Công ty TNHH H-D Rental</strong></p>
+                <p style="margin-bottom:8px;"><i class="fas fa-map-marker-alt" style="width:20px;"></i> <strong>Địa chỉ:</strong> [Địa chỉ trụ sở chính], Việt Nam</p>
+                <p style="margin-bottom:8px;"><i class="fas fa-envelope" style="width:20px;"></i> <strong>Email bảo mật:</strong> privacy@@hdrental.vn</p>
+                <p style="margin-bottom:8px;"><i class="fas fa-phone" style="width:20px;"></i> <strong>Hotline:</strong> 1900-xxxx (8:00 – 22:00, tất cả các ngày trong tuần)</p>
+                <p style="margin-bottom:0;"><i class="fas fa-user-shield" style="width:20px;"></i> <strong>Nhân viên Bảo vệ Dữ liệu (DPO):</strong> dpo@@hdrental.vn</p>
             </div>
+            <p style="text-align:justify; margin-bottom:16px;">Thời gian phản hồi: tối đa <strong>30 ngày làm việc</strong> đối với yêu cầu thông thường, <strong>72 giờ</strong> đối với sự cố bảo mật khẩn cấp.</p>
 
-            <!-- Tiêu đề chính -->
-            <h1 class="text-center mb-4 fw-bold">CHÍNH SÁCH BẢO MẬT</h1>
+            <!-- Điều 14 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 14. Cập nhật chính sách</h4>
+            <p style="text-align:justify; margin-bottom:12px;">H-D Rental có quyền cập nhật Chính sách bảo mật này để phù hợp với thay đổi của pháp luật hoặc hoạt động kinh doanh. Khi có thay đổi:</p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Phiên bản mới sẽ được đăng tải trên website với ngày cập nhật rõ ràng;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Đối với thay đổi quan trọng ảnh hưởng đến quyền lợi của bạn, chúng tôi sẽ thông báo qua email đã đăng ký tối thiểu <strong>15 ngày</strong> trước khi có hiệu lực;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">c) Việc bạn tiếp tục sử dụng dịch vụ sau ngày hiệu lực được xem là đồng ý với phiên bản chính sách mới.</p>
 
-            <!-- Nội dung -->
-            <div class="content-text">
-                <p>Bảo mật thông tin của khách hàng là ưu tiên hàng đầu của chúng tôi tại H-D Rental. Chúng tôi cam kết bảo vệ dữ liệu cá nhân của bạn theo đúng quy định của pháp luật.</p>
+            <!-- Điều 15 -->
+            <h4 style="color:#111; margin:28px 0 12px; font-weight:700; border-bottom:1px solid #ddd; padding-bottom:8px;">Điều 15. Hiệu lực thi hành</h4>
+            <p style="text-align:justify; margin-bottom:16px;">Chính sách bảo mật này có hiệu lực kể từ ngày <strong>@DateTime.Now.ToString("dd/MM/yyyy")</strong> và thay thế mọi chính sách bảo mật trước đó của H-D Rental. Trong trường hợp có mâu thuẫn giữa chính sách này với hợp đồng cụ thể đã ký với khách hàng, các điều khoản trong hợp đồng sẽ được ưu tiên áp dụng.</p>
 
-                <h4 style="color:var(--text-primary); margin:24px 0 12px; font-weight:600;">1. Thu thập thông tin</h4>
-                <p>Chúng tôi chỉ thu thập các thông tin cần thiết cho quá trình thuê xe, bao gồm họ tên, số điện thoại, địa chỉ email và thông tin giấy tờ tùy thân.</p>
+        </div>
 
-                <h4 style="color:var(--text-primary); margin:24px 0 12px; font-weight:600;">2. Sử dụng thông tin</h4>
-                <p>Thông tin của bạn được sử dụng để xác thực danh tính, xử lý hợp đồng thuê xe, và hỗ trợ bạn trong suốt quá trình sử dụng dịch vụ.</p>
-                
-                <h4 style="color:var(--text-primary); margin:24px 0 12px; font-weight:600;">3. Bảo vệ dữ liệu</h4>
-                <p>H-D Rental sử dụng công nghệ mã hóa an toàn để đảm bảo thông tin của bạn không bị rò rỉ hay truy cập trái phép.</p>
-
-                <h4 style="color:var(--text-primary); margin:24px 0 12px; font-weight:600;">4. Chia sẻ thông tin</h4>
-                <p>Chúng tôi cam kết không chia sẻ thông tin cá nhân của bạn với bên thứ ba trừ khi có yêu cầu từ cơ quan pháp luật hoặc được sự đồng ý của bạn.</p>
-
-                <h4 style="color:var(--text-primary); margin:24px 0 12px; font-weight:600;">5. Quyền của khách hàng</h4>
-                <p>Bạn có quyền yêu cầu truy cập, chỉnh sửa hoặc xóa thông tin cá nhân của mình bất cứ lúc nào bằng cách liên hệ với chúng tôi.</p>
-
-                <h4 style="color:var(--text-primary); margin:24px 0 12px; font-weight:600;">6. Liên hệ</h4>
-                <p>Nếu bạn có bất kỳ câu hỏi nào về chính sách bảo mật, vui lòng liên hệ với chúng tôi qua email: privacy@hdrental.vn hoặc hotline: 1900-xxxx.</p>
-            </div>
-
-            <!-- Footer -->
-            <div class="text-center mt-5">
-                <p style="font-size: 0.9rem; color: var(--text-muted);">
-                    <i class="fas fa-calendar-alt"></i> Cập nhật lần cuối: @DateTime.Now.ToString("dd/MM/yyyy")
-                </p>
+        <!-- Chữ ký -->
+        <div class="row mt-5">
+            <div class="col-md-6 text-center">
+                <p style="font-style:italic; color:#555; margin-bottom:4px;">Hà Nội, ngày @DateTime.Now.ToString("dd") tháng @DateTime.Now.ToString("MM") năm @DateTime.Now.ToString("yyyy")</p>
+                <p style="font-weight:700; text-transform:uppercase; margin-bottom:60px;">Đại diện H-D Rental</p>
+                <p style="font-weight:700;">[Họ và tên]</p>
+                <p style="color:#555;">Giám đốc / Người đại diện theo pháp luật</p>
             </div>
         </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-4">
+            <hr style="border-top:1px solid #ddd; margin-bottom:20px;">
+            <p style="font-size:0.85rem; color:#888; margin-bottom:4px;">
+                <i class="fas fa-shield-alt"></i> H-D Rental cam kết bảo vệ quyền riêng tư của bạn
+            </p>
+            <p style="font-size:0.85rem; color:#777;">
+                <i class="fas fa-calendar-alt"></i> Cập nhật lần cuối: @DateTime.Now.ToString("dd/MM/yyyy") &nbsp;|&nbsp;
+                Phiên bản: 2.0 &nbsp;|&nbsp;
+                <a href="/privacy-policy/history" style="color:#555;">Xem lịch sử thay đổi</a>
+            </p>
+        </div>
+
     </div>
 </div>
