@@ -18,19 +18,22 @@
                 <label class="form-label small text-muted fw-bold">Trạng thái</label>
                 <select name="trangThai" class="form-select bg-dark border-secondary text-white p-2">
                     <option value="">Tất cả</option>
-                    <option value="ChoXacNhan">Chờ xác nhận</option>
-                    <option value="DangThue">Đang thuê</option>
-                    <option value="HoanThanh">Đã hoàn thành</option>
+                    <option value="ChoXacNhan" selected="@(Context.Request.Query["trangThai"] == "ChoXacNhan")">Chờ xác nhận</option>
+                    <option value="DangThue" selected="@(Context.Request.Query["trangThai"] == "DangThue")">Đang thuê</option>
+                    <option value="DaTra" selected="@(Context.Request.Query["trangThai"] == "DaTra")">Đã hoàn thành (Đã trả xe)</option>
                 </select>
             </div>
+
             <div class="col-md-3">
                 <label class="form-label small text-muted fw-bold">Từ ngày</label>
-                <input type="date" name="tuNgay" class="form-control bg-dark border-secondary text-white p-2" />
+                <input type="date" name="tuNgay" value="@Context.Request.Query["tuNgay"]" class="form-control bg-dark border-secondary text-white p-2" />
             </div>
+
             <div class="col-md-3">
                 <label class="form-label small text-muted fw-bold">Đến ngày</label>
-                <input type="date" name="denNgay" class="form-control bg-dark border-secondary text-white p-2" />
+                <input type="date" name="denNgay" value="@Context.Request.Query["denNgay"]" class="form-control bg-dark border-secondary text-white p-2" />
             </div>
+
             <div class="col-md-3">
                 <button type="submit" class="btn btn-outline-secondary text-white w-100 p-2" style="background-color: #2A2A2A; border: none;">
                     Lọc kết quả
@@ -73,7 +76,7 @@
 
                                 <td class="py-3 px-3 text-muted">@(item.Xe?.TenXe ?? "Không rõ")</td>
                                 <td class="py-3 px-3">
-                                    <div class="text-white">@item.NgayThue.ToString("dd/MM") - @item.NgayTra.ToString("dd/MM")</div>
+                                    <div class="text-white">@item.NgayThue.ToString("dd/MM/yy") - @item.NgayTra.ToString("dd/MM/yy")</div>
                                     <div class="small text-muted">
                                         @((item.NgayTra - item.NgayThue).Days) ngày
                                     </div>
@@ -100,11 +103,26 @@
                                         <a asp-action="Details" asp-route-id="@item.MaHopDong" class="text-muted text-decoration-none hover-white" title="Xem chi tiết">
                                             <i class="fa-regular fa-eye"></i>
                                         </a>
+
                                         @if (item.TrangThai == "ChoXacNhan")
                                         {
-                                            <a asp-action="Approve" asp-route-id="@item.MaHopDong" class="text-muted text-decoration-none hover-white" title="Xác nhận">
-                                                <i class="fa-regular fa-circle-check"></i>
-                                            </a>
+                                            @* KIỂM TRA ĐIỀU KIỆN ĐỦ: Có tài liệu và tiền cọc *@
+                                            @if (item.TaiLieus != null && item.TaiLieus.Count >= 4 && item.TongTien > 0)
+                                            {
+                                                <form asp-action="XacNhan" asp-route-id="@item.MaHopDong" method="post" class="d-inline">
+                                                    <button type="submit" class="btn p-0 border-0 bg-transparent text-success hover-white" title="Xác nhận">
+                                                        <i class="fa-solid fa-circle-check fs-5"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                            else
+                                            {
+                                                @* Nút bị khóa, hiện màu xám *@
+                                                <button type="button" class="btn p-0 border-0 bg-transparent text-muted"
+                                                        title="Hợp đồng chưa đủ giấy tờ hoặc chưa đặt cọc" disabled>
+                                                    <i class="fa-solid fa-circle-check fs-5"></i>
+                                                </button>
+                                            }
                                         }
                                     </div>
                                 </td>

@@ -1,0 +1,435 @@
+@model QuanLyThueXe.Models.HopDong
+
+@{
+    ViewData["Title"] = "Thanh toán Đặt cọc";
+    var soNgay = (Model.NgayTra - Model.NgayThue).Days;
+    if (soNgay < 1) soNgay = 1;
+    var datCoc = Model.TongTien * 0.5m;
+    var anhXe = Model.Xe?.HinhAnhs?.FirstOrDefault(a => a.IsAnhChinh)?.DuongDanAnh
+             ?? Model.Xe?.HinhAnhs?.FirstOrDefault()?.DuongDanAnh;
+}
+
+<div class="container-fluid py-4 px-4" style="max-width: 1100px;">
+
+    @* Breadcrumb *@
+    <nav class="mb-2" style="font-size:0.82rem;">
+        <a asp-action="Index" class="text-muted text-decoration-none hover-white">Hợp đồng</a>
+        <span class="text-muted mx-2">›</span>
+        <a asp-action="Details" asp-route-id="@Model.MaHopDong" class="text-muted text-decoration-none hover-white">HD-@Model.MaHopDong.ToString("D4")</a>
+        <span class="text-muted mx-2">›</span>
+        <a asp-action="XacNhanGiayTo" asp-route-id="@Model.MaHopDong" class="text-muted text-decoration-none hover-white">Xác nhận Giấy tờ</a>
+        <span class="text-muted mx-2">›</span>
+        <span class="text-white">Thanh toán Đặt cọc</span>
+    </nav>
+
+    @* Header *@
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a asp-action="XacNhanGiayTo" asp-route-id="@Model.MaHopDong" class="btn-icon-back">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div>
+            <h3 class="fw-bold text-white mb-0">Thanh toán Đặt cọc Hợp đồng</h3>
+            <p class="text-muted small mb-0">Vui lòng hoàn tất khoản đặt cọc để kích hoạt hợp đồng thuê xe.</p>
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert mb-3" style="background:rgba(220,53,69,0.1);border:1px solid rgba(220,53,69,0.3);color:#dc3545;border-radius:10px;">
+            <i class="fa-solid fa-circle-xmark me-2"></i>@TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="row g-4">
+
+        @* ── CỘT TRÁI ── *@
+        <div class="col-md-7">
+
+            @* Tổng tiền đặt cọc *@
+            <div class="pay-hero mb-4">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div class="pay-label mb-1">TỔNG TIỀN ĐẶT CỌC</div>
+                        <div class="pay-amount">@datCoc.ToString("N0")đ</div>
+                    </div>
+                    <span class="secure-badge">
+                        <i class="fa-solid fa-lock me-1" style="font-size:0.7rem;"></i> SECURE DEPOSIT
+                    </span>
+                </div>
+                <div class="pay-breakdown mt-3">
+                    <div class="pay-row">
+                        <span>Phí thuê xe dự kiến</span>
+                        <span>@Model.GiaThueGoc.ToString("N0")đ / ngày</span>
+                    </div>
+                    <div class="pay-row">
+                        <span>Thời gian thuê</span>
+                        <span>@soNgay ngày</span>
+                    </div>
+                    @if (Model.HeSoMua != 1.00m)
+                    {
+                        <div class="pay-row">
+                            <span>Hệ số mùa vụ</span>
+                            <span class="text-warning">× @Model.HeSoMua</span>
+                        </div>
+                    }
+                    <div class="pay-row pay-row-total">
+                        <span>Tổng thuê xe</span>
+                        <span class="text-orange">@Model.TongTien.ToString("N0")đ</span>
+                    </div>
+                </div>
+            </div>
+
+            @* Phương thức thanh toán *@
+            <div class="panel-box mb-4">
+                <div class="panel-title mb-3">Phương thức thanh toán</div>
+
+                <div class="payment-methods mb-4" id="paymentMethods">
+                    <label class="pay-method active" data-method="TheNganHang">
+                        <input type="radio" name="phuongThuc" value="TheNganHang" checked hidden />
+                        <i class="fa-regular fa-credit-card pay-method-icon"></i>
+                        <span>Thẻ Tín dụng</span>
+                    </label>
+                    <label class="pay-method" data-method="ChuyenKhoan">
+                        <input type="radio" name="phuongThuc" value="ChuyenKhoan" hidden />
+                        <i class="fa-solid fa-qrcode pay-method-icon"></i>
+                        <span>Chuyển khoản (QR)</span>
+                    </label>
+                    <label class="pay-method" data-method="TienMat">
+                        <input type="radio" name="phuongThuc" value="TienMat" hidden />
+                        <i class="fa-solid fa-money-bill-wave pay-method-icon"></i>
+                        <span>Tiền mặt</span>
+                    </label>
+                    <label class="pay-method" data-method="Vi_MoMo">
+                        <input type="radio" name="phuongThuc" value="Vi_MoMo" hidden />
+                        <i class="fa-solid fa-wallet pay-method-icon"></i>
+                        <span>MoMo</span>
+                    </label>
+                </div>
+
+                @* Form thẻ tín dụng *@
+                <div id="formThe">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="field-label">Tên trên thẻ</label>
+                            <input type="text" class="dark-input w-100"
+                                   placeholder="NGUYEN VAN A"
+                                   value="@(Model.KhachHang?.HoTen?.ToUpper() ?? "")" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="field-label">Số thẻ</label>
+                            <input type="text" class="dark-input w-100"
+                                   placeholder="**** **** **** 1234"
+                                   maxlength="19" id="cardNumber" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="field-label">Ngày hết hạn</label>
+                            <input type="text" class="dark-input w-100" placeholder="MM/YY" maxlength="5" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="field-label">CVV</label>
+                            <input type="password" class="dark-input w-100" placeholder="•••" maxlength="3" />
+                        </div>
+                    </div>
+                </div>
+
+                @* QR Code *@
+                <div id="formQR" style="display:none; text-align:center; padding:16px 0;">
+                    <div class="qr-box mx-auto">
+                        <i class="fa-solid fa-qrcode" style="font-size:5rem; color:#444;"></i>
+                        <p class="text-muted small mt-3 mb-0">Quét mã QR để chuyển khoản</p>
+                        <p class="text-white fw-semibold mt-1">@datCoc.ToString("N0") VNĐ</p>
+                    </div>
+                </div>
+
+                @* Tiền mặt *@
+                <div id="formTienMat" style="display:none;">
+                    <div class="cash-info">
+                        <i class="fa-solid fa-circle-info me-2" style="color:#FF7A00;"></i>
+                        <span>Nhân viên sẽ thu tiền mặt trực tiếp tại quầy. Vui lòng chuẩn bị đúng số tiền <strong class="text-white">@datCoc.ToString("N0") VNĐ</strong>.</span>
+                    </div>
+                </div>
+
+                @* MoMo *@
+                <div id="formMoMo" style="display:none;">
+                    <div class="cash-info" style="border-color:rgba(168,15,122,0.3); background:rgba(168,15,122,0.06);">
+                        <i class="fa-solid fa-mobile-screen-button me-2" style="color:#a80f7a;"></i>
+                        <span>Nhập số điện thoại MoMo để nhận yêu cầu thanh toán.</span>
+                    </div>
+                    <div class="mt-3">
+                        <label class="field-label">Số điện thoại MoMo</label>
+                        <input type="text" class="dark-input w-100"
+                               placeholder="0901234567"
+                               value="@(Model.KhachHang?.SoDienThoai ?? "")" />
+                    </div>
+                </div>
+
+            </div>
+
+            @* Chính sách hoàn trả *@
+            <div class="policy-box">
+                <i class="fa-solid fa-circle-info policy-icon"></i>
+                <div>
+                    <div class="policy-title">Chính sách Hoàn trả Tiền cọc</div>
+                    <div class="policy-text">
+                        Khoản tiền đặt cọc @datCoc.ToString("N0")đ sẽ được hoàn trả đầy đủ trong vòng 24 giờ
+                        làm việc sau khi xe được bàn giao lại và hoàn tất quá trình kiểm tra tình trạng kỹ thuật.
+                        Nếu có phát sinh hư hỏng hoặc vi phạm hợp đồng, chi phí sẽ được khấu trừ trực tiếp
+                        từ khoản cọc này.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        @* ── CỘT PHẢI ── *@
+        <div class="col-md-5">
+            <div class="panel-box sticky-top" style="top:20px;">
+
+                @* Ảnh xe *@
+                <div class="xe-img-wrap mb-3">
+                    @if (!string.IsNullOrEmpty(anhXe))
+                    {
+                        <img src="@anhXe" alt="@Model.Xe?.TenXe"
+                             style="width:100%; height:180px; object-fit:cover; border-radius:8px;" />
+                    }
+                    else
+                    {
+                        <div style="width:100%; height:180px; background:#161616; border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                            <i class="fa-solid fa-motorcycle text-muted" style="font-size:3rem;"></i>
+                        </div>
+                    }
+                    <div class="xe-label">
+                        <span class="text-muted small" style="font-size:0.7rem; letter-spacing:0.06em;">ĐẦU XE THUÊ</span>
+                        <div class="text-white fw-bold" style="font-size:1.1rem;">@(Model.Xe?.TenXe ?? "—")</div>
+                    </div>
+                </div>
+
+                @* Thông tin xe *@
+                <div class="xe-info-grid mb-4">
+                    <div class="xe-info-row">
+                        <span><i class="fa-regular fa-calendar me-2 text-muted"></i>Bắt đầu:</span>
+                        <span class="text-white">@Model.NgayThue.ToString("dd/MM/yyyy")</span>
+                    </div>
+                    <div class="xe-info-row">
+                        <span><i class="fa-regular fa-calendar-check me-2 text-muted"></i>Kết thúc:</span>
+                        <span class="text-white">@Model.NgayTra.ToString("dd/MM/yyyy")</span>
+                    </div>
+                    <div class="xe-info-row">
+                        <span><i class="fa-solid fa-gauge-high me-2 text-muted"></i>Giới hạn:</span>
+                        <span class="text-white">Không giới hạn</span>
+                    </div>
+                    <div class="xe-info-row">
+                        <span><i class="fa-solid fa-hashtag me-2 text-muted"></i>Biển số:</span>
+                        <span class="text-white">@(Model.Xe?.BienSo ?? "—")</span>
+                    </div>
+                </div>
+
+                @* Checkbox đồng ý *@
+                <label class="agree-check mb-4">
+                    <input type="checkbox" id="agreeCheck" />
+                    <span class="agree-text">
+                        Tôi xác nhận đã đọc và đồng ý với các điều khoản đặt cọc và
+                        chính sách hoàn tiền của MotoGuard.
+                    </span>
+                </label>
+
+                @* Form submit *@
+                <form asp-action="XacNhan" asp-route-id="@Model.MaHopDong" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="soTienDatCoc" value="@datCoc" />
+                    <input type="hidden" name="phuongThucTT" id="hiddenPhuongThuc" value="TheNganHang" />
+
+                    <button type="submit" class="btn-confirm w-100 mb-3" id="btnConfirm" disabled>
+                        <i class="fa-solid fa-circle-check me-2"></i>
+                        XÁC NHẬN & HOÀN TẤT HỢP ĐỒNG
+                    </button>
+                </form>
+
+                <a asp-action="XacNhanGiayTo" asp-route-id="@Model.MaHopDong"
+                   class="btn-back-link w-100 text-center d-block">
+                    Quay lại Chỉnh sửa Thông tin
+                </a>
+
+                <div class="secure-footer mt-3">
+                    <i class="fa-solid fa-shield-halved me-1"></i>
+                    GIAO DỊCH ĐƯỢC BẢO MẬT BỞI HD-VAULT
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Payment method switching
+    document.querySelectorAll('.pay-method').forEach(function(label) {
+        label.addEventListener('click', function() {
+            document.querySelectorAll('.pay-method').forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+            var method = this.dataset.method;
+            document.getElementById('hiddenPhuongThuc').value = method;
+            document.getElementById('formThe').style.display    = method === 'TheNganHang' ? '' : 'none';
+            document.getElementById('formQR').style.display     = method === 'ChuyenKhoan' ? '' : 'none';
+            document.getElementById('formTienMat').style.display = method === 'TienMat'    ? '' : 'none';
+            document.getElementById('formMoMo').style.display   = method === 'Vi_MoMo'    ? '' : 'none';
+        });
+    });
+
+    // Enable confirm button only when checkbox checked
+    document.getElementById('agreeCheck').addEventListener('change', function() {
+        document.getElementById('btnConfirm').disabled = !this.checked;
+    });
+
+    // Card number formatting
+    var cardInput = document.getElementById('cardNumber');
+    if (cardInput) {
+        cardInput.addEventListener('input', function() {
+            var v = this.value.replace(/\D/g,'').substring(0,16);
+            this.value = v.replace(/(.{4})/g,'$1 ').trim();
+        });
+    }
+</script>
+}
+
+<style>
+    .hover-white:hover { color: #fff !important; }
+
+    .btn-icon-back {
+        width:36px; height:36px; background:#2A2A2A; border:none;
+        border-radius:8px; color:#aaa; display:flex; align-items:center;
+        justify-content:center; text-decoration:none; flex-shrink:0;
+        transition:all 0.2s;
+    }
+    .btn-icon-back:hover { background:#333; color:#fff; }
+
+    .text-orange { color:#FF7A00; }
+
+    /* Pay hero */
+    .pay-hero {
+        background: linear-gradient(135deg, #1E1E1E 0%, #222 100%);
+        border: 1px solid #2A2A2A; border-radius: 12px; padding: 24px;
+    }
+    .pay-label {
+        font-size:0.7rem; font-weight:700; letter-spacing:0.1em;
+        color:#666; text-transform:uppercase;
+    }
+    .pay-amount { font-size:2.2rem; font-weight:800; color:#fff; line-height:1.1; }
+    .secure-badge {
+        background:rgba(25,135,84,0.12); color:#198754;
+        border:1px solid rgba(25,135,84,0.25); border-radius:20px;
+        font-size:0.7rem; font-weight:700; letter-spacing:0.06em;
+        padding:4px 12px; white-space:nowrap;
+    }
+    .pay-breakdown { border-top:1px solid #2A2A2A; padding-top:12px; }
+    .pay-row {
+        display:flex; justify-content:space-between;
+        font-size:0.83rem; color:#888; padding:4px 0;
+    }
+    .pay-row-total { color:#bbb; font-weight:600; border-top:1px solid #2A2A2A; padding-top:8px; margin-top:4px; }
+
+    /* Panel */
+    .panel-box {
+        background:#1E1E1E; border:1px solid #2A2A2A;
+        border-radius:12px; padding:20px;
+    }
+    .panel-title {
+        font-size:0.85rem; font-weight:700; color:#ccc; letter-spacing:0.04em;
+    }
+
+    /* Payment methods */
+    .payment-methods { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .pay-method {
+        display:flex; flex-direction:column; align-items:center; gap:8px;
+        background:#161616; border:1px solid #2A2A2A; border-radius:8px;
+        padding:14px 8px; cursor:pointer; transition:all 0.2s; text-align:center;
+        font-size:0.78rem; color:#666;
+    }
+    .pay-method:hover { border-color:#444; color:#aaa; }
+    .pay-method.active {
+        border-color:#FF7A00; background:rgba(255,122,0,0.08); color:#FF7A00;
+    }
+    .pay-method-icon { font-size:1.4rem; }
+
+    /* Fields */
+    .field-label {
+        font-size:0.7rem; font-weight:700; text-transform:uppercase;
+        letter-spacing:0.05em; color:#555; display:block; margin-bottom:6px;
+    }
+    .dark-input {
+        background:#161616 !important; border:1px solid #2A2A2A !important;
+        color:#fff !important; border-radius:8px; padding:10px 14px;
+        font-size:0.875rem; transition:border-color 0.2s;
+    }
+    .dark-input:focus {
+        border-color:#FF7A00 !important;
+        box-shadow:0 0 0 3px rgba(255,122,0,0.1) !important; outline:none;
+    }
+    .dark-input::placeholder { color:#444 !important; }
+
+    /* QR box */
+    .qr-box {
+        width:160px; height:160px; background:#161616; border:1px solid #2A2A2A;
+        border-radius:12px; display:flex; flex-direction:column;
+        align-items:center; justify-content:center;
+    }
+
+    /* Cash info */
+    .cash-info {
+        background:rgba(255,122,0,0.06); border:1px solid rgba(255,122,0,0.2);
+        border-radius:8px; padding:14px 16px;
+        font-size:0.83rem; color:#888; display:flex; align-items:flex-start; gap:8px;
+    }
+
+    /* Policy */
+    .policy-box {
+        background:rgba(13,110,253,0.06); border:1px solid rgba(13,110,253,0.2);
+        border-radius:10px; padding:16px; display:flex; gap:12px;
+    }
+    .policy-icon { color:#4d8fff; font-size:1rem; flex-shrink:0; margin-top:2px; }
+    .policy-title { font-size:0.8rem; font-weight:700; color:#4d8fff; margin-bottom:6px; }
+    .policy-text { font-size:0.8rem; color:#777; line-height:1.6; }
+
+    /* Xe info */
+    .xe-label { margin-top:12px; }
+    .xe-info-grid { border-top:1px solid #2A2A2A; padding-top:12px; }
+    .xe-info-row {
+        display:flex; justify-content:space-between;
+        font-size:0.83rem; color:#666; padding:5px 0;
+        border-bottom:1px solid #1A1A1A;
+    }
+    .xe-info-row:last-child { border-bottom:none; }
+
+    /* Agree checkbox */
+    .agree-check {
+        display:flex; align-items:flex-start; gap:10px; cursor:pointer;
+    }
+    .agree-check input[type="checkbox"] {
+        width:16px; height:16px; flex-shrink:0; margin-top:2px;
+        accent-color:#FF7A00; cursor:pointer;
+    }
+    .agree-text { font-size:0.8rem; color:#777; line-height:1.5; }
+
+    /* Buttons */
+    .btn-confirm {
+        background:#FF7A00; color:#111; border:none; border-radius:8px;
+        padding:14px; font-weight:800; font-size:0.9rem; letter-spacing:0.04em;
+        cursor:pointer; transition:all 0.2s; width:100%;
+    }
+    .btn-confirm:hover:not(:disabled) { background:#e86d00; }
+    .btn-confirm:active:not(:disabled) { transform:scale(0.98); }
+    .btn-confirm:disabled { opacity:0.4; cursor:not-allowed; }
+
+    .btn-back-link {
+        font-size:0.83rem; color:#666; text-decoration:none;
+        padding:8px; border-radius:6px; transition:color 0.2s;
+    }
+    .btn-back-link:hover { color:#ccc; }
+
+    .secure-footer {
+        text-align:center; font-size:0.68rem; letter-spacing:0.08em;
+        color:#444; font-weight:600; padding-top:12px;
+        border-top:1px solid #1A1A1A;
+    }
+</style>

@@ -1,0 +1,272 @@
+@model QuanLyThueXe.Models.HopDong
+
+@{
+    ViewData["Title"] = "Tạo hợp đồng mới";
+    var danhSachXe = ViewBag.DanhSachXe as IEnumerable<SelectListItem>;
+    var danhSachKhachHang = ViewBag.DanhSachKhachHang as IEnumerable<SelectListItem>;
+}
+
+<div class="container-fluid py-4">
+
+    {{-- Breadcrumb --}}
+    <nav class="mb-2" style="font-size: 0.85rem;">
+        <a asp-action="Index" class="text-muted text-decoration-none hover-white">Hợp đồng</a>
+        <span class="text-muted mx-2">›</span>
+        <span class="text-white">Tạo mới</span>
+    </nav>
+
+    <h3 class="fw-bold text-white mb-4">Tạo Hợp đồng mới</h3>
+
+    <div class="form-card p-4" style="background-color: #1E1E1E; border: 1px solid #2A2A2A; border-radius: 12px; max-width: 960px;">
+
+        <form asp-action="Create" method="post" id="hopDongForm">
+            @Html.AntiForgeryToken()
+
+            <div class="row g-4 mb-4">
+
+                <div class="col-md-6">
+                    <label class="form-label small text-muted fw-bold text-uppercase" style="letter-spacing: 0.05em;">
+                        Chọn Xe
+                    </label>
+                    <div class="select-wrapper position-relative">
+                        <select asp-for="MaXe"
+                                asp-items="danhSachXe"
+                                class="form-select dark-input"
+                                id="selectXe"
+                                onchange="tinhTongTien()">
+                            <option value="">-- Chọn xe --</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down select-icon"></i>
+                    </div>
+                    <span asp-validation-for="MaXe" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label small text-muted fw-bold text-uppercase" style="letter-spacing: 0.05em;">
+                        Khách hàng
+                    </label>
+                    <div class="select-wrapper position-relative">
+                        <select asp-for="MaKhachHang"
+                                asp-items="danhSachKhachHang"
+                                class="form-select dark-input">
+                            <option value="">-- Chọn khách hàng --</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down select-icon"></i>
+                    </div>
+                    <span asp-validation-for="MaKhachHang" class="text-danger small"></span>
+                </div>
+
+            </div>
+
+            <div class="row g-4 mb-4">
+
+                <div class="col-md-6">
+                    <label class="form-label small text-muted fw-bold text-uppercase" style="letter-spacing: 0.05em;">
+                        Ngày bắt đầu thuê
+                    </label>
+                    <div class="position-relative">
+                        <span class="input-icon-left">
+                            <i class="fa-regular fa-calendar text-muted"></i>
+                        </span>
+                        <input asp-for="NgayThue"
+                               type="date"
+                               class="form-control dark-input ps-5"
+                               id="ngayThue"
+                               onchange="tinhTongTien()" />
+                    </div>
+                    <span asp-validation-for="NgayThue" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label small text-muted fw-bold text-uppercase" style="letter-spacing: 0.05em;">
+                        Ngày dự kiến trả
+                    </label>
+                    <div class="position-relative">
+                        <span class="input-icon-left">
+                            <i class="fa-regular fa-calendar text-muted"></i>
+                        </span>
+                        <input asp-for="NgayTra"
+                               type="date"
+                               class="form-control dark-input ps-5"
+                               id="ngayTra"
+                               onchange="tinhTongTien()" />
+                    </div>
+                    <span asp-validation-for="NgayTra" class="text-danger small"></span>
+                </div>
+
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small text-muted fw-bold text-uppercase" style="letter-spacing: 0.05em;">
+                    Ghi chú <span class="text-muted fw-normal">(Tùy chọn)</span>
+                </label>
+                <textarea asp-for="GhiChu"
+                          class="form-control dark-input"
+                          rows="4"
+                          placeholder="Nhập tình trạng xe trước khi cho thuê hoặc yêu cầu đặc biệt..."></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small text-muted fw-bold text-uppercase" style="letter-spacing: 0.05em;">
+                    Tổng tiền dự kiến (VNĐ)
+                </label>
+                <div class="tong-tien-box d-flex align-items-center justify-content-between px-4"
+                     style="background-color: #161616; border: 1px solid #2A2A2A; border-radius: 10px; height: 56px;">
+                    <i class="fa-solid fa-wallet text-muted fs-5"></i>
+                    <span id="tongTienHienThi" class="text-white fw-semibold fs-5">0</span>
+                </div>
+                <input type="hidden" asp-for="TongTien" id="tongTienInput" />
+            </div>
+
+            <div class="d-flex justify-content-end gap-3 pt-2">
+                <a asp-action="Index" class="btn btn-cancel px-4 py-2 fw-semibold">
+                    Hủy
+                </a>
+                <button type="submit" class="btn btn-save px-4 py-2 fw-semibold">
+                    <i class="fa-regular fa-floppy-disk me-2"></i>
+                    Lưu dữ liệu
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        // Giá thuê mỗi xe theo ngày — lấy từ ViewBag
+        const giaThueXe = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.GiaThueXe ?? new Dictionary<int, double>()));
+
+        function tinhTongTien() {
+            const maXe = parseInt(document.getElementById("selectXe").value);
+            const ngayThue = new Date(document.getElementById("ngayThue").value);
+            const ngayTra = new Date(document.getElementById("ngayTra").value);
+
+            const tongTienEl = document.getElementById("tongTienHienThi");
+            const inputEl = document.getElementById("tongTienInput");
+
+            if (!maXe || isNaN(ngayThue) || isNaN(ngayTra) || ngayTra <= ngayThue) {
+                tongTienEl.textContent = "0";
+                inputEl.value = 0;
+                return;
+            }
+
+            const soNgay = Math.ceil((ngayTra - ngayThue) / (1000 * 60 * 60 * 24));
+            const giaThue = giaThueXe[maXe] ?? 0;
+            const tongTien = soNgay * giaThue;
+
+            tongTienEl.textContent = tongTien.toLocaleString("vi-VN");
+            inputEl.value = tongTien;
+        }
+
+        // Set ngày min là hôm nay
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("ngayThue").min = today;
+        document.getElementById("ngayTra").min = today;
+
+        // Khi đổi ngày thuê, cập nhật min cho ngày trả
+        document.getElementById("ngayThue").addEventListener("change", function () {
+            document.getElementById("ngayTra").min = this.value;
+        });
+    </script>
+}
+
+<style>
+    /* ── Input / Select chung ── */
+    .dark-input {
+        background-color: #161616 !important;
+        border: 1px solid #2A2A2A !important;
+        color: #fff !important;
+        border-radius: 8px !important;
+        padding: 12px 16px;
+        transition: border-color 0.2s;
+    }
+
+    .dark-input:focus {
+        border-color: #FF7A00 !important;
+        box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.12) !important;
+        outline: none;
+    }
+
+    .dark-input::placeholder {
+        color: #555 !important;
+    }
+
+    /* ── Select custom icon ── */
+    .select-wrapper .select-icon {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+        pointer-events: none;
+        font-size: 0.75rem;
+    }
+
+    .form-select.dark-input {
+        appearance: none;
+        -webkit-appearance: none;
+        padding-right: 36px !important;
+    }
+
+    /* ── Icon bên trái input ── */
+    .input-icon-left {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    /* ── Date input ── */
+    input[type="date"].dark-input::-webkit-calendar-picker-indicator {
+        filter: invert(0.5);
+        cursor: pointer;
+    }
+
+    /* ── Nút Hủy ── */
+    .btn-cancel {
+        background-color: #2A2A2A;
+        color: #aaa;
+        border: none;
+        border-radius: 8px;
+        transition: background-color 0.2s, color 0.2s;
+    }
+
+    .btn-cancel:hover {
+        background-color: #333;
+        color: #fff;
+    }
+
+    /* ── Nút Lưu ── */
+    .btn-save {
+        background-color: #FF7A00;
+        color: #1a1a1a;
+        border: none;
+        border-radius: 8px;
+        transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn-save:hover {
+        background-color: #e86d00;
+        color: #000;
+    }
+
+    .btn-save:active {
+        transform: scale(0.97);
+    }
+
+    /* ── Hover breadcrumb ── */
+    .hover-white:hover {
+        color: #fff !important;
+    }
+
+    /* ── Textarea resize ── */
+    textarea.dark-input {
+        resize: vertical;
+        min-height: 100px;
+    }
+</style>

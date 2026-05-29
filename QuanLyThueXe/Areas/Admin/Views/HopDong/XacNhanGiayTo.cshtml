@@ -1,0 +1,615 @@
+@model QuanLyThueXe.Models.HopDong
+
+@{
+    ViewData["Title"] = "Xác nhận Giấy tờ & Đặt cọc";
+    var soNgay = (Model.NgayTra - Model.NgayThue).Days;
+    if (soNgay < 1) soNgay = 1;
+    var datCoc = Model.TongTien * 0.5m;
+}
+
+<div class="container-fluid py-4 px-4" style="max-width: 1100px;">
+
+    @* Breadcrumb *@
+    <nav class="mb-2" style="font-size:0.82rem;">
+        <a asp-action="Index" class="text-muted text-decoration-none hover-white">Hợp đồng</a>
+        <span class="text-muted mx-2">›</span>
+        <a asp-action="Details" asp-route-id="@Model.MaHopDong" class="text-muted text-decoration-none hover-white">
+            HD-@Model.MaHopDong.ToString("D4")
+        </a>
+        <span class="text-muted mx-2">›</span>
+        <span class="text-white">Xác nhận Giấy tờ & Đặt cọc</span>
+    </nav>
+
+    @* Header *@
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a asp-action="Details" asp-route-id="@Model.MaHopDong" class="btn-icon-back">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <div>
+            <p class="text-muted small mb-0" style="font-size:0.75rem; letter-spacing:0.06em; text-transform:uppercase;">
+                CONTRACT ID #HD-@Model.MaHopDong.ToString("D4")
+            </p>
+            <h4 class="fw-bold text-white mb-0">@(Model.KhachHang?.HoTen ?? "—")</h4>
+        </div>
+        <div class="ms-auto text-end">
+            <p class="text-muted small mb-0" style="font-size:0.75rem; letter-spacing:0.06em; text-transform:uppercase;">VEHICLE MODEL</p>
+            <p class="text-white fw-semibold mb-0">
+                @(Model.Xe?.HangXe?.TenHang ?? "") @(Model.Xe?.TenXe ?? "—")
+            </p>
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert mb-3" style="background:rgba(220,53,69,0.1); border:1px solid rgba(220,53,69,0.3); color:#dc3545; border-radius:10px;">
+            <i class="fa-solid fa-circle-xmark me-2"></i> @TempData["ErrorMessage"]
+        </div>
+    }
+
+    @* Main Grid *@
+    <div class="row g-4 mb-4">
+
+        @* ── CỘT TRÁI: Document Verification ── *@
+        <div class="col-md-5">
+            <div class="panel-box h-100">
+                <div class="panel-title mb-3">
+                    <i class="fa-regular fa-id-card me-2"></i>
+                    <span>Document Verification</span>
+                    <span class="ms-auto badge-id">ID: @(Model.KhachHang?.SoGPLX ?? "—")</span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-12">
+                        <label class="field-label">Loại bằng lái</label>
+                        <div class="field-value">Hạng A2 (Mô tô > 175cc)</div>
+                    </div>
+                    <div class="col-6">
+                        <label class="field-label">Số GPLX</label>
+                        <div class="field-value">@(Model.KhachHang?.SoGPLX ?? "—")</div>
+                    </div>
+                    <div class="col-6">
+                        <label class="field-label">CMND / CCCD</label>
+                        <div class="field-value">@(Model.KhachHang?.SoGiayTo ?? "—")</div>
+                    </div>
+                </div>
+
+                @* Document Preview (Màn hình chính) *@
+                <div class="doc-preview mb-3" style="background:#161616; border:1px solid #2A2A2A; border-radius:10px; overflow:hidden; min-height:160px; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                    <img id="mainPreviewImg" src="" alt="Giấy tờ" style="width:100%; height:160px; object-fit:contain; display:none;" />
+                    <div id="mainPreviewPlaceholder" class="text-center py-4">
+                        <i class="fa-regular fa-image text-muted" style="font-size:2.5rem;"></i>
+                        <p class="text-muted small mt-2 mb-0">Chưa có ảnh được chọn</p>
+                    </div>
+                </div>
+
+                @* Hidden file input *@
+                <input type="file" id="fileUpload" accept="image/*,.pdf" hidden />
+
+                <div class="d-flex mb-3">
+                    <button type="button" class="btn btn-upload-master w-100" onclick="document.getElementById('fileUpload').click()">
+                        <i class="fa-solid fa-cloud-arrow-up me-2"></i> Tải ảnh lên cho mục đang chọn
+                    </button>
+                </div>
+
+                <div class="doc-checklist" id="docChecklist">
+                    @{
+                        var dsTaiLieu = new[]
+                        {
+                            new { Key = "cccd_truoc", Label = "CCCD mặt trước" },
+                            new { Key = "cccd_sau",   Label = "CCCD mặt sau" },
+                            new { Key = "gplx",       Label = "GPLX" },
+                            new { Key = "chan_dung",  Label = "Ảnh chân dung" },
+                            new { Key = "ho_khau",    Label = "Hộ khẩu (Tùy chọn)" },
+                            new { Key = "giay_khac",  Label = "Giấy tờ khác" },
+                        };
+                    }
+                    @foreach (var loai in dsTaiLieu)
+                    {
+                        <div class="doc-check-item" id="item-@loai.Key" onclick="setActiveItem('@loai.Key')">
+                            <span class="doc-status-icon" id="icon-@loai.Key">
+                                <i class="fa-regular fa-circle text-muted"></i>
+                            </span>
+                            <span class="doc-item-label fw-semibold">@loai.Label</span>
+                            <div class="ms-auto d-flex align-items-center gap-2">
+                                <span class="doc-filename text-muted" id="name-@loai.Key" style="font-size:0.72rem; max-width:100px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;"></span>
+                                <i class="fa-solid fa-chevron-right text-muted" style="font-size: 0.7rem;"></i>
+                                <input type="file" name="files_@loai.Key" id="hidden-file-@loai.Key" hidden>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @* Counter *@
+                <div class="mt-2 text-end">
+                    <span id="uploadCounter" style="font-size:0.75rem; color:#666;">
+                        Đã upload: <span id="uploadCount" class="text-white fw-bold">0</span> / 6
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        @* ── CỘT PHẢI: Handover Checklist ── *@
+        <div class="col-md-7">
+            <div class="panel-box h-100">
+                <div class="panel-title mb-3">
+                    <i class="fa-solid fa-clipboard-check me-2"></i>
+                    <span>Handover & Checklist</span>
+                </div>
+
+                <form asp-action="XacNhan" asp-route-id="@Model.MaHopDong" method="post" id="handoverForm">
+                    @Html.AntiForgeryToken()
+
+                    <div class="handover-section p-3 mb-3" style="background:#161616; border:1px solid #2A2A2A; border-radius:10px;">
+                        <h6 class="text-muted small fw-bold mb-3"><i class="fa-solid fa-gas-pump me-2"></i>MỨC XĂNG LÚC GIAO XE</h6>
+                        <div class="fuel-slider-container px-2">
+                            <div class="d-flex justify-content-between text-muted small mb-2" style="font-size: 0.75rem;">
+                                <span>E (Hết)</span>
+                                <span>1/4</span>
+                                <span>1/2</span>
+                                <span>3/4</span>
+                                <span>F (Đầy)</span>
+                            </div>
+                            <input type="range" name="MucXangGiao" class="form-range" min="0" max="100" step="25" value="100"
+                                   id="fuelSlider" oninput="document.getElementById('fuelValue').innerText = this.value + '%'">
+                            <div class="text-center mt-2 text-white fw-bold">
+                                Đang báo: <span id="fuelValue" class="text-orange fs-5">100%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="handover-section p-3 mb-4" style="background:#161616; border:1px solid #2A2A2A; border-radius:10px;">
+                        <h6 class="text-muted small fw-bold mb-2"><i class="fa-solid fa-magnifying-glass me-2"></i>TÌNH TRẠNG NGOẠI THẤT (TRẦY XƯỚC)</h6>
+                        <textarea name="GhiChuTinhTrang" class="dark-textarea" rows="2"
+                                  placeholder="Ghi rõ vị trí trầy xước (ví dụ: Xước nhẹ bửng phải...). Nếu xe hoàn hảo, ghi 'Xe nguyên vẹn'"></textarea>
+                    </div>
+
+                    @* 3. Checklist items (chỉ giữ lại các mục cần check) *@
+                    <h6 class="text-muted small fw-bold mb-3">KIỂM TRA PHỤ KIỆN</h6>
+                    <div class="checklist-grid mb-4">
+                        @{
+                            var checkItems = new[]
+                            {
+                                new { Icon = "fa-regular fa-eye",       Label = "Gương chiếu hậu" },
+                                new { Icon = "fa-solid fa-gauge-high",  Label = "Áp suất lốp & Độ mòn" },
+                                new { Icon = "fa-solid fa-key",         Label = "Bàn giao 02 chìa khóa" },
+                                new { Icon = "fa-solid fa-shield-halved", Label = "Bảo hiểm xe còn hạn" },
+                            };
+                        }
+                        @foreach (var item in checkItems)
+                        {
+                            <label class="checklist-item">
+                                <input type="checkbox" class="checklist-cb" name="checklist" value="@item.Label" />
+                                <span class="checklist-box">
+                                    <i class="@item.Icon checklist-icon"></i>
+                                    <span class="checklist-label">@item.Label</span>
+                                    <i class="fa-solid fa-check checklist-tick"></i>
+                                </span>
+                            </label>
+                        }
+                    </div>
+
+                    @* Rental Summary *@
+                    <div class="rental-summary mt-auto">
+                        <div class="rental-item">
+                            <div class="rental-label">Tổng tiền thuê</div>
+                            <div class="rental-amount text-orange">
+                                @Model.TongTien.ToString("N0") <span class="rental-currency">VNĐ</span>
+                            </div>
+                        </div>
+                        <div class="rental-divider"></div>
+                        <div class="rental-item">
+                            <div class="rental-label">Yêu cầu Đặt cọc (50%)</div>
+                            <div class="rental-amount text-orange">
+                                @datCoc.ToString("N0") <span class="rental-currency">VNĐ</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    @* ── Action Buttons ── *@
+    <div class="d-flex justify-content-end gap-3">
+        <a asp-action="Details" asp-route-id="@Model.MaHopDong" class="btn btn-cancel-lg px-4 py-2 fw-semibold">
+            Hủy bỏ
+        </a>
+        <button type="submit" form="handoverForm" class="btn btn-confirm-lg px-4 py-2 fw-semibold">
+            <i class="fa-solid fa-circle-check me-2"></i>
+            Xác nhận & Đặt cọc
+            <i class="fa-solid fa-arrow-right ms-2"></i>
+        </button>
+    </div>
+
+</div>
+
+<style>
+    /* CSS giữ nguyên phần lớn của bạn, thêm vài chi tiết mới */
+    .hover-white:hover {
+        color: #fff !important;
+    }
+
+    .btn-icon-back {
+        width: 36px;
+        height: 36px;
+        background: #2A2A2A;
+        border: none;
+        border-radius: 8px;
+        color: #aaa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: background 0.2s, color 0.2s;
+        flex-shrink: 0;
+    }
+
+        .btn-icon-back:hover {
+            background: #333;
+            color: #fff;
+        }
+
+    .panel-box {
+        background: #1E1E1E;
+        border: 1px solid #2A2A2A;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .panel-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #666;
+        display: flex;
+        align-items: center;
+    }
+
+    .badge-id {
+        font-size: 0.72rem;
+        color: #FF7A00;
+        background: rgba(255,122,0,0.1);
+        border: 1px solid rgba(255,122,0,0.2);
+        border-radius: 20px;
+        padding: 2px 10px;
+    }
+
+    .field-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #555;
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .field-value {
+        background: #161616;
+        border: 1px solid #2A2A2A;
+        border-radius: 6px;
+        padding: 8px 12px;
+        color: #ddd;
+        font-size: 0.875rem;
+    }
+
+    /* Document List (Clickable) */
+    .doc-check-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 10px;
+        font-size: 0.82rem;
+        color: #888;
+        border-bottom: 1px solid #1A1A1A;
+        transition: all 0.2s;
+        cursor: pointer;
+        border-radius: 8px;
+    }
+
+        .doc-check-item:last-child {
+            border-bottom: none;
+        }
+
+        .doc-check-item:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .doc-check-item.active {
+            background: rgba(255,122,0,0.05);
+            border: 1px solid rgba(255,122,0,0.3);
+            color: #FF7A00;
+        }
+
+        .doc-check-item.uploaded {
+            color: #ccc;
+        }
+
+    .doc-status-icon {
+        font-size: 0.95rem;
+        width: 18px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .btn-upload-master {
+        background: rgba(13,110,253,0.1);
+        border: 1px dashed rgba(13,110,253,0.5);
+        color: #4d8fff;
+        padding: 10px;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        border-radius: 8px;
+    }
+
+        .btn-upload-master:hover {
+            background: rgba(13,110,253,0.2);
+            color: #fff;
+            border-style: solid;
+        }
+
+    /* Slider Mức xăng */
+    .form-range::-webkit-slider-thumb {
+        background: #FF7A00;
+    }
+
+    .form-range::-webkit-slider-runnable-track {
+        background: #333;
+    }
+
+    /* Handover Checklist Grid */
+    .checklist-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .checklist-item {
+        cursor: pointer;
+    }
+
+        .checklist-item input[type="checkbox"] {
+            display: none;
+        }
+
+    .checklist-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #161616;
+        border: 1px solid #2A2A2A;
+        border-radius: 8px;
+        padding: 10px 14px;
+        transition: all 0.2s;
+        position: relative;
+    }
+
+        .checklist-box:hover {
+            border-color: #444;
+            background: #1a1a1a;
+        }
+
+    .checklist-item input:checked ~ .checklist-box {
+        border-color: rgba(25,135,84,0.4);
+        background: rgba(25,135,84,0.06);
+    }
+
+    .checklist-icon {
+        color: #444;
+        font-size: 0.9rem;
+        width: 16px;
+        transition: color 0.2s;
+    }
+
+    .checklist-item input:checked ~ .checklist-box .checklist-icon {
+        color: #198754;
+    }
+
+    .checklist-label {
+        font-size: 0.82rem;
+        color: #888;
+        flex: 1;
+        transition: color 0.2s;
+    }
+
+    .checklist-item input:checked ~ .checklist-box .checklist-label {
+        color: #ccc;
+    }
+
+    .checklist-tick {
+        display: none;
+        color: #198754;
+        font-size: 0.8rem;
+        margin-left: auto;
+    }
+
+    .checklist-item input:checked ~ .checklist-box .checklist-tick {
+        display: block;
+    }
+
+    /* Dark textarea */
+    .dark-textarea {
+        width: 100%;
+        background: #161616 !important;
+        border: 1px solid #2A2A2A !important;
+        color: #ccc !important;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 0.875rem;
+        resize: vertical;
+        transition: border-color 0.2s;
+    }
+
+        .dark-textarea:focus {
+            border-color: #FF7A00 !important;
+            box-shadow: 0 0 0 3px rgba(255,122,0,0.1) !important;
+            outline: none;
+        }
+
+        .dark-textarea::placeholder {
+            color: #555 !important;
+        }
+
+    /* Rental Summary */
+    .rental-summary {
+        background: #161616;
+        border: 1px solid #2A2A2A;
+        border-radius: 10px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 0;
+    }
+
+    .rental-item {
+        flex: 1;
+    }
+
+    .rental-divider {
+        width: 1px;
+        height: 40px;
+        background: #2A2A2A;
+        margin: 0 20px;
+    }
+
+    .rental-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #555;
+        margin-bottom: 4px;
+    }
+
+    .rental-amount {
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .rental-currency {
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-left: 4px;
+    }
+
+    .text-orange {
+        color: #FF7A00;
+    }
+
+    /* Action buttons */
+    .btn-cancel-lg {
+        background: #2A2A2A;
+        color: #aaa;
+        border: none;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+        .btn-cancel-lg:hover {
+            background: #333;
+            color: #fff;
+        }
+
+    .btn-confirm-lg {
+        background: #FF7A00;
+        color: #111;
+        border: none;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+        .btn-confirm-lg:hover {
+            background: #e86d00;
+        }
+</style>
+
+<script>
+    const DOC_KEYS = ['cccd_truoc', 'cccd_sau', 'gplx', 'chan_dung', 'ho_khau', 'giay_khac'];
+    let activeDocKey = 'cccd_truoc'; // Mặc định chọn mục đầu tiên
+    let uploadCount = 0;
+
+    // Hàm click vào danh sách để chọn mục
+    function setActiveItem(key) {
+        activeDocKey = key;
+
+        // 1. Đổi màu hiển thị (đổi viền cam)
+        document.querySelectorAll('.doc-check-item').forEach(el => {
+            el.classList.remove('active');
+        });
+        document.getElementById('item-' + key).classList.add('active');
+
+        // 2. TÌM VÀ HIỂN THỊ LẠI ẢNH PREVIEW CỦA MỤC ĐÓ
+        const hiddenInput = document.getElementById('hidden-file-' + key);
+        const previewImg = document.getElementById('mainPreviewImg');
+        const placeholder = document.getElementById('mainPreviewPlaceholder');
+
+        // Kiểm tra xem mục này đã có file nào được tải lên chưa
+        if (hiddenInput && hiddenInput.files && hiddenInput.files.length > 0) {
+            const file = hiddenInput.files[0];
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                    previewImg.style.display = 'block';
+                    placeholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        } else {
+            // Nếu mục này chưa có ảnh -> Trả về màn hình trống (Placeholder)
+            previewImg.src = '';
+            previewImg.style.display = 'none';
+            placeholder.style.display = 'block';
+        }
+    }
+
+    // Khởi tạo active mục đầu tiên khi load trang
+    setActiveItem(activeDocKey);
+
+    // Sự kiện khi bấm Tải ảnh lên
+    document.getElementById('fileUpload').addEventListener('change', function() {
+        var file = this.files[0];
+        if (!file) return;
+
+        // Gắn file sang input ẩn để submit về server (Làm trước để setActiveItem lấy được data)
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(file);
+        document.getElementById('hidden-file-' + activeDocKey).files = dataTransfer.files;
+
+        // Đọc và hiện ảnh lên khung bự ngay lập tức
+        if (file.type.startsWith('image/')) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('mainPreviewImg').src = e.target.result;
+                document.getElementById('mainPreviewImg').style.display = 'block';
+                document.getElementById('mainPreviewPlaceholder').style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Cập nhật giao diện của item được chọn (Hiện tên file, đổi icon thành dấu tick)
+        var item = document.getElementById('item-' + activeDocKey);
+        var icon = document.getElementById('icon-' + activeDocKey);
+        var name = document.getElementById('name-' + activeDocKey);
+
+        if (!item.classList.contains('uploaded')) {
+            uploadCount++;
+            document.getElementById('uploadCount').textContent = uploadCount;
+        }
+
+        item.classList.add('uploaded');
+        icon.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#198754;"></i>';
+        name.textContent = file.name;
+
+        // Tự động nhảy sang mục tiếp theo chưa được upload
+        const nextIdx = DOC_KEYS.findIndex((k, i) => i > DOC_KEYS.indexOf(activeDocKey) && !document.getElementById('item-' + k).classList.contains('uploaded'));
+        if (nextIdx !== -1) {
+            setActiveItem(DOC_KEYS[nextIdx]);
+        }
+    });
+</script>
+}

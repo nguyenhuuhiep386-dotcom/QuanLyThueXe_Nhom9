@@ -79,50 +79,115 @@ namespace QuanLyThueXe.Areas.Admin.Controllers
         // GET: Admin/HopDong/Create
         public IActionResult Create()
         {
-            ViewData["MaXe"] = new SelectList(_context.Xes.Where(x => x.TrangThai == "ConTrong"), "MaXe", "TenXe");
-            ViewData["MaKhachHang"] = new SelectList(_context.KhachHangs, "MaKhachHang", "HoTen");
+            // Trong HopDongController - action Create GET
+            var danhSachXe = _context.Xes
+                .Where(x => x.TrangThai == "ConTrong"
+                    && !_context.HopDongs.Any(h =>
+                        h.MaXe == x.MaXe &&
+                        (h.TrangThai == "DangThue" || h.TrangThai == "ChoXacNhan")))
+                .ToList();
+
+            // Đổi ViewData["MaXe"] → ViewBag.DanhSachXe
+            ViewBag.DanhSachXe = new SelectList(danhSachXe, "MaXe", "TenXe");
+
+            // Đổi ViewData["MaKhachHang"] → ViewBag.DanhSachKhachHang
+            ViewBag.DanhSachKhachHang = new SelectList(
+                _context.KhachHangs, "MaKhachHang", "HoTen"
+            );
+
+            // Thêm mới: dictionary giá thuê cho JS tính tiền
+            ViewBag.GiaThueXe = danhSachXe
+                .ToDictionary(x => x.MaXe, x => x.GiaThueNgay);
+
             return View();
         }
-
         // POST: Admin/HopDong/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("MaXe,MaKhachHang,NgayThue,NgayTra,GhiChu")] HopDong hopDong)
         {
+            // 🛑 BƯỚC 1: BÁO CHO C# BIẾT "BỎ QUA" CÁC TRƯỜNG NÀY, KHÔNG ĐƯỢC BẮT LỖI
+            ModelState.Remove("Xe");
+            ModelState.Remove("KhachHang");
+            ModelState.Remove("NguoiTao");
+            ModelState.Remove("NguoiXacNhan");
+            ModelState.Remove("DanhGia");
+
             if (ModelState.IsValid)
             {
                 var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-                
+
                 // Get xe info
                 var xe = await _context.Xes.FindAsync(hopDong.MaXe);
                 if (xe == null || xe.TrangThai != "ConTrong")
                 {
                     ModelState.AddModelError("", "Xe không khả dụng.");
-                    ViewData["MaXe"] = new SelectList(_context.Xes.Where(x => x.TrangThai == "ConTrong"), "MaXe", "TenXe", hopDong.MaXe);
-                    ViewData["MaKhachHang"] = new SelectList(_context.KhachHangs, "MaKhachHang", "HoTen", hopDong.MaKhachHang);
-                    return View(hopDong);
+                    // Chuyển lỗi xuống dưới để nạp lại danh sách chung luôn
                 }
+                else
+                {
+                    // Calculate price
+                    var soNgay = (hopDong.NgayTra - hopDong.NgayThue).Days;
+                    if (soNgay < 1) soNgay = 1;
 
-                // Calculate price
-                var soNgay = (hopDong.NgayTra - hopDong.NgayThue).Days;
-                if (soNgay < 1) soNgay = 1;
+                    hopDong.GiaThueGoc = xe.GiaThueNgay;
+                    hopDong.HeSoMua = await GetHeSoMua(hopDong.NgayThue, hopDong.NgayTra);
+                    hopDong.TongTien = hopDong.GiaThueGoc * soNgay * hopDong.HeSoMua;
+                    xe.SoLanThue += 1;
+                    hopDong.MaNguoiTao = userId;
+                    hopDong.TrangThai = "ChoXacNhan";
+                    hopDong.NgayTao = DateTime.Now;
 
-                hopDong.GiaThueGoc = xe.GiaThueNgay;
-                hopDong.HeSoMua = await GetHeSoMua(hopDong.NgayThue, hopDong.NgayTra);
-                hopDong.TongTien = hopDong.GiaThueGoc * soNgay * hopDong.HeSoMua;
-                hopDong.MaNguoiTao = userId;
-                hopDong.TrangThai = "ChoXacNhan";
-                hopDong.NgayTao = DateTime.Now;
+                    _context.Add(hopDong);
+                    await _context.SaveChangesAsync();
 
-                _context.Add(hopDong);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "Tạo hợp đồng thành công!";
-                return RedirectToAction(nameof(Details), new { id = hopDong.MaHopDong });
+                    TempData["SuccessMessage"] = "Tạo hợp đồng thành công!";
+                    return RedirectToAction(nameof(Details), new { id = hopDong.MaHopDong });
+                }
             }
 
-            ViewData["MaXe"] = new SelectList(_context.Xes.Where(x => x.TrangThai == "ConTrong"), "MaXe", "TenXe", hopDong.MaXe);
-            ViewData["MaKhachHang"] = new SelectList(_context.KhachHangs, "MaKhachHang", "HoTen", hopDong.MaKhachHang);
+            // 🛑 BƯỚC 2: NẾU FORM LỖI, PHẢI TRẢ LẠI DANH SÁCH (Dùng cả ViewData và ViewBag cho chắc ăn)
+            var danhSachXe = await _context.Xes.Where(x => x.TrangThai == "ConTrong").ToListAsync();
+
+            ViewData["MaXe"] = new SelectList(danhSachXe, "MaXe", "TenXe", hopDong.MaXe);
+            ViewData["MaKhachHang"] = new SelectList(await _context.KhachHangs.ToListAsync(), "MaKhachHang", "HoTen", hopDong.MaKhachHang);
+
+            // Backup thêm bằng ViewBag để Javascript tính tiền không bị tịt
+            ViewBag.DanhSachXe = ViewData["MaXe"];
+            ViewBag.DanhSachKhachHang = ViewData["MaKhachHang"];
+            ViewBag.GiaThueXe = danhSachXe.ToDictionary(x => x.MaXe, x => x.GiaThueNgay);
+
+            return View(hopDong);
+        }
+        // GET: Admin/HopDong/XacNhanGiayTo/5
+        public async Task<IActionResult> XacNhanGiayTo(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var hopDong = await _context.HopDongs
+                .Include(h => h.Xe).ThenInclude(x => x.HangXe)
+                .Include(h => h.KhachHang)
+                .Include(h => h.TaiLieus)
+                .FirstOrDefaultAsync(m => m.MaHopDong == id);
+
+            if (hopDong == null) return NotFound();
+            if (hopDong.TrangThai != "ChoXacNhan")
+            {
+                TempData["ErrorMessage"] = "Hợp đồng không ở trạng thái chờ xác nhận.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            return View(hopDong);
+        }
+        // GET: Admin/HopDong/ThanhToanDatCoc/5
+        public async Task<IActionResult> ThanhToanDatCoc(int? id)
+        {
+            if (id == null) return NotFound();
+            var hopDong = await _context.HopDongs
+                .Include(h => h.Xe).ThenInclude(x => x.HinhAnhs)
+                .Include(h => h.KhachHang)
+                .FirstOrDefaultAsync(m => m.MaHopDong == id);
+            if (hopDong == null) return NotFound();
             return View(hopDong);
         }
 
@@ -170,7 +235,7 @@ namespace QuanLyThueXe.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            if (hopDong.TrangThai == "DaTra" || hopDong.TrangThai == "DaHuy")
+            if (hopDong.TrangThai == "HoanThanh" || hopDong.TrangThai == "DaHuy")
             {
                 TempData["ErrorMessage"] = "Không thể hủy hợp đồng này.";
                 return RedirectToAction(nameof(Details), new { id });
@@ -192,11 +257,9 @@ namespace QuanLyThueXe.Areas.Admin.Controllers
             TempData["SuccessMessage"] = "Hủy hợp đồng thành công!";
             return RedirectToAction(nameof(Details), new { id });
         }
-
-        // POST: Admin/HopDong/TraXe/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> TraXe(int id, DateTime ngayTraThucTe)
+        public async Task<IActionResult> TraXe(int id, DateTime? ngayTraThucTe) // Đã thêm dấu ?
         {
             var hopDong = await _context.HopDongs.Include(h => h.Xe).FirstOrDefaultAsync(h => h.MaHopDong == id);
             if (hopDong == null)
@@ -210,19 +273,23 @@ namespace QuanLyThueXe.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Details), new { id });
             }
 
-            // Calculate late fee
-            if (ngayTraThucTe > hopDong.NgayTra)
+            // 🛡️ LỚP BẢO HIỂM: Nếu C# không hiểu ngày gửi lên (bị null), tự động lấy ngày giờ hiện tại!
+            DateTime ngayTraChinhThuc = ngayTraThucTe ?? DateTime.Now;
+
+            // Tính phụ phí trễ hạn
+            if (ngayTraChinhThuc.Date > hopDong.NgayTra.Date)
             {
-                var ngayTre = (ngayTraThucTe - hopDong.NgayTra).Days;
-                var heSoTre = 1.5m; // Default late fee multiplier
+                var ngayTre = (ngayTraChinhThuc.Date - hopDong.NgayTra.Date).Days;
+                var heSoTre = 1.5m;
                 hopDong.PhuPhiTreHan = hopDong.GiaThueGoc * ngayTre * heSoTre;
             }
 
+            // Cập nhật trạng thái hợp đồng
             hopDong.TrangThai = "DaTra";
-            hopDong.NgayTraThucTe = ngayTraThucTe;
+            hopDong.NgayTraThucTe = ngayTraChinhThuc; // Dùng cái ngày đã bảo hiểm
             hopDong.NgayCapNhat = DateTime.Now;
 
-            // Update xe status
+            // Cập nhật trạng thái xe
             hopDong.Xe.TrangThai = "ConTrong";
             hopDong.Xe.NgayCapNhat = DateTime.Now;
 
@@ -231,7 +298,6 @@ namespace QuanLyThueXe.Areas.Admin.Controllers
             TempData["SuccessMessage"] = $"Trả xe thành công! {(hopDong.PhuPhiTreHan > 0 ? $"Phụ phí trễ hạn: {hopDong.PhuPhiTreHan:N0} VNĐ" : "")}";
             return RedirectToAction(nameof(Details), new { id });
         }
-
         private async Task<decimal> GetHeSoMua(DateTime ngayThue, DateTime ngayTra)
         {
             var phuPhi = await _context.PhuPhiMuas
@@ -241,5 +307,7 @@ namespace QuanLyThueXe.Areas.Admin.Controllers
 
             return phuPhi?.HeSoNhan ?? 1.00m;
         }
+
     }
+
 }
