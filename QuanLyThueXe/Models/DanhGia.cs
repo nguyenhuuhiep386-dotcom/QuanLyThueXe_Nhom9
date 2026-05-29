@@ -28,7 +28,12 @@ namespace QuanLyThueXe.Models
 
         [Display(Name = "Ngày đánh giá")]
         public DateTime NgayDanhGia { get; set; } = DateTime.Now;
+        [Display(Name = "Phản hồi Admin")]
+        [StringLength(500)]
+        public string? PhanHoiAdmin { get; set; }
 
+        [Display(Name = "Ngày phản hồi")]
+        public DateTime? NgayPhanHoi { get; set; }
         // Navigation properties
         [ForeignKey("MaHopDong")]
         public virtual HopDong HopDong { get; set; } = null!;
