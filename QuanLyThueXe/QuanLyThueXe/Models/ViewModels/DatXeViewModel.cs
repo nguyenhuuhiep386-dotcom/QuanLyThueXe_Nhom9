@@ -22,6 +22,8 @@ namespace QuanLyThueXe.Models.ViewModels
         [Display(Name = "Ghi chú")]
         public string? GhiChu { get; set; }
 
+        public decimal PhiBaoHiem { get; set; }
+
         // Thông tin tính toán
         public int SoNgay { get; set; }
         public decimal GiaThueGoc { get; set; }

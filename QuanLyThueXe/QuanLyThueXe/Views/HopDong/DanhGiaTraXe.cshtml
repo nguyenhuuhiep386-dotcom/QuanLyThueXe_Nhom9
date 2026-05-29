@@ -1,0 +1,182 @@
+@model QuanLyThueXe.Models.HopDong
+
+@{
+    ViewData["Title"] = "Đánh giá chuyến đi";
+}
+
+<style>
+    .star-rating {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        gap: 8px;
+    }
+    .star-rating input {
+        display: none;
+    }
+    .star-rating label {
+        font-size: 48px;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+    .star-rating input:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: #fbbf24;
+    }
+    .image-preview-container {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+    }
+    .image-preview {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+    .upload-box {
+        width: 100px;
+        height: 100px;
+        border: 2px dashed var(--border-color);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: 0.2s;
+    }
+    .upload-box:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:var(--border-radius); padding:40px; margin-top:24px;">
+            <div class="text-center mb-4">
+                <h3 style="font-size:24px; font-weight:700; margin-bottom:8px;">Chia sẻ trải nghiệm của bạn</h3>
+                <p style="color:var(--text-secondary); font-size:14px;">Bạn đã có một chuyến đi tuyệt vời cùng @Model.Xe.TenXe? Hãy chia sẻ cùng chúng tôi nhé!</p>
+            </div>
+
+            <form asp-action="DanhGia" asp-route-id="@Model.MaHopDong" method="post" enctype="multipart/form-data" id="evalForm">
+                
+                <!-- Chọn sao -->
+                <div class="text-center mb-4">
+                    <div class="star-rating">
+                        <input type="radio" id="star5" name="soSao" value="5" />
+                        <label for="star5" title="Tuyệt vời"><i class="fas fa-star"></i></label>
+                        
+                        <input type="radio" id="star4" name="soSao" value="4" />
+                        <label for="star4" title="Rất tốt"><i class="fas fa-star"></i></label>
+                        
+                        <input type="radio" id="star3" name="soSao" value="3" />
+                        <label for="star3" title="Bình thường"><i class="fas fa-star"></i></label>
+                        
+                        <input type="radio" id="star2" name="soSao" value="2" />
+                        <label for="star2" title="Tệ"><i class="fas fa-star"></i></label>
+                        
+                        <input type="radio" id="star1" name="soSao" value="1" />
+                        <label for="star1" title="Rất tệ"><i class="fas fa-star"></i></label>
+                    </div>
+                    <div id="starError" style="color:#f87171; font-size:13px; margin-top:8px; display:none;">Vui lòng chọn số sao đánh giá.</div>
+                </div>
+
+                <!-- Bình luận -->
+                <div class="mb-4">
+                    <label class="form-label" style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Bình luận</label>
+                    <textarea name="nhanXet" class="form-control" rows="4" placeholder="Nhận xét chi tiết về tình trạng xe, dịch vụ,..." style="background:rgba(0,0,0,0.2); border-color:var(--border-color);"></textarea>
+                </div>
+
+                <!-- Ảnh -->
+                <div class="mb-4">
+                    <label class="form-label" style="font-size:12px; font-weight:600; color:var(--text-muted); text-transform:uppercase;">Ảnh (Tùy chọn)</label>
+                    <p style="font-size:12px; color:var(--text-secondary); margin-bottom:8px;">Thêm ảnh để nhận thêm +30 điểm thưởng cho mỗi ảnh!</p>
+                    <div class="image-preview-container" id="imagePreviewContainer">
+                        <label class="upload-box" for="imageUpload">
+                            <i class="fas fa-camera" style="font-size:24px;"></i>
+                        </label>
+                        <input type="file" id="imageUpload" name="images" accept="image/*" multiple style="display:none;" />
+                    </div>
+                </div>
+
+                <div class="d-flex gap-3 mt-5">
+                    <a asp-action="CuaToi" class="btn-hd-outline flex-grow-1 text-center">Để sau</a>
+                    <button type="submit" id="btnSubmit" class="btn-hd flex-grow-1" disabled style="opacity:0.5; cursor:not-allowed;">
+                        <i class="fas fa-paper-plane"></i> Gửi đánh giá
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const stars = document.querySelectorAll('input[name="soSao"]');
+            const btnSubmit = document.getElementById('btnSubmit');
+            const evalForm = document.getElementById('evalForm');
+            
+            // Enable nút Gửi khi đã chọn sao
+            stars.forEach(star => {
+                star.addEventListener('change', function() {
+                    if (this.checked) {
+                        btnSubmit.disabled = false;
+                        btnSubmit.style.opacity = '1';
+                        btnSubmit.style.cursor = 'pointer';
+                        document.getElementById('starError').style.display = 'none';
+                    }
+                });
+            });
+
+            // Preview ảnh
+            const imageUpload = document.getElementById('imageUpload');
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            
+            imageUpload.addEventListener('change', function() {
+                // Xóa các preview cũ (giữ lại nút upload)
+                const oldPreviews = previewContainer.querySelectorAll('.image-preview');
+                oldPreviews.forEach(p => p.remove());
+
+                if (this.files && this.files.length > 0) {
+                    Array.from(this.files).forEach(file => {
+                        if (file.type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                const img = document.createElement('img');
+                                img.src = e.target.result;
+                                img.className = 'image-preview';
+                                // Chèn vào trước nút upload
+                                previewContainer.insertBefore(img, imageUpload.previousElementSibling);
+                            }
+                            reader.readAsDataURL(file);
+                        }
+                    });
+                }
+            });
+
+            // Validate form
+            evalForm.addEventListener('submit', function(e) {
+                let hasStar = false;
+                stars.forEach(star => {
+                    if (star.checked) hasStar = true;
+                });
+                
+                if (!hasStar) {
+                    e.preventDefault();
+                    document.getElementById('starError').style.display = 'block';
+                } else {
+                    // Disable button to prevent double submit
+                    btnSubmit.disabled = true;
+                    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+                }
+            });
+        });
+    </script>
+}

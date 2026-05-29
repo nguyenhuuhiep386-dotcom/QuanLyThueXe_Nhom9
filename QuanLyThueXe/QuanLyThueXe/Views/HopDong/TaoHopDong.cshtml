@@ -1,0 +1,384 @@
+@model QuanLyThueXe.Models.HopDong
+@{
+    ViewData["Title"] = "Tạo Hợp Đồng Thuê Xe";
+}
+
+<div class="container py-5 d-flex justify-content-center">
+    <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:16px; padding:48px 56px; max-width:900px; width:100%; box-shadow:0 4px 24px rgba(0,0,0,0.18);">
+        <div style="font-size:15px; color:var(--text-secondary); line-height:2.0; text-align:justify;">
+
+            <!-- Header Hành Chính -->
+            <div class="text-center mb-5">
+                <h3 style="font-weight:700; color:var(--text-primary); margin-bottom:8px; font-size:20px;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</h3>
+                <h4 style="font-weight:600; font-size:16px; margin-bottom:24px; color:var(--text-primary);">Độc lập - Tự do - Hạnh phúc</h4>
+                <hr style="width:100px; margin:0 auto 32px; border-top:2px solid var(--text-primary);">
+            </div>
+
+            <!-- Tiêu đề -->
+            <h2 style="text-align:center; color:var(--accent); margin:24px 0 8px; font-weight:700; font-size:24px;">HỢP ĐỒNG THUÊ XE MÔ TÔ</h2>
+            <p style="text-align:center; font-style:italic; margin-bottom:8px; color:var(--text-muted);">
+                (Số: @Model.MaHopDong/HĐTX-HDR/@DateTime.Now.ToString("yyyy"))
+            </p>
+            <p style="text-align:center; font-style:italic; margin-bottom:40px; color:var(--text-muted);">
+                Căn cứ Bộ luật Dân sự số 91/2015/QH13; Luật Giao thông đường bộ; Luật Giao dịch điện tử và các quy định pháp luật hiện hành.
+            </p>
+
+            <p style="margin-bottom:24px;">Hôm nay, ngày @DateTime.Now.Day tháng @DateTime.Now.Month năm @DateTime.Now.Year, tại Văn phòng H-D Rental, chúng tôi gồm có:</p>
+
+            <!-- Bên A -->
+            <div style="background:var(--bg-hover,rgba(255,255,255,0.04)); border-left:4px solid var(--text-primary); border-radius:0 8px 8px 0; padding:16px 24px; margin-bottom:24px;">
+                <h4 style="color:var(--text-primary); margin:0 0 12px; font-weight:700; font-size:16px;">BÊN CHO THUÊ (BÊN A): CÔNG TY TNHH H-D RENTAL VIỆT NAM</h4>
+                <p style="margin-bottom:6px;"><strong>Địa chỉ trụ sở:</strong> Quận 7, Thành phố Hồ Chí Minh</p>
+                <p style="margin-bottom:6px;"><strong>Điện thoại:</strong> 1900-xxxx &nbsp;|&nbsp; <strong>Email:</strong> contact@@hdrental.vn</p>
+                <p style="margin-bottom:0;"><strong>Đại diện:</strong> Ông Nguyễn Văn Admin – Chức vụ: Giám đốc</p>
+            </div>
+
+            <!-- Bên B -->
+            <div style="background:var(--bg-hover,rgba(255,255,255,0.04)); border-left:4px solid var(--border-color); border-radius:0 8px 8px 0; padding:16px 24px; margin-bottom:32px;">
+                <h4 style="color:var(--text-primary); margin:0 0 12px; font-weight:700; font-size:16px;">BÊN THUÊ (BÊN B):</h4>
+                <p style="margin-bottom:6px;"><strong>Họ và tên:</strong> @Model.KhachHang.HoTen</p>
+                <p style="margin-bottom:6px;"><strong>Số điện thoại:</strong> @Model.KhachHang.SoDienThoai</p>
+                <p style="margin-bottom:6px;"><strong>CMND/CCCD:</strong> @Model.KhachHang.SoGiayTo</p>
+                <p style="margin-bottom:0;"><strong>GPLX số:</strong> @Model.KhachHang.SoGPLX</p>
+            </div>
+
+            <p style="margin-bottom:32px; font-weight:700; text-align:center;">Hai bên thỏa thuận ký kết Hợp đồng thuê xe mô tô với các điều khoản sau đây trên cơ sở hoàn toàn tự nguyện, bình đẳng và phù hợp với quy định của pháp luật:</p>
+
+            <!-- Điều 1 -->
+            <h4 style="color:var(--text-primary); margin:32px 0 12px; font-weight:700; font-size:17px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">Điều 1. Đối tượng hợp đồng – Thông tin phương tiện</h4>
+            <p style="margin-bottom:12px;">Bên A đồng ý cho Bên B thuê phương tiện với thông tin sau:</p>
+            <div style="overflow-x:auto; margin-bottom:16px;">
+                <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                    <tr style="background:var(--bg-hover,rgba(255,255,255,0.07));">
+                        <td style="padding:8px 12px; border:1px solid var(--border-color); font-weight:700; width:35%;">Thông tin</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color); font-weight:700;">Nội dung</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Loại xe / Nhãn hiệu</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">@Model.Xe.TenXe</td>
+                    </tr>
+                    <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Biển kiểm soát</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">@Model.Xe.BienSo</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Màu sắc</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">@(Model.Xe.MoTa != null && Model.Xe.MoTa.Length > 0 ? Model.Xe.MoTa.Split(',')[0] : "Theo màu xe thực tế")</td>
+                    </tr>
+                    <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Tình trạng xe khi giao</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">&#9745; Tốt</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Phụ kiện đi kèm</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">&#9745; Mũ bảo hiểm &nbsp; &#9745; Bộ đồ nghề</td>
+                    </tr>
+                    <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Giấy tờ xe giao kèm</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">&#9745; Đăng ký xe &nbsp; &#9745; Đăng kiểm &nbsp; &#9745; Bảo hiểm TNDS</td>
+                    </tr>
+                </table>
+            </div>
+            <p style="margin-bottom:16px; font-style:italic; color:var(--text-muted);">Hai bên cùng kiểm tra và xác nhận tình trạng xe tại thời điểm giao nhận. Bất kỳ hư hỏng nào không được ghi nhận tại đây sẽ được suy đoán phát sinh trong thời gian Bên B sử dụng.</p>
+
+            <!-- Điều 2 -->
+            <h4 style="color:var(--text-primary); margin:32px 0 12px; font-weight:700; font-size:17px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">Điều 2. Thời hạn thuê, địa điểm và giá trị hợp đồng</h4>
+            <div style="overflow-x:auto; margin-bottom:16px;">
+                <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                    <tr style="background:var(--bg-hover,rgba(255,255,255,0.07));">
+                        <td style="padding:8px 12px; border:1px solid var(--border-color); font-weight:700; width:40%;">Nội dung</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color); font-weight:700;">Chi tiết</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Thời gian nhận xe</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">@Model.NgayThue.ToString("HH:mm, dd/MM/yyyy")</td>
+                    </tr>
+                    <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Thời gian trả xe</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">@Model.NgayTra.ToString("HH:mm, dd/MM/yyyy")</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Tổng thời gian thuê</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">@((Model.NgayTra - Model.NgayThue).Days) ngày @((Model.NgayTra - Model.NgayThue).Hours) giờ</td>
+                    </tr>
+                    <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Địa điểm nhận &amp; trả xe</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Văn phòng H-D Rental, Quận 7, TP.HCM</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color); font-weight:700;">Tổng giá trị hợp đồng</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color); font-weight:700; color:var(--accent);">@Model.TongTien.ToString("N0") VNĐ</td>
+                    </tr>
+                    <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Hình thức thanh toán</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">&#9745; Chuyển khoản &nbsp; &#9744; Tiền mặt &nbsp; &#9744; Ví điện tử</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Điều 3 -->
+            <h4 style="color:var(--text-primary); margin:32px 0 12px; font-weight:700; font-size:17px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">Điều 3. Nghĩa vụ của Bên A (Bên cho thuê)</h4>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Giao xe đúng loại, đúng giờ và địa điểm đã thỏa thuận trong Điều 2; trường hợp chậm trễ quá <strong>30 phút</strong> mà không thông báo trước, Bên A phải giảm trừ <strong>01 giờ</strong> tiền thuê cho Bên B;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Đảm bảo xe ở tình trạng kỹ thuật an toàn, đã qua kiểm định theo quy định, đầy đủ xăng và sạch sẽ khi giao;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) Cung cấp đầy đủ giấy tờ hợp lệ: đăng ký xe, đăng kiểm còn hạn, bảo hiểm TNDS bắt buộc còn hiệu lực;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">d) Hỗ trợ kỹ thuật và thay xe thay thế (cùng phân khúc) trong trường hợp xe bị hư hỏng không do lỗi Bên B trong thời gian thuê;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">e) Xuất hóa đơn VAT hoặc biên lai hợp lệ khi Bên B có yêu cầu;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">f) Bảo mật thông tin cá nhân của Bên B theo Chính sách bảo mật đã công bố tại <strong>hdrental.vn/privacy</strong>.</p>
+
+            <!-- Điều 4 -->
+            <h4 style="color:var(--text-primary); margin:32px 0 12px; font-weight:700; font-size:17px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">Điều 4. Nghĩa vụ của Bên B (Bên thuê)</h4>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Thanh toán đầy đủ, đúng thời hạn theo lịch thanh toán tại Điều 2;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Trực tiếp điều khiển xe; tuyệt đối không cho người khác mượn, thuê lại, cầm cố, thế chấp hoặc chuyển giao xe dưới bất kỳ hình thức nào;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) Sử dụng xe đúng mục đích dân sự hợp pháp; tuân thủ nghiêm Luật Giao thông đường bộ và các quy định pháp luật có liên quan;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">d) Bảo quản xe cẩn thận; không tự ý sửa chữa, thay thế phụ tùng hoặc thay đổi bất kỳ thông số kỹ thuật nào của xe;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">e) Trả xe đúng giờ, đúng địa điểm trong tình trạng như khi nhận (trừ hao mòn tự nhiên theo thời gian thuê);</p>
+            <p style="margin-left:20px; margin-bottom:8px;">f) Thông báo ngay cho Bên A trong vòng <strong>01 giờ</strong> kể từ khi xảy ra tai nạn, hư hỏng, mất cắp hoặc bị cơ quan nhà nước tạm giữ phương tiện;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">g) Thông báo trước ít nhất <strong>02 giờ</strong> nếu có nhu cầu gia hạn thêm thời gian thuê;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">h) Chịu hoàn toàn trách nhiệm pháp lý và tài chính đối với mọi hành vi vi phạm pháp luật trong thời gian thuê xe.</p>
+
+            <!-- Điều 5 -->
+            <h4 style="color:var(--text-primary); margin:32px 0 12px; font-weight:700; font-size:17px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">Điều 5. Bảo hiểm và xử lý tai nạn, sự cố</h4>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Xe được bảo hiểm trách nhiệm dân sự bắt buộc (TNDS) theo Nghị định 03/2021/NĐ-CP. Phạm vi bảo hiểm chỉ bao gồm thiệt hại cho bên thứ ba; không bao gồm thiệt hại cho Bên B và tài sản trên xe;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Khi xảy ra tai nạn, Bên B có nghĩa vụ: (i) Giữ nguyên hiện trường và gọi cấp cứu/công an nếu có thương vong; (ii) Liên hệ ngay Bên A qua hotline; (iii) Lập biên bản với bên liên quan và cơ quan công an; (iv) Chụp ảnh hiện trường gửi cho Bên A trong vòng 24 giờ;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) Chi phí sửa chữa xe do tai nạn trong thời gian thuê: lỗi Bên B – Bên B chịu 100%; lỗi bên thứ ba có xác nhận công an – Bên A hỗ trợ yêu cầu bồi thường từ bảo hiểm; lỗi hỗn hợp – phân bổ theo tỷ lệ lỗi xác định bởi biên bản công an;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">d) Trường hợp mất xe: Bên B bồi thường theo giá trị thị trường xác định tại thời điểm mất, có tham chiếu biên bản công an và định giá độc lập.</p>
+
+            <!-- Điều 6 -->
+            <h4 style="color:var(--text-primary); margin:32px 0 12px; font-weight:700; font-size:17px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">Điều 6. Phí phạt vi phạm hợp đồng</h4>
+            <div style="overflow-x:auto; margin-bottom:16px;">
+                <table style="width:100%; border-collapse:collapse; font-size:14px;">
+                    <tr style="background:var(--bg-hover,rgba(255,255,255,0.07));">
+                        <td style="padding:8px 12px; border:1px solid var(--border-color); font-weight:700;">Hành vi vi phạm</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color); font-weight:700; width:40%;">Mức phạt / Bồi thường</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Trả xe trễ dưới 3 giờ</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">20.000 VNĐ/giờ trễ</td>
+                    </tr>
+                    <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Trả xe trễ từ 3 giờ trở lên</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Tính thêm 01 ngày thuê</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Không thông báo sự cố trong vòng 1 giờ</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Phạt 500.000 VNĐ + chịu toàn bộ thiệt hại phát sinh</td>
+                    </tr>
+                    <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Cho người khác sử dụng xe</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Chấm dứt HĐ ngay, mất toàn bộ tiền cọc</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Vi phạm giao thông (bị phạt hành chính)</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Toàn bộ tiền phạt + phí xử lý 200.000 VNĐ/lần</td>
+                    </tr>
+                    <tr style="background:var(--bg-hover,rgba(255,255,255,0.03));">
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Sử dụng xe vào mục đích bị cấm</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Chấm dứt HĐ ngay, mất toàn bộ tiền cọc + bồi thường thiệt hại</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Thiếu nhiên liệu khi trả xe</td>
+                        <td style="padding:8px 12px; border:1px solid var(--border-color);">Chi phí nhiên liệu thực tế + 20.000 VNĐ phí dịch vụ</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Điều 7 -->
+            <h4 style="color:var(--text-primary); margin:32px 0 12px; font-weight:700; font-size:17px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">Điều 7. Đơn phương chấm dứt hợp đồng</h4>
+            <p style="margin-bottom:12px;"><strong>7.1. Bên A có quyền đơn phương chấm dứt hợp đồng và thu hồi xe ngay lập tức khi Bên B:</strong></p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Vi phạm nghiêm trọng quy định sử dụng xe tại Điều 4;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Có hành vi gian lận, cung cấp thông tin giả mạo khi ký kết hợp đồng;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">c) Bị cơ quan nhà nước tạm giữ phương tiện do vi phạm pháp luật.</p>
+            <p style="margin-bottom:12px;"><strong>7.2. Bên B có quyền đơn phương chấm dứt hợp đồng trước thời hạn khi Bên A:</strong></p>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Giao xe không đúng loại, không đảm bảo tiêu chuẩn kỹ thuật hoặc thiếu giấy tờ hợp lệ;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">b) Trường hợp này, Bên A phải hoàn trả tiền thuê theo số ngày chưa sử dụng và bồi thường phí tổn thực tế cho Bên B.</p>
+
+            <!-- Điều 8 -->
+            <h4 style="color:var(--text-primary); margin:32px 0 12px; font-weight:700; font-size:17px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">Điều 8. Giải quyết tranh chấp</h4>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Mọi tranh chấp được giải quyết trước tiên thông qua thương lượng trong thời hạn <strong>15 ngày</strong> kể từ ngày phát sinh;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Nếu thương lượng không thành, tranh chấp sẽ được đưa ra <strong>Tòa án nhân dân có thẩm quyền</strong> nơi Bên A đặt trụ sở;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">c) Phán quyết của Tòa án có giá trị chung thẩm và ràng buộc cả hai bên theo quy định pháp luật tố tụng dân sự Việt Nam.</p>
+
+            <!-- Điều 9 -->
+            <h4 style="color:var(--text-primary); margin:32px 0 12px; font-weight:700; font-size:17px; border-bottom:1px solid var(--border-color); padding-bottom:8px;">Điều 9. Điều khoản chung</h4>
+            <p style="margin-left:20px; margin-bottom:8px;">a) Hợp đồng có hiệu lực kể từ thời điểm cả hai bên ký kết;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">b) Mọi sửa đổi, bổ sung hợp đồng chỉ có giá trị khi được lập thành văn bản và có chữ ký của cả hai bên;</p>
+            <p style="margin-left:20px; margin-bottom:8px;">c) Ngôn ngữ hợp đồng: Tiếng Việt;</p>
+            <p style="margin-left:20px; margin-bottom:16px;">d) Hợp đồng điện tử ký qua Nền tảng H-D Rental có giá trị pháp lý tương đương hợp đồng bản giấy theo Luật Giao dịch điện tử số 20/2023/QH15.</p>
+
+            <!-- Cam kết Bên B -->
+            <div style="background:rgba(255,193,7,0.1); border:1px solid #ffc107; border-radius:8px; padding:16px 24px; margin:24px 0;">
+                <p style="font-weight:700; color:var(--text-primary); margin-bottom:8px;">
+                    <i class="fas fa-exclamation-triangle" style="color:#ffc107;"></i> CAM KẾT CỦA BÊN B
+                </p>
+                <p style="margin-bottom:0; color:var(--text-secondary);">Tôi xác nhận đã đọc, hiểu rõ và tự nguyện đồng ý với toàn bộ nội dung Hợp đồng này, Điều khoản dịch vụ và Chính sách bảo mật của H-D Rental. Tôi cam kết cung cấp thông tin trung thực, sử dụng xe đúng mục đích, tuân thủ pháp luật và chịu hoàn toàn trách nhiệm pháp lý đối với hành vi của mình trong thời gian thuê xe.</p>
+            </div>
+
+            <!-- Chữ ký -->
+            <hr style="border-top:1px solid var(--border-color); margin:40px 0 32px;">
+            <div class="row text-center" style="margin-top:48px;">
+
+                <!-- Bên A -->
+                <div class="col-6">
+                    <p style="font-style:italic; font-size:13px; color:var(--text-muted); margin-bottom:4px;">
+                        TP. Hồ Chí Minh, ngày @DateTime.Now.Day tháng @DateTime.Now.Month năm @DateTime.Now.Year
+                    </p>
+                    <h6 style="font-weight:700; color:var(--text-primary); margin-bottom:4px; text-transform:uppercase;">Đại diện Bên A</h6>
+                    <p style="font-style:italic; font-size:12px; color:var(--text-muted); margin-bottom:12px;">(Ký, ghi rõ họ tên và đóng dấu)</p>
+                    <div style="height:100px; display:flex; align-items:center; justify-content:center;">
+                        <img src="/images/signature_admin.png" style="max-height:80px; opacity:0.7;" alt="Chữ ký Admin" onerror="this.style.display='none'" />
+                    </div>
+                    <strong style="display:block; margin-top:8px; color:var(--text-primary);">Nguyễn Văn Admin</strong>
+                    <p style="font-size:13px; color:var(--text-muted);">Giám đốc – H-D Rental</p>
+                </div>
+
+                <!-- Bên B – Chữ ký điện tử -->
+                <div class="col-6">
+                    <p style="font-style:italic; font-size:13px; color:var(--text-muted); margin-bottom:4px;">
+                        TP. Hồ Chí Minh, ngày @DateTime.Now.Day tháng @DateTime.Now.Month năm @DateTime.Now.Year
+                    </p>
+                    <h6 style="font-weight:700; color:var(--text-primary); margin-bottom:4px; text-transform:uppercase;">Đại diện Bên B</h6>
+                    <p style="font-style:italic; font-size:12px; color:var(--text-muted); margin-bottom:12px;">(Vẽ chữ ký điện tử vào ô bên dưới)</p>
+
+                    <!-- Canvas chữ ký điện tử -->
+                    <div id="signatureBox" style="border:2px dashed var(--accent,#e8731a); background:rgba(255,255,255,0.02); border-radius:8px; position:relative; height:130px; margin-bottom:8px; transition:border-color 0.2s, box-shadow 0.2s;">
+                        <canvas id="signaturePad" style="width:100%; height:100%; cursor:crosshair; border-radius:6px; display:block;"></canvas>
+                        <button type="button" onclick="clearSignature()"
+                            style="position:absolute; top:6px; right:6px; background:rgba(0,0,0,0.55); border:none; color:#fff; border-radius:4px; padding:3px 10px; font-size:11px; cursor:pointer; z-index:1;">
+                            <i class="fas fa-eraser"></i> Xóa
+                        </button>
+                        <p id="signHint" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); color:var(--text-muted); font-size:12px; pointer-events:none; margin:0; white-space:nowrap;">
+                            &#9997;&#65039; Ký tên tại đây
+                        </p>
+                    </div>
+
+                    <strong style="display:block; margin-top:8px; color:var(--text-primary);">@Model.KhachHang.HoTen</strong>
+                    <p style="font-size:13px; color:var(--text-muted);">Bên thuê xe</p>
+                </div>
+            </div>
+
+            <!-- Form submit -->
+            <form asp-action="XacNhanHopDong" method="post" id="contractForm">
+                <input type="hidden" name="id" value="@Model.MaHopDong" />
+                <input type="hidden" name="signature" id="signatureData" />
+
+                <div class="d-flex gap-3 justify-content-center mt-5">
+                    <a asp-controller="Home" asp-action="Index" class="btn-hd-outline" style="padding:12px 32px;">
+                        <i class="fas fa-times"></i> HỦY BỎ
+                    </a>
+                    <button type="button" id="btnSubmit" class="btn-hd" style="padding:12px 40px; font-size:15px;">
+                        <i class="fas fa-file-signature"></i> XÁC NHẬN &amp; KÝ HỢP ĐỒNG
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const canvas = document.getElementById('signaturePad');
+        const ctx = canvas.getContext('2d');
+        const signBox = document.getElementById('signatureBox');
+        const hint = document.getElementById('signHint');
+        let isDrawing = false;
+        let hasSigned = false;
+
+        // Khởi tạo canvas với kích thước thực
+        function resizeCanvas() {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            const w = canvas.offsetWidth;
+            const h = canvas.offsetHeight;
+            canvas.width = w * ratio;
+            canvas.height = h * ratio;
+            ctx.scale(ratio, ratio);
+            applyStyle();
+        }
+
+        function applyStyle() {
+            const accent = getComputedStyle(document.documentElement)
+                .getPropertyValue('--accent').trim() || '#e8731a';
+            ctx.strokeStyle = accent;
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            if (e.touches && e.touches.length > 0) {
+                return {
+                    x: e.touches[0].clientX - rect.left,
+                    y: e.touches[0].clientY - rect.top
+                };
+            }
+            return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        }
+
+        function startDrawing(e) {
+            e.preventDefault();
+            isDrawing = true;
+            applyStyle();
+            if (!hasSigned) {
+                hasSigned = true;
+                hint.style.display = 'none';
+                signBox.style.borderColor = 'var(--accent, #e8731a)';
+                signBox.style.boxShadow = '';
+            }
+            const pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const pos = getPos(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.beginPath();
+        }
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
+        canvas.addEventListener('touchstart', startDrawing, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', stopDrawing);
+
+        function clearSignature() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            hasSigned = false;
+            hint.style.display = 'block';
+            signBox.style.borderColor = '';
+            signBox.style.boxShadow = '';
+        }
+
+        document.getElementById('btnSubmit').addEventListener('click', function () {
+            if (!hasSigned) {
+                signBox.style.borderColor = '#dc3545';
+                signBox.style.boxShadow = '0 0 0 3px rgba(220,53,69,0.25)';
+                signBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Chưa ký xác nhận',
+                    text: 'Vui lòng ký xác nhận hợp đồng trước khi tiếp tục.',
+                    confirmButtonColor: '#ea580c'
+                });
+                return;
+            }
+            document.getElementById('signatureData').value = canvas.toDataURL('image/png');
+            document.getElementById('contractForm').submit();
+        });
+    </script>
+}
