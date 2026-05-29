@@ -802,6 +802,12 @@ INSERT INTO HOP_DONG (MaXe, MaKhachHang, MaNguoiTao, MaNguoiXacNhan, NgayThue, N
 (7, 3, 1, 1, '2025-05-15', '2025-05-18', NULL,         1000000, 1.00, 3000000, 0,       N'DangThue'),   -- Dang thue
 (5, 4, 1, NULL,'2025-05-20','2025-05-22', NULL,         1100000, 1.00, 2200000, 0,       N'ChoXacNhan'); -- Cho xac nhan
 
+UPDATE XE SET TrangThai = N'DangThue', NgayCapNhat = GETDATE()
+WHERE MaXe IN (
+    SELECT DISTINCT MaXe FROM HOP_DONG 
+    WHERE TrangThai IN (N'DangThue', N'ChoXacNhan')
+);
+
 INSERT INTO THANH_TOAN (MaHopDong, SoTien, PhuongThuc, LoaiThanhToan, TrangThai, MaNguoiNhanTien, GhiChu) VALUES
 (1, 3510000, N'TienMat',     N'ThanhToanCuoi', N'ThanhCong', 1,    N'Khach thanh toan khi nhan xe'),
 (2, 1000000, N'ChuyenKhoan', N'DatCoc',        N'ThanhCong', 1,    N'Dat coc 1 trieu truoc'),

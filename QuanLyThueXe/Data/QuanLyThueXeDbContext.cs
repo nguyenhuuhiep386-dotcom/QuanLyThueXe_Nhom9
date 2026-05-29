@@ -116,6 +116,10 @@ namespace QuanLyThueXe.Data
             modelBuilder.Entity<CauHinhHeThong>()
                 .HasIndex(c => c.TenKhoa)
                 .IsUnique();
+            // Báo cho EF Core biết bảng Hợp Đồng và Xe có Trigger ngầm trong SQL
+            modelBuilder.Entity<HopDong>().ToTable(tb => tb.HasTrigger("Trigger_HopDong"));
+            modelBuilder.Entity<Xe>().ToTable(tb => tb.HasTrigger("Trigger_Xe"));
+
         }
     }
 }
